@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "org.provim.animatedmobs.api.mixins",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "ClientboundSetPassengersPacketMixin",
+    "EntityAccessor"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
