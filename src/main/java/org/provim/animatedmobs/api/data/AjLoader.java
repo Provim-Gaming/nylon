@@ -28,8 +28,7 @@ public class AjLoader {
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .create();
 
-    public static AjModel require(EntityType<?> type) throws IllegalArgumentException, JsonParseException {
-        ResourceLocation id = EntityType.getKey(type);
+    public static AjModel require(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
         String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
 
         InputStream input = AjLoader.class.getResourceAsStream(path);

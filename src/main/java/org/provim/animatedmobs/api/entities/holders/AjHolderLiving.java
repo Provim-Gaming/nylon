@@ -4,29 +4,24 @@ import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.Pose;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
+import org.provim.animatedmobs.api.util.Util;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderInterface {
@@ -98,7 +93,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (Packet<ClientGamePacketListener> packet : this.updateClientHitbox(this.scaledSize)) {
+        for (Packet<ClientGamePacketListener> packet : Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)) {
             consumer.accept(packet);
         }
 
@@ -108,27 +103,6 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
 
         consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), this.hitboxInteraction.getEntityIds()));
         consumer.accept(VirtualEntityUtils.createRidePacket(this.getVehicleId(), this.getDisplayIds()));
-    }
-
-    public List<Packet<ClientGamePacketListener>> updateClientHitbox(Vector2f size) {
-        // Updates the dimensions and bounding box of the interaction hitbox on the client. Note that the hitbox's dimensions and the bounding box are two different things.
-        // - The bounding box is primarily used for detecting player attacks, interactions and rendering the hitbox.
-        // - The dimensions are used for certain other properties, such as the passenger riding height or the fire animation.
-        return List.of(
-                // We update the POSE in this packet, which makes the client refresh the hitbox's dimensions. This is done to:
-                // - Have the fire animation display correctly with the size of the entity when the entity is on fire.
-                // - Move the passenger riding height of the interaction up. This is raised to height * 1.325 to match the top of the hitbox.
-                new ClientboundSetEntityDataPacket(this.hitboxInteraction.getEntityId(), List.of(
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, size.y * 1.325F),
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.WIDTH, size.x),
-                        SynchedEntityData.DataValue.create(EntityTrackedData.POSE, Pose.STANDING)
-                )),
-                // Afterward, we send another packet that only updates the bounding box height back to its original value, without updating its dimensions.
-                // This lets us turn the attack hitbox back into the correct size whilst keeping the raised passenger riding height.
-                new ClientboundSetEntityDataPacket(this.hitboxInteraction.getEntityId(), List.of(
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, size.y)
-                ))
-        );
     }
 
     @Override
@@ -155,7 +129,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         if (scale != this.scale) {
             this.scale = scale;
             this.size.mul(this.scale, this.scaledSize);
-            this.sendPacket(new ClientboundBundlePacket(this.updateClientHitbox(this.scaledSize)));
+            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
         }
     }
 
