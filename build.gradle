@@ -1,6 +1,1 @@
 archivesBaseName = "${project.archives_base_name}-api-${rootProject.version}"
-
-dependencies {
-    modImplementation "eu.pb4:polymer-core:${project.polymer_version}"
-    modImplementation "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
-}

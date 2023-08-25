@@ -3,6 +3,8 @@ package org.provim.animatedmobs.api.data;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
@@ -10,10 +12,13 @@ import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.model.AjModel;
+import org.provim.animatedmobs.api.model.AjNode;
+import org.provim.animatedmobs.api.model.AjVariant;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.UUID;
 
 public class AjLoader {
     private static final Gson GSON = new GsonBuilder()
@@ -33,9 +38,38 @@ public class AjLoader {
         }
 
         try (Reader reader = new InputStreamReader(input)) {
-            return GSON.fromJson(reader, AjModel.class);
+            AjModel model = GSON.fromJson(reader, AjModel.class);
+            AjLoader.replaceModelData(model);
+            return model;
         } catch (Throwable throwable) {
             throw new JsonParseException("Failed to parse model: " + path, throwable);
+        }
+    }
+
+    private static void replaceModelData(AjModel ajModel) {
+        Item rigItem = ajModel.projectSettings().rigItem();
+
+        // Node models
+        Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = ajModel.rig().nodeMap();
+        for (UUID uuid : nodeMap.keySet()) {
+            nodeMap.computeIfPresent(uuid, ((id, node) -> new AjNode(
+                    node.type(),
+                    node.name(),
+                    node.uuid(),
+                    PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value(),
+                    node.resourceLocation()
+            )));
+        }
+
+        // Variant models
+        for (AjVariant variant : ajModel.variants().values()) {
+            Object2ObjectOpenHashMap<UUID, AjVariant.ModelInfo> models = variant.models();
+            for (UUID uuid : models.keySet()) {
+                models.computeIfPresent(uuid, ((id, model) -> new AjVariant.ModelInfo(
+                        PolymerResourcePackUtils.requestModel(rigItem, model.resourceLocation()).value(),
+                        model.resourceLocation()
+                )));
+            }
         }
     }
 }

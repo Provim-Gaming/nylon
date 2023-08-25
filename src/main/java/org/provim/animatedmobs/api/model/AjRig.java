@@ -8,7 +8,6 @@ import java.util.UUID;
 
 public record AjRig(
         @SerializedName("default_pose") ObjectArrayList<AjPose> defaultPose,
-        @SerializedName("node_structure") AjNodeStructure nodeStructure,
         @SerializedName("node_map") Object2ObjectOpenHashMap<UUID, AjNode> nodeMap
 ) {
     public AjPose getDefaultPose(UUID uuid) {

@@ -16,7 +16,7 @@ public record AjVariant(
 ) {
     public record ModelInfo(
             @SerializedName("custom_model_data") int customModelData,
-            @SerializedName("resource_location") ResourceLocation id
+            @SerializedName("resource_location") ResourceLocation resourceLocation
     ) {
     }
 }

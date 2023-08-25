@@ -5,7 +5,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 import java.util.UUID;
 
-@SuppressWarnings("unused")
 public record AjModel(
         @SerializedName("project_settings") AjProjectSettings projectSettings,
         @SerializedName("rig") AjRig rig,
