@@ -53,8 +53,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
 
     @Override
     public void onEntityDataLoaded() {
-        this.scale = this.parent.getScale();
-        this.size.mul(this.scale, this.scaledSize);
+        this.updateScale(this.parent.getScale());
         super.onEntityDataLoaded();
     }
 
@@ -114,7 +113,12 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         boolean isGlowing = this.parent.isCurrentlyGlowing();
         boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire());
 
-        this.updateScale();
+        float scale = this.parent.getScale();
+        if (scale != this.scale) {
+            this.updateScale(scale);
+            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+        }
+
         this.hitboxInteraction.setOnFire(displayFire);
         this.itemDisplays.forEach((uuid, element) -> {
             element.setGlowing(isGlowing);
@@ -124,12 +128,11 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         this.animationComponent.decreaseCounter();
     }
 
-    private void updateScale() {
-        float scale = this.parent.getScale();
-        if (scale != this.scale) {
-            this.scale = scale;
-            this.size.mul(this.scale, this.scaledSize);
-            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+    private void updateScale(float scale) {
+        this.scale = scale;
+        this.size.mul(this.scale, this.scaledSize);
+        for (ItemDisplayElement element : this.itemDisplays.values()) {
+            element.setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 
