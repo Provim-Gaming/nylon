@@ -25,6 +25,11 @@ public class AnimationComponent extends ComponentBase {
         this.currentAnimation = this.model.animations().get(currentAnimation);
     }
 
+    @Nullable
+    public AjAnimation getCurrentAnimation() {
+        return currentAnimation;
+    }
+
     public AjPose findCurrentAnimationPose(int tickCount, UUID uuid) {
         if (this.currentAnimation == null || this.currentAnimation.frames().isEmpty()) {
             return null;
