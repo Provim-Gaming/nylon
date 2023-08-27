@@ -26,11 +26,12 @@ import org.provim.animatedmobs.api.util.Util;
 import java.util.function.Consumer;
 
 public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderInterface {
-    private final ReferenceOpenHashSet<ItemDisplayElement> headElements = new ReferenceOpenHashSet<>();
+    private final ReferenceOpenHashSet<DisplayElement> headElements = new ReferenceOpenHashSet<>();
     private final InteractionElement hitboxInteraction;
     private final Vector2f scaledSize;
     private float deathAngle;
     private float scale;
+    private boolean isGlowing;
 
     public AjHolderLiving(LivingEntity parent, AjModel model) {
         super(parent, model);
@@ -111,23 +112,30 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
         }
 
-        boolean isGlowing = this.parent.isCurrentlyGlowing();
-        boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire());
-
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
             this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
         }
 
+        boolean isGlowing = this.parent.isCurrentlyGlowing();
+        if (isGlowing != this.isGlowing) {
+            this.updateGlow(isGlowing);
+        }
+
+        this.hitboxInteraction.setOnFire(
+                !this.parent.fireImmune() &&
+                (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire())
+        );
+
         super.updateElements();
+    }
 
-        this.hitboxInteraction.setOnFire(displayFire);
-        this.itemDisplays.forEach((uuid, element) -> {
-            element.setGlowing(isGlowing);
-        });
-
-        this.animationComponent.decreaseCounter();
+    private void updateGlow(boolean isGlowing) {
+        this.isGlowing = isGlowing;
+        for (ItemDisplayElement element : this.itemDisplays.values()) {
+            element.setGlowing(this.isGlowing);
+        }
     }
 
     private void updateScale(float scale) {

@@ -1,6 +1,6 @@
 package org.provim.animatedmobs.api.util;
 
-import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
+import eu.pb4.polymer.virtualentity.api.elements.*;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import net.minecraft.network.protocol.Packet;
@@ -8,7 +8,10 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Pose;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
+import org.provim.animatedmobs.api.model.AjModel;
+import org.provim.animatedmobs.api.model.AjNode;
 
 import java.util.List;
 
@@ -32,5 +35,21 @@ public class Util {
                         SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, size.y)
                 ))
         );
+    }
+
+    @Nullable
+    public static DisplayElement toDisplayElement(AjModel model, AjNode node) {
+        // noinspection ConstantConditions
+        return switch (node.entityType().getPath()) {
+            case "item_display" -> new ItemDisplayElement();
+            case "block_display" -> new BlockDisplayElement();
+            case "text_display" -> {
+                TextDisplayElement element = new TextDisplayElement();
+                element.setTransformation(model.rig().getDefaultPose(node.uuid()).getMatrix());
+                element.setInvisible(true);
+                yield element;
+            }
+            default -> null;
+        };
     }
 }

@@ -11,8 +11,7 @@ public record AjNode(
         UUID uuid,
         @SerializedName("custom_model_data") int customModelData,
         @SerializedName("resource_location") ResourceLocation resourceLocation,
-
-        @SerializedName("entity_type") String entityType
+        @SerializedName("entity_type") ResourceLocation entityType
 ) {
     public enum NodeType {
         bone, locator

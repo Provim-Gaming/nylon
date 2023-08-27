@@ -3,10 +3,8 @@ package org.provim.animatedmobs.api.entities.holders;
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -30,8 +28,8 @@ import org.provim.animatedmobs.api.model.AjPose;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
 import org.provim.animatedmobs.api.model.component.PoseComponent;
 import org.provim.animatedmobs.api.model.component.VariantComponent;
+import org.provim.animatedmobs.api.util.Util;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -54,12 +52,13 @@ public class AjHolder<T extends Entity> extends ElementHolder implements AjHolde
         this.poseComponent = new PoseComponent(model);
         this.variantComponent = new VariantComponent(model);
 
-        this.setupElements(model);
+        this.setupBoneElements(model);
         this.setupAdditionalElements(model);
     }
 
-    protected void setupElements(AjModel model) {
+    protected void setupBoneElements(AjModel model) {
         Item rigItem = model.projectSettings().rigItem();
+
         model.rig().nodeMap().forEach((key, node) -> {
             if (node.type() == AjNode.NodeType.bone) {
                 ItemDisplayElement element = new ItemDisplayElement();
@@ -83,20 +82,9 @@ public class AjHolder<T extends Entity> extends ElementHolder implements AjHolde
     }
 
     protected void setupAdditionalElements(AjModel model) {
-        Item rigItem = model.projectSettings().rigItem();
         model.rig().nodeMap().forEach((key, node) -> {
             if (node.type() == AjNode.NodeType.locator) {
-                DisplayElement displayElement = null;
-                switch (node.entityType().substring(10)) {
-                    case "item_display" -> displayElement = new ItemDisplayElement();
-                    case "block_display" -> displayElement = new BlockDisplayElement();
-                    case "text_display" -> {
-                        displayElement = new TextDisplayElement();
-                        displayElement.setTransformation(model.rig().getDefaultPose(node.uuid()).getMatrix());
-                        displayElement.setInvisible(true);
-                    }
-                }
-
+                DisplayElement displayElement = Util.toDisplayElement(model, node);
                 if (displayElement != null) {
                     displayElement.setInterpolationDuration(0);
                     this.addElement(displayElement);
@@ -109,12 +97,11 @@ public class AjHolder<T extends Entity> extends ElementHolder implements AjHolde
     @Override
     @Nullable
     public DisplayElement getAdditionalDisplayNamed(String name) {
-        for (Map.Entry<AjNode, DisplayElement> set : additionalDisplays.entrySet()) {
-            if (set.getKey().name().equals(name)) {
-                return set.getValue();
+        for (AjNode node : this.additionalDisplays.keySet()) {
+            if (node.name().equals(name)) {
+                return this.additionalDisplays.get(node);
             }
         }
-
         return null;
     }
 
@@ -187,18 +174,19 @@ public class AjHolder<T extends Entity> extends ElementHolder implements AjHolde
     @Override
     public void updateElements() {
         this.itemDisplays.forEach(this::updateElement);
-        this.additionalDisplays.forEach((key,val) -> this.updateElement(key.uuid(),val));
+        this.additionalDisplays.forEach((node, element) -> this.updateElement(node.uuid(), element));
         this.animationComponent.decreaseCounter();
     }
 
     @Override
     public int[] getDisplayIds() {
-        int[] displays = new int[this.itemDisplays.size()+this.additionalDisplays.size()];
+        int[] displays = new int[this.itemDisplays.size() + this.additionalDisplays.size()];
 
         int index = 0;
         for (ItemDisplayElement element : this.itemDisplays.values()) {
             displays[index++] = element.getEntityId();
         }
+
         for (DisplayElement element : this.additionalDisplays.values()) {
             displays[index++] = element.getEntityId();
         }
