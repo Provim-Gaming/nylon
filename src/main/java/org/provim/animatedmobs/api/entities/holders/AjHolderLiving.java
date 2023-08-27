@@ -2,6 +2,7 @@ package org.provim.animatedmobs.api.entities.holders;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
+import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
@@ -58,7 +59,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     }
 
     @Override
-    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, ItemDisplayElement element) {
+    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, DisplayElement element) {
         Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
@@ -119,10 +120,11 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
             this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
         }
 
+        super.updateElements();
+
         this.hitboxInteraction.setOnFire(displayFire);
         this.itemDisplays.forEach((uuid, element) -> {
             element.setGlowing(isGlowing);
-            this.updateElement(uuid, element);
         });
 
         this.animationComponent.decreaseCounter();

@@ -10,7 +10,7 @@ public record AjAnimation(
         @SerializedName("loop_mode") LoopMode loopMode
 ) {
     public enum LoopMode {
-        ONCE, LOOP
+        once, loop
     }
 
     public record AjFrame(

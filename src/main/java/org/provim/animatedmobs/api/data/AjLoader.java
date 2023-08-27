@@ -7,7 +7,6 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
@@ -18,6 +17,7 @@ import org.provim.animatedmobs.api.model.AjVariant;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Map;
 import java.util.UUID;
 
 public class AjLoader {
@@ -50,14 +50,17 @@ public class AjLoader {
 
         // Node models
         Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = ajModel.rig().nodeMap();
-        for (UUID uuid : nodeMap.keySet()) {
-            nodeMap.computeIfPresent(uuid, ((id, node) -> new AjNode(
-                    node.type(),
-                    node.name(),
-                    node.uuid(),
-                    PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value(),
-                    node.resourceLocation()
-            )));
+        for (Map.Entry<UUID, AjNode> entry : nodeMap.entrySet()) {
+            if (entry.getValue().type() == AjNode.NodeType.bone) {
+                nodeMap.computeIfPresent(entry.getKey(), ((id, node) -> new AjNode(
+                        node.type(),
+                        node.name(),
+                        node.uuid(),
+                        PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value(),
+                        node.resourceLocation(),
+                        node.entityType()
+                )));
+            }
         }
 
         // Variant models
