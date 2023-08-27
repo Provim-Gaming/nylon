@@ -79,24 +79,6 @@ public class AjHolder<T extends Entity> extends ElementHolder implements AjHolde
                 element.setItem(itemStack);
                 this.itemDisplays.put(node.uuid(), element);
             }
-            else if (node.type() == AjNode.NodeType.locator) {
-                DisplayElement displayElement = null;
-                switch (node.entityType().substring(10)) {
-                    case "item_display" -> displayElement = new ItemDisplayElement();
-                    case "block_display" -> displayElement = new BlockDisplayElement();
-                    case "text_display" -> {
-                        displayElement = new TextDisplayElement();
-                        displayElement.setTransformation(model.rig().getDefaultPose(node.uuid()).getMatrix());
-                        displayElement.setInvisible(true);
-                    }
-                }
-
-                if (displayElement != null) {
-                    displayElement.setInterpolationDuration(0);
-                    this.addElement(displayElement);
-                    this.additionalDisplays.put(node, displayElement);
-                }
-            }
         });
     }
 
