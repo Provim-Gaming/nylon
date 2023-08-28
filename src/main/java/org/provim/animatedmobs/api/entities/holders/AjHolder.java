@@ -43,8 +43,8 @@ public class AjHolder<T extends Entity> extends AbstractAjHolder<T> {
                 ItemDisplayElement element = new FastItemDisplayElement();
                 element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
                 element.setModelTransformation(ItemDisplayContext.FIXED);
+                element.setTransformation(model.rig().getDefaultPose(node.uuid()).matrix());
                 element.setInterpolationDuration(2);
-                element.setScale(new Vector3f(0.001f));
                 this.addElement(element);
 
                 AjPose pose = model.rig().getDefaultPose(key);
@@ -65,6 +65,7 @@ public class AjHolder<T extends Entity> extends AbstractAjHolder<T> {
             if (node.type() == AjNode.NodeType.locator) {
                 DisplayElement displayElement = Util.toDisplayElement(model, node);
                 if (displayElement != null) {
+                    displayElement.setTransformation(model.rig().getDefaultPose(node.uuid()).matrix());
                     displayElement.setInterpolationDuration(2);
                     this.addElement(displayElement);
                     this.additionalDisplays.put(node, displayElement);
