@@ -32,6 +32,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     private float deathAngle;
     private float scale;
     private boolean isGlowing;
+    private boolean displayFire;
 
     public AjHolderLiving(LivingEntity parent, AjModel model) {
         super(parent, model);
@@ -66,8 +67,8 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
         }
 
-        Vector3f scale = new Vector3f(transform.scale()).mul(this.scale);
-        Vector3f translation = transform.pos().rotate(bodyRotation).mul(this.scale).add(0, -this.scaledSize.y + 0.0125f, 0);
+        Vector3f scale = transform.scale().mul(this.scale);
+        Vector3f translation = transform.translation().rotate(bodyRotation).mul(this.scale).add(0, -this.scaledSize.y + 0.0125f, 0);
         Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();
 
         if (this.headElements.contains(element)) {
@@ -75,19 +76,13 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
             bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
         }
 
-        if (!element.getScale().equals(scale) ||
-            !element.getLeftRotation().equals(bodyRotation) ||
-            !element.getRightRotation().equals(rightRotation) ||
-            !element.getTranslation().equals(translation)
-        ) {
-            element.startInterpolation();
-            element.setInterpolationDuration(2);
+        // Update data tracker values
+        element.setTranslation(translation);
+        element.setRightRotation(rightRotation);
+        element.setScale(scale);
+        element.setLeftRotation(bodyRotation);
 
-            element.setTranslation(translation);
-            element.setRightRotation(rightRotation);
-            element.setScale(scale);
-            element.setLeftRotation(bodyRotation);
-        }
+        element.startInterpolation();
     }
 
     @Override
@@ -107,15 +102,24 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     }
 
     @Override
+    public int getVehicleId() {
+        return this.hitboxInteraction.getEntityId();
+    }
+
+    @Override
     public void updateElements() {
         if (this.parent.deathTime > 0) {
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
         }
 
-        float scale = this.parent.getScale();
-        if (scale != this.scale) {
-            this.updateScale(scale);
-            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+        this.updateTrackedData();
+        super.updateElements();
+    }
+
+    private void updateTrackedData() {
+        boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire());
+        if (displayFire != this.displayFire) {
+            this.updateFire(displayFire);
         }
 
         boolean isGlowing = this.parent.isCurrentlyGlowing();
@@ -123,18 +127,22 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
             this.updateGlow(isGlowing);
         }
 
-        this.hitboxInteraction.setOnFire(
-                !this.parent.fireImmune() &&
-                (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire())
-        );
+        float scale = this.parent.getScale();
+        if (scale != this.scale) {
+            this.updateScale(scale);
+            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+        }
+    }
 
-        super.updateElements();
+    private void updateFire(boolean displayFire) {
+        this.displayFire = displayFire;
+        this.hitboxInteraction.setOnFire(displayFire);
     }
 
     private void updateGlow(boolean isGlowing) {
         this.isGlowing = isGlowing;
         for (ItemDisplayElement element : this.itemDisplays.values()) {
-            element.setGlowing(this.isGlowing);
+            element.setGlowing(isGlowing);
         }
     }
 
@@ -144,10 +152,5 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         for (ItemDisplayElement element : this.itemDisplays.values()) {
             element.setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
-    }
-
-    @Override
-    public int getVehicleId() {
-        return this.hitboxInteraction.getEntityId();
     }
 }

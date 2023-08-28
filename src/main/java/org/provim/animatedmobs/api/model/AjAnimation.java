@@ -19,7 +19,7 @@ public record AjAnimation(
     ) {
         public AjPose findPose(UUID uuid) {
             for (AjPose pose : this.poses) {
-                if (pose.getUuid().equals(uuid)) {
+                if (pose.uuid().equals(uuid)) {
                     return pose;
                 }
             }

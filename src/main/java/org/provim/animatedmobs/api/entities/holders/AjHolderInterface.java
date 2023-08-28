@@ -6,12 +6,9 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import java.util.UUID;
 
 public interface AjHolderInterface {
+    ItemDisplayElement getItemDisplayElement(UUID elementUuid);
 
-    void updateElements();
-
-    ItemDisplayElement getItemDisplayElement(UUID elementUUID);
-
-    public DisplayElement getAdditionalDisplayNamed(String name);
+    DisplayElement getAdditionalDisplayNamed(String name);
 
     int[] getDisplayIds();
 

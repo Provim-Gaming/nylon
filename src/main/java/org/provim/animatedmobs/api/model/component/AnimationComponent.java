@@ -25,11 +25,6 @@ public class AnimationComponent extends ComponentBase {
         this.currentAnimation = this.model.animations().get(currentAnimation);
     }
 
-    @Nullable
-    public AjAnimation getCurrentAnimation() {
-        return currentAnimation;
-    }
-
     public AjPose findCurrentAnimationPose(int tickCount, UUID uuid) {
         if (this.currentAnimation == null || this.currentAnimation.frames().isEmpty()) {
             return null;
@@ -39,7 +34,7 @@ public class AnimationComponent extends ComponentBase {
         AjAnimation.AjFrame currentFrame = this.currentAnimation.frames().get(index);
         AjPose pose = currentFrame.findPose(uuid);
         if (pose == null) {
-            pose = lastAvailable(uuid, index);
+            pose = this.lastAvailable(uuid, index);
         }
         return pose;
     }
@@ -79,10 +74,10 @@ public class AnimationComponent extends ComponentBase {
     }
 
     public AnimationTransform getInterpolatedAnimationTransform(AjPose pose) {
-        Vector3f pos = pose.getPos();
-        Quaternionf rightRotation = pose.getRot();
-        Vector3f scale = pose.getScale();
-        return new AnimationTransform(pos, rightRotation, scale);
+        Vector3f translation = pose.translation();
+        Quaternionf rightRotation = pose.rotation();
+        Vector3f scale = pose.scale();
+        return new AnimationTransform(translation, rightRotation, scale);
     }
 
     public void decreaseCounter() {
@@ -93,6 +88,6 @@ public class AnimationComponent extends ComponentBase {
         }
     }
 
-    public record AnimationTransform(Vector3f pos, Quaternionf rot, Vector3f scale) {
+    public record AnimationTransform(Vector3f translation, Quaternionf rot, Vector3f scale) {
     }
 }

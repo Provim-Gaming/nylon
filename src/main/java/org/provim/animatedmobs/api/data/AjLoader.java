@@ -12,6 +12,7 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
+import org.provim.animatedmobs.api.model.AjPose;
 import org.provim.animatedmobs.api.model.AjVariant;
 
 import java.io.InputStream;
@@ -22,6 +23,7 @@ import java.util.UUID;
 
 public class AjLoader {
     private static final Gson GSON = new GsonBuilder()
+            .registerTypeAdapter(AjPose.class, new AjPose.Deserializer())
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())

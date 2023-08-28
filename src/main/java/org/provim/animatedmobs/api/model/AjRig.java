@@ -12,7 +12,7 @@ public record AjRig(
 ) {
     public AjPose getDefaultPose(UUID uuid) {
         for (AjPose pose : this.defaultPose) {
-            if (pose.getUuid().equals(uuid)) {
+            if (pose.uuid().equals(uuid)) {
                 return pose;
             }
         }
