@@ -18,7 +18,7 @@ public record AjFrame(
             float time = context.deserialize(object.get("time"), float.class);
             AjPose[] nodes = context.deserialize(object.get("nodes"), AjPose[].class);
 
-            Object2ObjectOpenHashMap<UUID, AjPose> nodeMap = new Object2ObjectOpenHashMap<>();
+            Object2ObjectOpenHashMap<UUID, AjPose> nodeMap = new Object2ObjectOpenHashMap<>(nodes.length);
             for (AjPose pose : nodes) {
                 nodeMap.put(pose.uuid(), pose);
             }

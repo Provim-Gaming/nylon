@@ -1,8 +1,6 @@
 package org.provim.animatedmobs.api.util;
 
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
-import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import net.minecraft.network.protocol.Packet;
@@ -10,17 +8,11 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Pose;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
-import org.provim.animatedmobs.api.entities.holders.elements.FastBlockDisplayElement;
-import org.provim.animatedmobs.api.entities.holders.elements.FastItemDisplayElement;
-import org.provim.animatedmobs.api.entities.holders.elements.FastTextDisplayElement;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
 
 import java.util.List;
 
-public class Util {
+public class Utils {
 
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size) {
         // Updates the dimensions and bounding box of the interaction on the client. Note that the interactions dimensions and bounding box are two different things.
@@ -40,25 +32,5 @@ public class Util {
                         SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, size.y)
                 ))
         );
-    }
-
-    @Nullable
-    public static DisplayElement toDisplayElement(AjNode node, AjPose defaultPose) {
-        if (node.entityType() == null) {
-            return null;
-        }
-
-        return switch (node.entityType().getPath()) {
-            case "item_display" -> new FastItemDisplayElement();
-            case "block_display" -> new FastBlockDisplayElement();
-            case "text_display" -> {
-                TextDisplayElement element = new FastTextDisplayElement();
-                element.setTransformation(defaultPose.matrix());
-                element.setInvisible(true);
-                element.setBackground(0);
-                yield element;
-            }
-            default -> null;
-        };
     }
 }

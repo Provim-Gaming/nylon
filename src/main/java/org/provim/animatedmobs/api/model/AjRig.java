@@ -19,7 +19,7 @@ public record AjRig(
             Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = context.deserialize(object.get("node_map"), new TypeToken<Object2ObjectOpenHashMap<UUID, AjNode>>() {}.getType());
             AjPose[] defaultPoses = context.deserialize(object.get("default_pose"), AjPose[].class);
 
-            Object2ObjectOpenHashMap<UUID, AjPose> defaultPoseMap = new Object2ObjectOpenHashMap<>();
+            Object2ObjectOpenHashMap<UUID, AjPose> defaultPoseMap = new Object2ObjectOpenHashMap<>(defaultPoses.length);
             for (AjPose pose : defaultPoses) {
                 defaultPoseMap.put(pose.uuid(), pose);
             }

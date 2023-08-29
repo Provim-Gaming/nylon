@@ -8,6 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjVariant;
+import org.provim.animatedmobs.api.util.WrappedDisplay;
 
 import java.util.Map;
 import java.util.UUID;
@@ -20,17 +21,17 @@ public class VariantComponent extends ComponentBase {
         super(model);
     }
 
-    public void applyDefaultVariant(Map<UUID, ItemDisplayElement> itemDisplays) {
+    public void applyDefaultVariant(WrappedDisplay<ItemDisplayElement>[] bones) {
         if (this.currentVariant != null) {
-            itemDisplays.forEach((uuid, element) -> {
-                AjNode node = this.model.rig().nodeMap().get(uuid);
-                this.updateItem(element, node.customModelData());
-            });
+            for (WrappedDisplay<ItemDisplayElement> bone : bones) {
+                AjNode node = this.model.rig().nodeMap().get(bone.node().uuid());
+                this.updateItem(bone.element(), node.customModelData());
+            }
             this.currentVariant = null;
         }
     }
 
-    public void applyVariant(String variantName, Map<UUID, ItemDisplayElement> itemDisplays) {
+    public void applyVariant(String variantName, WrappedDisplay<ItemDisplayElement>[] bones) {
         if (this.currentVariant != null && this.currentVariant.name().equals(variantName)) {
             return;
         }
@@ -42,12 +43,12 @@ public class VariantComponent extends ComponentBase {
         }
 
         if (this.currentVariant != null) {
-            itemDisplays.forEach((uuid, element) -> {
-                AjVariant.ModelInfo modelInfo = this.currentVariant.models().get(uuid);
+            for (WrappedDisplay<ItemDisplayElement> bone : bones) {
+                AjVariant.ModelInfo modelInfo = this.currentVariant.models().get(bone.node().uuid());
                 if (modelInfo != null) {
-                    this.updateItem(element, modelInfo.customModelData());
+                    this.updateItem(bone.element(), modelInfo.customModelData());
                 }
-            });
+            }
         }
     }
 

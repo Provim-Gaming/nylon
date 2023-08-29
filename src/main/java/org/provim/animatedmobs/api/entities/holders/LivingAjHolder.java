@@ -5,7 +5,6 @@ import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
@@ -20,14 +19,13 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
-import org.provim.animatedmobs.api.util.Util;
+import org.provim.animatedmobs.api.util.Utils;
+import org.provim.animatedmobs.api.util.WrappedDisplay;
 
 import java.util.function.Consumer;
 
-public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderInterface {
-    private final ReferenceOpenHashSet<DisplayElement> headElements = new ReferenceOpenHashSet<>();
+public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private final InteractionElement hitboxInteraction;
     private final Vector2f scaledSize;
     private float deathAngle;
@@ -35,21 +33,19 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     private boolean isGlowing;
     private boolean displayFire;
 
-    public AjHolderLiving(LivingEntity parent, AjModel model) {
-        super(parent, model);
+    public LivingAjHolder(LivingEntity parent, AjModel model) {
+        this(parent, model, false);
+    }
+
+    public LivingAjHolder(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
+        super(parent, model, updateElementsAsync);
         this.scaledSize = new Vector2f(this.size);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
         this.addElement(this.hitboxInteraction);
 
-        for (AjNode node : model.rig().nodeMap().values()) {
-            if (node.name().startsWith("head")) {
-                this.headElements.add(this.itemDisplays.get(node.uuid()));
-            }
-        }
-
-        if (!this.itemDisplays.isEmpty()) {
-            ItemDisplayElement element = this.itemDisplays.values().iterator().next();
+        if (this.bones.length > 0) {
+            ItemDisplayElement element = this.bones[0].element();
             element.setShadowRadius(this.size.x / 2.f);
             element.setShadowStrength(0.8f);
         }
@@ -62,35 +58,40 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
     }
 
     @Override
-    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, DisplayElement element) {
+    public <V extends DisplayElement> void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<V> wrapped) {
         Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
         }
 
-        Vector3f scale = transform.scale().mul(this.scale);
-        Vector3f translation = transform.translation().rotate(bodyRotation).mul(this.scale).add(0, -this.scaledSize.y + 0.0125f, 0);
-        Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+        Vector3f scale = transform.scale();
+        Vector3f translation = transform.translation().rotate(bodyRotation);
+        if (this.scale != 1.0f) {
+            translation.mul(this.scale);
+            scale.mul(this.scale);
+        }
+        translation.add(0, -this.scaledSize.y + 0.0125f, 0);
 
-        if (this.headElements.contains(element)) {
+        Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+        if (wrapped.isHead()) {
             bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
             bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
         }
 
         // Update data tracker values
-        element.setTranslation(translation);
-        element.setRightRotation(rightRotation);
-        element.setScale(scale);
-        element.setLeftRotation(bodyRotation);
+        wrapped.setTranslation(translation);
+        wrapped.setRightRotation(rightRotation);
+        wrapped.setScale(scale);
+        wrapped.setLeftRotation(bodyRotation);
 
-        element.startInterpolation();
+        wrapped.startInterpolation();
     }
 
     @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (Packet<ClientGamePacketListener> packet : Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)) {
+        for (Packet<ClientGamePacketListener> packet : Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)) {
             consumer.accept(packet);
         }
 
@@ -131,7 +132,7 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
-            this.sendPacket(new ClientboundBundlePacket(Util.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+            this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
         }
     }
 
@@ -142,16 +143,16 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
 
     private void updateGlow(boolean isGlowing) {
         this.isGlowing = isGlowing;
-        for (ItemDisplayElement element : this.itemDisplays.values()) {
-            element.setGlowing(isGlowing);
+        for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
+            wrapped.element().setGlowing(isGlowing);
         }
     }
 
     private void updateScale(float scale) {
         this.scale = scale;
         this.size.mul(this.scale, this.scaledSize);
-        for (ItemDisplayElement element : this.itemDisplays.values()) {
-            element.setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
+        for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
+            wrapped.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 }

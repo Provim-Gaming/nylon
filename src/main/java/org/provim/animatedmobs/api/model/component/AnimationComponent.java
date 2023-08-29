@@ -27,12 +27,12 @@ public class AnimationComponent extends ComponentBase {
     }
 
     public AjPose findCurrentAnimationPose(int tickCount, UUID uuid) {
-        if (this.currentAnimation == null || this.currentAnimation.frames().isEmpty()) {
+        if (this.currentAnimation == null || this.currentAnimation.frames().length == 0) {
             return null;
         }
 
-        int index = (tickCount / 2) % (this.currentAnimation.frames().size() - 1);
-        AjFrame currentFrame = this.currentAnimation.frames().get(index);
+        int index = (tickCount / 2) % (this.currentAnimation.frames().length - 1);
+        AjFrame currentFrame = this.currentAnimation.frames()[index];
         AjPose pose = currentFrame.nodes().get(uuid);
         if (pose == null) {
             pose = this.lastAvailable(uuid, index);
@@ -42,8 +42,8 @@ public class AnimationComponent extends ComponentBase {
 
     private AjPose lastAvailable(UUID uuid, int currentIndex) {
         if (this.currentAnimation != null) {
-            for (int i = currentIndex - 1; i >= 0; i--) {
-                AjFrame frame = this.currentAnimation.frames().get(i);
+            for (int index = currentIndex - 1; index >= 0; index--) {
+                AjFrame frame = this.currentAnimation.frames()[index];
                 AjPose pose = frame.nodes().get(uuid);
                 if (pose != null) {
                     return pose;
@@ -62,15 +62,15 @@ public class AnimationComponent extends ComponentBase {
             return null;
         }
 
-        int index = this.extraAnimation.frames().size() - this.extraAnimationTicks;
-        AjFrame currentFrame = this.extraAnimation.frames().get(index);
+        int index = this.extraAnimation.frames().length - this.extraAnimationTicks;
+        AjFrame currentFrame = this.extraAnimation.frames()[index];
         return currentFrame.nodes().get(uuid);
     }
 
     public void startExtraAnimation(String animationName) {
         this.extraAnimation = this.model.animations().get(animationName);
         if (this.extraAnimation != null) {
-            this.extraAnimationTicks = this.extraAnimation.frames().size() - 1;
+            this.extraAnimationTicks = this.extraAnimation.frames().length - 1;
         }
     }
 

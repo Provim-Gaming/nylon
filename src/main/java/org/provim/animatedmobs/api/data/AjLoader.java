@@ -15,7 +15,6 @@ import org.provim.animatedmobs.api.model.*;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Map;
 import java.util.UUID;
 
 public class AjLoader {
@@ -47,11 +46,11 @@ public class AjLoader {
         }
     }
 
-    private static void replaceModelData(AjModel ajModel) {
-        Item rigItem = ajModel.projectSettings().rigItem();
+    private static void replaceModelData(AjModel model) {
+        Item rigItem = model.projectSettings().rigItem();
 
         // Node models
-        Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = ajModel.rig().nodeMap();
+        Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = model.rig().nodeMap();
         for (AjNode entry : nodeMap.values()) {
             if (entry.type() == AjNode.NodeType.bone) {
                 nodeMap.computeIfPresent(entry.uuid(), ((id, node) -> new AjNode(
@@ -66,12 +65,12 @@ public class AjLoader {
         }
 
         // Variant models
-        for (AjVariant variant : ajModel.variants().values()) {
+        for (AjVariant variant : model.variants().values()) {
             Object2ObjectOpenHashMap<UUID, AjVariant.ModelInfo> models = variant.models();
             for (UUID uuid : models.keySet()) {
-                models.computeIfPresent(uuid, ((id, model) -> new AjVariant.ModelInfo(
-                        PolymerResourcePackUtils.requestModel(rigItem, model.resourceLocation()).value(),
-                        model.resourceLocation()
+                models.computeIfPresent(uuid, ((id, modelInfo) -> new AjVariant.ModelInfo(
+                        PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value(),
+                        modelInfo.resourceLocation()
                 )));
             }
         }
