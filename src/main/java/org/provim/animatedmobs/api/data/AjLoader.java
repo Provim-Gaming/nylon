@@ -10,10 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
-import org.provim.animatedmobs.api.model.AjVariant;
+import org.provim.animatedmobs.api.model.*;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -24,6 +21,9 @@ import java.util.UUID;
 public class AjLoader {
     private static final Gson GSON = new GsonBuilder()
             .registerTypeAdapter(AjPose.class, new AjPose.Deserializer())
+            .registerTypeAdapter(AjFrame.class, new AjFrame.Deserializer())
+            .registerTypeAdapter(AjRig.class, new AjRig.Deserializer())
+
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
@@ -52,9 +52,9 @@ public class AjLoader {
 
         // Node models
         Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = ajModel.rig().nodeMap();
-        for (Map.Entry<UUID, AjNode> entry : nodeMap.entrySet()) {
-            if (entry.getValue().type() == AjNode.NodeType.bone) {
-                nodeMap.computeIfPresent(entry.getKey(), ((id, node) -> new AjNode(
+        for (AjNode entry : nodeMap.values()) {
+            if (entry.type() == AjNode.NodeType.bone) {
+                nodeMap.computeIfPresent(entry.uuid(), ((id, node) -> new AjNode(
                         node.type(),
                         node.name(),
                         node.uuid(),

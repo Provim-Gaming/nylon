@@ -1,21 +1,30 @@
 package org.provim.animatedmobs.api.model;
 
-import com.google.gson.annotations.SerializedName;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
+import java.lang.reflect.Type;
 import java.util.UUID;
 
 public record AjRig(
-        @SerializedName("default_pose") ObjectArrayList<AjPose> defaultPose,
-        @SerializedName("node_map") Object2ObjectOpenHashMap<UUID, AjNode> nodeMap
+        Object2ObjectOpenHashMap<UUID, AjNode> nodeMap,
+        Object2ObjectOpenHashMap<UUID, AjPose> defaultPose
 ) {
-    public AjPose getDefaultPose(UUID uuid) {
-        for (AjPose pose : this.defaultPose) {
-            if (pose.uuid().equals(uuid)) {
-                return pose;
+    public static class Deserializer implements JsonDeserializer<AjRig> {
+        @Override
+        public AjRig deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+            JsonObject object = jsonElement.getAsJsonObject();
+
+            Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = context.deserialize(object.get("node_map"), new TypeToken<Object2ObjectOpenHashMap<UUID, AjNode>>() {}.getType());
+            AjPose[] defaultPoses = context.deserialize(object.get("default_pose"), AjPose[].class);
+
+            Object2ObjectOpenHashMap<UUID, AjPose> defaultPoseMap = new Object2ObjectOpenHashMap<>();
+            for (AjPose pose : defaultPoses) {
+                defaultPoseMap.put(pose.uuid(), pose);
             }
+
+            return new AjRig(nodeMap, defaultPoseMap);
         }
-        return null;
     }
 }

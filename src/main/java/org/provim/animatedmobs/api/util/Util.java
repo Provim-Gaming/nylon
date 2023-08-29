@@ -15,7 +15,6 @@ import org.joml.Vector2f;
 import org.provim.animatedmobs.api.entities.holders.elements.FastBlockDisplayElement;
 import org.provim.animatedmobs.api.entities.holders.elements.FastItemDisplayElement;
 import org.provim.animatedmobs.api.entities.holders.elements.FastTextDisplayElement;
-import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 
@@ -44,18 +43,17 @@ public class Util {
     }
 
     @Nullable
-    public static DisplayElement toDisplayElement(AjModel model, AjNode node) {
-        // noinspection ConstantConditions
+    public static DisplayElement toDisplayElement(AjNode node, AjPose defaultPose) {
+        if (node.entityType() == null) {
+            return null;
+        }
+
         return switch (node.entityType().getPath()) {
             case "item_display" -> new FastItemDisplayElement();
             case "block_display" -> new FastBlockDisplayElement();
             case "text_display" -> {
                 TextDisplayElement element = new FastTextDisplayElement();
-                AjPose pose = model.rig().getDefaultPose(node.uuid());
-                if (pose != null) {
-                    element.setTransformation(pose.matrix());
-                }
-
+                element.setTransformation(defaultPose.matrix());
                 element.setInvisible(true);
                 element.setBackground(0);
                 yield element;

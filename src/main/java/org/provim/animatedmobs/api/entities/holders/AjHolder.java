@@ -15,6 +15,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.entities.holders.elements.FastItemDisplayElement;
@@ -38,17 +39,15 @@ public class AjHolder<T extends Entity> extends AbstractAjHolder<T> {
     protected void setupBoneElements(AjModel model) {
         Item rigItem = model.projectSettings().rigItem();
 
-        model.rig().nodeMap().forEach((key, node) -> {
+        for (AjNode node : model.rig().nodeMap().values()) {
             if (node.type() == AjNode.NodeType.bone) {
+                AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
                 ItemDisplayElement element = new FastItemDisplayElement();
                 element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
                 element.setModelTransformation(ItemDisplayContext.FIXED);
-                element.setTransformation(model.rig().getDefaultPose(node.uuid()).matrix());
+                element.setTransformation(defaultPose.matrix());
                 element.setInterpolationDuration(2);
                 this.addElement(element);
-
-                AjPose pose = model.rig().getDefaultPose(key);
-                this.poseComponent.putDefault(element, pose);
 
                 ItemStack itemStack = new ItemStack(rigItem);
                 CompoundTag tag = itemStack.getOrCreateTag();
@@ -56,22 +55,24 @@ public class AjHolder<T extends Entity> extends AbstractAjHolder<T> {
 
                 element.setItem(itemStack);
                 this.itemDisplays.put(node.uuid(), element);
+                this.poseComponent.putDefault(element, defaultPose);
             }
-        });
+        }
     }
 
     protected void setupAdditionalElements(AjModel model) {
-        model.rig().nodeMap().forEach((key, node) -> {
+        for (AjNode node : model.rig().nodeMap().values()) {
             if (node.type() == AjNode.NodeType.locator) {
-                DisplayElement displayElement = Util.toDisplayElement(model, node);
+                AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
+                DisplayElement displayElement = Util.toDisplayElement(node, defaultPose);
                 if (displayElement != null) {
-                    displayElement.setTransformation(model.rig().getDefaultPose(node.uuid()).matrix());
+                    displayElement.setTransformation(defaultPose.matrix());
                     displayElement.setInterpolationDuration(2);
                     this.addElement(displayElement);
                     this.additionalDisplays.put(node, displayElement);
                 }
             }
-        });
+        }
     }
 
     @Override

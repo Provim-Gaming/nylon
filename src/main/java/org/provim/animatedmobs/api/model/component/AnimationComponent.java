@@ -4,6 +4,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.model.AjAnimation;
+import org.provim.animatedmobs.api.model.AjFrame;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjPose;
 
@@ -31,8 +32,8 @@ public class AnimationComponent extends ComponentBase {
         }
 
         int index = (tickCount / 2) % (this.currentAnimation.frames().size() - 1);
-        AjAnimation.AjFrame currentFrame = this.currentAnimation.frames().get(index);
-        AjPose pose = currentFrame.findPose(uuid);
+        AjFrame currentFrame = this.currentAnimation.frames().get(index);
+        AjPose pose = currentFrame.nodes().get(uuid);
         if (pose == null) {
             pose = this.lastAvailable(uuid, index);
         }
@@ -42,8 +43,8 @@ public class AnimationComponent extends ComponentBase {
     private AjPose lastAvailable(UUID uuid, int currentIndex) {
         if (this.currentAnimation != null) {
             for (int i = currentIndex - 1; i >= 0; i--) {
-                AjAnimation.AjFrame frame = this.currentAnimation.frames().get(i);
-                AjPose pose = frame.findPose(uuid);
+                AjFrame frame = this.currentAnimation.frames().get(i);
+                AjPose pose = frame.nodes().get(uuid);
                 if (pose != null) {
                     return pose;
                 }
@@ -62,8 +63,8 @@ public class AnimationComponent extends ComponentBase {
         }
 
         int index = this.extraAnimation.frames().size() - this.extraAnimationTicks;
-        AjAnimation.AjFrame currentFrame = this.extraAnimation.frames().get(index);
-        return currentFrame.findPose(uuid);
+        AjFrame currentFrame = this.extraAnimation.frames().get(index);
+        return currentFrame.nodes().get(uuid);
     }
 
     public void startExtraAnimation(String animationName) {

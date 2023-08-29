@@ -40,7 +40,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     public AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
         this.updateElementsAsync = updateElementsAsync;
         this.parent = parent;
-        this.tickCount = parent.tickCount;
+        this.tickCount = parent.tickCount - 1;
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
         this.animationComponent = new AnimationComponent(model);
         this.variantComponent = new VariantComponent(model);

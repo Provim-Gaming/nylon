@@ -20,6 +20,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
+import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
 import org.provim.animatedmobs.api.util.Util;
 
@@ -41,11 +42,11 @@ public class AjHolderLiving extends AjHolder<LivingEntity> implements AjHolderIn
         this.hitboxInteraction = InteractionElement.redirect(parent);
         this.addElement(this.hitboxInteraction);
 
-        model.rig().nodeMap().forEach((key, node) -> {
+        for (AjNode node : model.rig().nodeMap().values()) {
             if (node.name().startsWith("head")) {
                 this.headElements.add(this.itemDisplays.get(node.uuid()));
             }
-        });
+        }
 
         if (!this.itemDisplays.isEmpty()) {
             ItemDisplayElement element = this.itemDisplays.values().iterator().next();

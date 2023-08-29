@@ -35,6 +35,7 @@ public record AjPose(
         @Override
         public AjPose deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
             JsonObject object = jsonElement.getAsJsonObject();
+
             UUID uuid = context.deserialize(object.get("uuid"), UUID.class);
             Matrix4f matrix = context.deserialize(object.get("matrix"), Matrix4f.class);
 
