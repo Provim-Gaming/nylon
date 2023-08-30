@@ -10,6 +10,7 @@ import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
@@ -27,12 +28,14 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.animatedmobs.api.entities.holders.wrappers.Bone;
+import org.provim.animatedmobs.api.entities.holders.wrappers.Locator;
+import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
 import org.provim.animatedmobs.api.model.component.VariantComponent;
-import org.provim.animatedmobs.api.util.WrappedDisplay;
 
 import java.util.List;
 import java.util.Map;
@@ -43,21 +46,20 @@ import java.util.function.Consumer;
 public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder implements AjHolderInterface {
     private static final Executor EXECUTOR = Util.backgroundExecutor();
 
-    protected final WrappedDisplay<ItemDisplayElement>[] bones;
-    protected final Map<String, WrappedDisplay<DisplayElement>> locators;
-    protected final WrappedDisplay<? extends DisplayElement>[] elements;
-
-    protected final AnimationComponent animationComponent;
-    protected final VariantComponent variantComponent;
-
     protected final Vector2f size;
     protected final T parent;
+
+    protected final Bone[] bones;
+    private final Map<String, Locator> locators;
+    private final ObjectLinkedOpenHashSet<Locator> activeLocators;
+
+    private final AnimationComponent animationComponent;
+    private final VariantComponent variantComponent;
 
     private final boolean updateElementsAsync;
     private boolean isLoaded;
     private int tickCount;
 
-    @SuppressWarnings("unchecked")
     protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
         this.updateElementsAsync = updateElementsAsync;
@@ -67,30 +69,20 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.animationComponent = new AnimationComponent(model);
         this.variantComponent = new VariantComponent(model);
 
-        Object2ObjectOpenHashMap<String, WrappedDisplay<DisplayElement>> locators = new Object2ObjectOpenHashMap<>();
-        ObjectArrayList<WrappedDisplay<ItemDisplayElement>> bones = new ObjectArrayList<>();
+        Object2ObjectOpenHashMap<String, Locator> locators = new Object2ObjectOpenHashMap<>();
+        ObjectArrayList<Bone> bones = new ObjectArrayList<>();
         this.setupElements(model, bones, locators);
 
         this.locators = Object2ObjectMaps.unmodifiable(locators);
-        this.bones = new WrappedDisplay[bones.size()];
+        this.activeLocators = new ObjectLinkedOpenHashSet<>(locators.values());
+
+        this.bones = new Bone[bones.size()];
         for (int i = 0; i < bones.size(); i++) {
             this.bones[i] = bones.get(i);
         }
-
-        // All display elements that need updates should be added at this point. We store all of them in a single array for faster iteration.
-        this.elements = new WrappedDisplay[this.bones.length + locators.size()];
-
-        int index = 0;
-        for (WrappedDisplay<ItemDisplayElement> bone : this.bones) {
-            this.elements[index++] = bone;
-        }
-
-        for (WrappedDisplay<DisplayElement> locator : locators.values()) {
-            this.elements[index++] = locator;
-        }
     }
 
-    protected void setupElements(AjModel model, List<WrappedDisplay<ItemDisplayElement>> bones, Map<String, WrappedDisplay<DisplayElement>> locators) {
+    protected void setupElements(AjModel model, List<Bone> bones, Map<String, Locator> locators) {
         Item rigItem = model.projectSettings().rigItem();
         for (AjNode node : model.rig().nodeMap().values()) {
             AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
@@ -98,14 +90,14 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
                 case bone -> {
                     ItemDisplayElement bone = this.createBone(model, node, defaultPose, rigItem);
                     if (bone != null) {
-                        bones.add(WrappedDisplay.of(bone, node, defaultPose));
+                        bones.add(Bone.of(bone, node, defaultPose));
                         this.addElement(bone);
                     }
                 }
                 case locator -> {
                     DisplayElement locator = this.createLocator(model, node, defaultPose);
                     if (locator != null) {
-                        locators.put(node.name(), WrappedDisplay.of(locator, node, defaultPose, false));
+                        locators.put(node.name(), Locator.of(locator, node, defaultPose, this));
                         this.addElement(locator);
                     }
                 }
@@ -154,6 +146,27 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         return null;
     }
 
+    public void activateLocator(Locator locator, boolean update) {
+        if (this.activeLocators.add(locator)) {
+            if (update) {
+                this.addElement(locator.element());
+                this.sendPacket(VirtualEntityUtils.createRidePacket(this.getVehicleId(), this.getDisplayIds()));
+            } else {
+                this.addElementWithoutUpdates(locator.element());
+            }
+        }
+    }
+
+    public void deactivateLocator(Locator locator, boolean update) {
+        if (this.activeLocators.remove(locator)) {
+            if (update) {
+                this.removeElement(locator.element());
+            } else {
+                this.removeElementWithoutUpdates(locator.element());
+            }
+        }
+    }
+
     @Override
     protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
     }
@@ -177,9 +190,9 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     protected void onEntityDataLoaded() {
-        for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
-            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(wrapped.getDefaultPose());
-            this.applyTransformWithCurrentEntityTransformation(transform, wrapped);
+        for (Bone bone : this.bones) {
+            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(bone.getDefaultPose());
+            this.applyTransformWithCurrentEntityTransformation(transform, bone);
         }
     }
 
@@ -209,8 +222,14 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     protected void updateElements() {
-        for (WrappedDisplay<? extends DisplayElement> wrapped : this.elements) {
-            this.updateElement(wrapped);
+        for (Bone bone : this.bones) {
+            this.updateElement(bone);
+        }
+
+        if (this.activeLocators.size() > 0) {
+            for (Locator locator : this.activeLocators) {
+                this.updateElement(locator);
+            }
         }
 
         this.animationComponent.decreaseCounter();
@@ -277,18 +296,21 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     @Override
     @Nullable
-    public DisplayElement getLocator(String name) {
-        WrappedDisplay<DisplayElement> locator = this.locators.get(name);
-        return locator == null ? null : locator.element();
+    public Locator getLocator(String name) {
+        return this.locators.get(name);
     }
 
     @Override
     public int[] getDisplayIds() {
-        int[] displays = new int[this.elements.length];
+        int[] displays = new int[this.bones.length + this.locators.size()];
 
         int index = 0;
-        for (WrappedDisplay<? extends DisplayElement> wrapped : this.elements) {
-            displays[index++] = wrapped.element().getEntityId();
+        for (Bone bone : this.bones) {
+            displays[index++] = bone.element().getEntityId();
+        }
+
+        for (Locator locator : this.activeLocators) {
+            displays[index++] = locator.element().getEntityId();
         }
 
         return displays;

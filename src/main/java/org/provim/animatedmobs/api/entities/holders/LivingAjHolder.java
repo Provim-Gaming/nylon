@@ -20,7 +20,7 @@ import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
 import org.provim.animatedmobs.api.util.Utils;
-import org.provim.animatedmobs.api.util.WrappedDisplay;
+import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
 
 import java.util.function.Consumer;
 

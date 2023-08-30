@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.util;
+package org.provim.animatedmobs.api.entities.holders.wrappers;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.joml.Quaternionf;
@@ -8,26 +8,16 @@ import org.joml.Vector3fc;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 
-public class WrappedDisplay<T extends DisplayElement> {
+public abstract class WrappedDisplay<T extends DisplayElement> {
     private final TrackedData trackedData = new TrackedData();
     private final AjPose defaultPose;
     private final AjNode node;
     private final T element;
-    private final boolean isHead;
 
-    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node, AjPose defaultPose, boolean isHead) {
-        return new WrappedDisplay<>(element, node, defaultPose, isHead);
-    }
-
-    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node, AjPose defaultPose) {
-        return new WrappedDisplay<>(element, node, defaultPose, node.name().startsWith("head"));
-    }
-
-    private WrappedDisplay(T element, AjNode node, AjPose defaultPose, boolean isHead) {
+    protected WrappedDisplay(T element, AjNode node, AjPose defaultPose) {
         this.defaultPose = defaultPose;
         this.element = element;
         this.node = node;
-        this.isHead = isHead;
     }
 
     public T element() {
@@ -42,9 +32,7 @@ public class WrappedDisplay<T extends DisplayElement> {
         return this.defaultPose;
     }
 
-    public boolean isHead() {
-        return this.isHead;
-    }
+    abstract public boolean isHead();
 
     public void startInterpolation() {
         if (this.trackedData.isDirty()) {

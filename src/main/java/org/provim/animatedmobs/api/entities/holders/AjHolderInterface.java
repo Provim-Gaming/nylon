@@ -1,9 +1,9 @@
 package org.provim.animatedmobs.api.entities.holders;
 
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
+import org.provim.animatedmobs.api.entities.holders.wrappers.Locator;
 
 public interface AjHolderInterface {
-    DisplayElement getLocator(String name);
+    Locator getLocator(String name);
 
     int[] getDisplayIds();
 

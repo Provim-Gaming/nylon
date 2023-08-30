@@ -8,10 +8,7 @@ import org.jetbrains.annotations.Nullable;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjVariant;
-import org.provim.animatedmobs.api.util.WrappedDisplay;
-
-import java.util.Map;
-import java.util.UUID;
+import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
 
 public class VariantComponent extends ComponentBase {
     @Nullable
