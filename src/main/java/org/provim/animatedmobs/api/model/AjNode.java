@@ -14,6 +14,17 @@ public record AjNode(
         @SerializedName("entity_type") ResourceLocation entityType
 ) {
     public enum NodeType {
-        bone, locator
+        bone(true),
+        locator(false);
+
+        private final boolean hasModelData;
+
+        NodeType(boolean hasModelData) {
+            this.hasModelData = hasModelData;
+        }
+
+        public boolean hasModelData() {
+            return this.hasModelData;
+        }
     }
 }

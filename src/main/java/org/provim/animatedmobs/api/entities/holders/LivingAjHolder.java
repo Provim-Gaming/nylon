@@ -2,7 +2,6 @@ package org.provim.animatedmobs.api.entities.holders;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import net.minecraft.network.protocol.Packet;
@@ -58,7 +57,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
-    public <V extends DisplayElement> void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<V> wrapped) {
+    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<?> wrapped) {
         Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));

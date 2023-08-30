@@ -26,6 +26,7 @@ public class AnimationComponent extends ComponentBase {
         this.currentAnimation = this.model.animations().get(currentAnimation);
     }
 
+    @Nullable
     public AjPose findCurrentAnimationPose(int tickCount, UUID uuid) {
         if (this.currentAnimation == null || this.currentAnimation.frames().length == 0) {
             return null;
@@ -33,18 +34,19 @@ public class AnimationComponent extends ComponentBase {
 
         int index = (tickCount / 2) % (this.currentAnimation.frames().length - 1);
         AjFrame currentFrame = this.currentAnimation.frames()[index];
-        AjPose pose = currentFrame.nodes().get(uuid);
+        AjPose pose = currentFrame.poses().get(uuid);
         if (pose == null) {
             pose = this.lastAvailable(uuid, index);
         }
         return pose;
     }
 
+    @Nullable
     private AjPose lastAvailable(UUID uuid, int currentIndex) {
         if (this.currentAnimation != null) {
             for (int index = currentIndex - 1; index >= 0; index--) {
                 AjFrame frame = this.currentAnimation.frames()[index];
-                AjPose pose = frame.nodes().get(uuid);
+                AjPose pose = frame.poses().get(uuid);
                 if (pose != null) {
                     return pose;
                 }
@@ -64,7 +66,7 @@ public class AnimationComponent extends ComponentBase {
 
         int index = this.extraAnimation.frames().length - this.extraAnimationTicks;
         AjFrame currentFrame = this.extraAnimation.frames()[index];
-        return currentFrame.nodes().get(uuid);
+        return currentFrame.poses().get(uuid);
     }
 
     public void startExtraAnimation(String animationName) {

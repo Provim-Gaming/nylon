@@ -222,7 +222,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.animationComponent.decreaseCounter();
     }
 
-    protected <V extends DisplayElement> void updateElement(WrappedDisplay<V> wrapped) {
+    protected void updateElement(WrappedDisplay<?> wrapped) {
         UUID uuid = wrapped.node().uuid();
         AjPose currentPose;
 
@@ -243,7 +243,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.applyTransformWithCurrentEntityTransformation(transform, wrapped);
     }
 
-    public <V extends DisplayElement> void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<V> wrapped) {
+    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<?> wrapped) {
         Vector3f scale = transform.scale();
         Vector3f translation = transform.translation();
         Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();

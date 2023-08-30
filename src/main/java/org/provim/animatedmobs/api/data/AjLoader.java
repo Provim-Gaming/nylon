@@ -26,6 +26,7 @@ public class AjLoader {
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
+            .registerTypeAdapter(UUID.class, new UuidDeserializer())
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .create();
 
@@ -52,7 +53,7 @@ public class AjLoader {
         // Node models
         Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = model.rig().nodeMap();
         for (AjNode entry : nodeMap.values()) {
-            if (entry.type() == AjNode.NodeType.bone) {
+            if (entry.type().hasModelData()) {
                 nodeMap.computeIfPresent(entry.uuid(), ((id, node) -> new AjNode(
                         node.type(),
                         node.name(),
