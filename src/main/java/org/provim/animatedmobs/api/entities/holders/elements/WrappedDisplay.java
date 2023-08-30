@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.entities.holders.wrappers;
+package org.provim.animatedmobs.api.entities.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.joml.Quaternionf;
@@ -34,6 +34,10 @@ public abstract class WrappedDisplay<T extends DisplayElement> {
 
     abstract public boolean isHead();
 
+    /**
+     * Starts the interpolation of the display element.
+     * This method should be called after all the needed data values have been set.
+     */
     public void startInterpolation() {
         if (this.trackedData.isDirty()) {
             this.element.startInterpolation();

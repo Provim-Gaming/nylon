@@ -60,7 +60,7 @@ public class AnimationComponent extends ComponentBase {
     }
 
     public AjPose findExtraAnimationPose(UUID uuid) {
-        if (this.extraAnimation == null || extraAnimationTicks <= 0) {
+        if (this.extraAnimation == null || this.extraAnimationTicks <= 0) {
             return null;
         }
 
@@ -76,21 +76,11 @@ public class AnimationComponent extends ComponentBase {
         }
     }
 
-    public AnimationTransform getInterpolatedAnimationTransform(AjPose pose) {
-        Vector3f translation = pose.translation();
-        Quaternionf rightRotation = pose.rotation();
-        Vector3f scale = pose.scale();
-        return new AnimationTransform(translation, rightRotation, scale);
-    }
-
     public void decreaseCounter() {
         if (this.extraAnimationTicks >= 0) {
             // 2 if ticked every other tick..
             // todo: tickCount based instead of decreasing numbers :P
             this.extraAnimationTicks -= 2;
         }
-    }
-
-    public record AnimationTransform(Vector3f translation, Quaternionf rot, Vector3f scale) {
     }
 }

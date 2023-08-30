@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.entities.holders.wrappers;
+package org.provim.animatedmobs.api.entities.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.provim.animatedmobs.api.entities.holders.AbstractAjHolder;

@@ -5,10 +5,9 @@ import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
+import org.provim.animatedmobs.api.entities.holders.elements.Bone;
 import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjVariant;
-import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
 
 public class VariantComponent extends ComponentBase {
     @Nullable
@@ -18,17 +17,16 @@ public class VariantComponent extends ComponentBase {
         super(model);
     }
 
-    public void applyDefaultVariant(WrappedDisplay<ItemDisplayElement>[] bones) {
+    public void applyDefaultVariant(Bone[] bones) {
         if (this.currentVariant != null) {
-            for (WrappedDisplay<ItemDisplayElement> bone : bones) {
-                AjNode node = this.model.rig().nodeMap().get(bone.node().uuid());
-                this.updateItem(bone.element(), node.customModelData());
+            for (Bone bone : bones) {
+                this.updateItem(bone.element(), bone.node().customModelData());
             }
             this.currentVariant = null;
         }
     }
 
-    public void applyVariant(String variantName, WrappedDisplay<ItemDisplayElement>[] bones) {
+    public void applyVariant(String variantName, Bone[] bones) {
         if (this.currentVariant != null && this.currentVariant.name().equals(variantName)) {
             return;
         }
@@ -40,7 +38,7 @@ public class VariantComponent extends ComponentBase {
         }
 
         if (this.currentVariant != null) {
-            for (WrappedDisplay<ItemDisplayElement> bone : bones) {
+            for (Bone bone : bones) {
                 AjVariant.ModelInfo modelInfo = this.currentVariant.models().get(bone.node().uuid());
                 if (modelInfo != null) {
                     this.updateItem(bone.element(), modelInfo.customModelData());

@@ -16,11 +16,12 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.animatedmobs.api.entities.holders.elements.Bone;
+import org.provim.animatedmobs.api.entities.holders.elements.WrappedDisplay;
 import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.component.AnimationComponent;
+import org.provim.animatedmobs.api.model.AjPose;
 import org.provim.animatedmobs.api.util.Utils;
-import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
 
 import java.util.function.Consumer;
 
@@ -57,33 +58,33 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
-    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<?> wrapped) {
+    public void applyPose(AjPose pose, WrappedDisplay<?> display) {
         Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
         }
 
-        Vector3f scale = transform.scale();
-        Vector3f translation = transform.translation().rotate(bodyRotation);
+        Vector3f scale = pose.scale();
+        Vector3f translation = pose.translation().rotate(bodyRotation);
         if (this.scale != 1.0f) {
             translation.mul(this.scale);
             scale.mul(this.scale);
         }
         translation.add(0, -this.scaledSize.y + 0.0125f, 0);
 
-        Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();
-        if (wrapped.isHead()) {
+        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+        if (display.isHead()) {
             bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
             bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
         }
 
         // Update data tracker values
-        wrapped.setTranslation(translation);
-        wrapped.setRightRotation(rightRotation);
-        wrapped.setScale(scale);
-        wrapped.setLeftRotation(bodyRotation);
+        display.setTranslation(translation);
+        display.setRightRotation(rightRotation);
+        display.setScale(scale);
+        display.setLeftRotation(bodyRotation);
 
-        wrapped.startInterpolation();
+        display.startInterpolation();
     }
 
     @Override
@@ -142,16 +143,16 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
     private void updateGlow(boolean isGlowing) {
         this.isGlowing = isGlowing;
-        for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
-            wrapped.element().setGlowing(isGlowing);
+        for (Bone bone : this.bones) {
+            bone.element().setGlowing(isGlowing);
         }
     }
 
     private void updateScale(float scale) {
         this.scale = scale;
         this.size.mul(this.scale, this.scaledSize);
-        for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
-            wrapped.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
+        for (Bone bone : this.bones) {
+            bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 }

@@ -28,9 +28,9 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.provim.animatedmobs.api.entities.holders.wrappers.Bone;
-import org.provim.animatedmobs.api.entities.holders.wrappers.Locator;
-import org.provim.animatedmobs.api.entities.holders.wrappers.WrappedDisplay;
+import org.provim.animatedmobs.api.entities.holders.elements.Bone;
+import org.provim.animatedmobs.api.entities.holders.elements.Locator;
+import org.provim.animatedmobs.api.entities.holders.elements.WrappedDisplay;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
@@ -189,13 +189,11 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     protected void onEntityDataLoaded() {
         for (Bone bone : this.bones) {
-            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(bone.getDefaultPose());
-            this.applyTransformWithCurrentEntityTransformation(transform, bone);
+            this.applyPose(bone.getDefaultPose(), bone);
         }
 
         for (Locator locator : this.activeLocators) {
-            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(locator.getDefaultPose());
-            this.applyTransformWithCurrentEntityTransformation(transform, locator);
+            this.applyPose(locator.getDefaultPose(), locator);
         }
     }
 
@@ -238,8 +236,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.animationComponent.decreaseCounter();
     }
 
-    protected void updateElement(WrappedDisplay<?> wrapped) {
-        UUID uuid = wrapped.node().uuid();
+    protected void updateElement(WrappedDisplay<?> display) {
+        UUID uuid = display.node().uuid();
         AjPose currentPose;
 
         if (this.animationComponent.extraAnimationAvailable()) {
@@ -247,7 +245,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         } else {
             currentPose = this.animationComponent.findCurrentAnimationPose(this.parent.tickCount, uuid);
             if (currentPose == null) {
-                currentPose = wrapped.getDefaultPose();
+                currentPose = display.getDefaultPose();
             }
         }
 
@@ -255,21 +253,20 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             return;
         }
 
-        AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(currentPose);
-        this.applyTransformWithCurrentEntityTransformation(transform, wrapped);
+        this.applyPose(currentPose, display);
     }
 
-    public void applyTransformWithCurrentEntityTransformation(AnimationComponent.AnimationTransform transform, WrappedDisplay<?> wrapped) {
-        Vector3f scale = transform.scale();
-        Vector3f translation = transform.translation();
-        Quaternionf rightRotation = transform.rot().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+    public void applyPose(AjPose pose, WrappedDisplay<?> display) {
+        Vector3f scale = pose.scale();
+        Vector3f translation = pose.translation();
+        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
 
         // Update data tracker values
-        wrapped.setTranslation(translation);
-        wrapped.setRightRotation(rightRotation);
-        wrapped.setScale(scale);
+        display.setTranslation(translation);
+        display.setRightRotation(rightRotation);
+        display.setScale(scale);
 
-        wrapped.startInterpolation();
+        display.startInterpolation();
     }
 
     @Override
