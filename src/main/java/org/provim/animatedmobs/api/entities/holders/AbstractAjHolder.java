@@ -302,7 +302,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     @Override
     public int[] getDisplayIds() {
-        int[] displays = new int[this.bones.length + this.locators.size()];
+        int[] displays = new int[this.bones.length + this.activeLocators.size()];
 
         int index = 0;
         for (Bone bone : this.bones) {
