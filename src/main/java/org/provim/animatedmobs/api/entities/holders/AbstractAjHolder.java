@@ -88,14 +88,14 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
             switch (node.type()) {
                 case bone -> {
-                    ItemDisplayElement bone = this.createBone(model, node, defaultPose, rigItem);
+                    ItemDisplayElement bone = this.createBone(model, node, rigItem);
                     if (bone != null) {
                         bones.add(Bone.of(bone, node, defaultPose));
                         this.addElement(bone);
                     }
                 }
                 case locator -> {
-                    DisplayElement locator = this.createLocator(model, node, defaultPose);
+                    DisplayElement locator = this.createLocator(model, node);
                     if (locator != null) {
                         locators.put(node.name(), Locator.of(locator, node, defaultPose, this));
                         this.addElement(locator);
@@ -106,11 +106,10 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected ItemDisplayElement createBone(AjModel model, AjNode node, AjPose defaultPose, Item rigItem) {
+    protected ItemDisplayElement createBone(AjModel model, AjNode node, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
-        // element.setTransformation(defaultPose.matrix());
         element.setInterpolationDuration(2);
 
         ItemStack itemStack = new ItemStack(rigItem);
@@ -122,7 +121,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected DisplayElement createLocator(AjModel model, AjNode node, AjPose defaultPose) {
+    protected DisplayElement createLocator(AjModel model, AjNode node) {
         if (node.entityType() != null) {
             DisplayElement locator = switch (node.entityType().getPath()) {
                 case "item_display" -> new ItemDisplayElement();
@@ -137,7 +136,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             };
 
             if (locator != null) {
-                // locator.setTransformation(defaultPose.matrix());
                 locator.setInterpolationDuration(2);
                 return locator;
             }
@@ -193,6 +191,11 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         for (Bone bone : this.bones) {
             AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(bone.getDefaultPose());
             this.applyTransformWithCurrentEntityTransformation(transform, bone);
+        }
+
+        for (Locator locator : this.activeLocators) {
+            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(locator.getDefaultPose());
+            this.applyTransformWithCurrentEntityTransformation(transform, locator);
         }
     }
 
