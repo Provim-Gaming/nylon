@@ -6,22 +6,25 @@ import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.provim.animatedmobs.api.model.AjNode;
+import org.provim.animatedmobs.api.model.AjPose;
 
 public class WrappedDisplay<T extends DisplayElement> {
     private final TrackedData trackedData = new TrackedData();
+    private final AjPose defaultPose;
     private final AjNode node;
     private final T element;
     private final boolean isHead;
 
-    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node, boolean isHead) {
-        return new WrappedDisplay<>(element, node, isHead);
+    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node, AjPose defaultPose, boolean isHead) {
+        return new WrappedDisplay<>(element, node, defaultPose, isHead);
     }
 
-    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node) {
-        return new WrappedDisplay<>(element, node, node.name().startsWith("head"));
+    public static <E extends DisplayElement> WrappedDisplay<E> of(E element, AjNode node, AjPose defaultPose) {
+        return new WrappedDisplay<>(element, node, defaultPose, node.name().startsWith("head"));
     }
 
-    private WrappedDisplay(T element, AjNode node, boolean isHead) {
+    private WrappedDisplay(T element, AjNode node, AjPose defaultPose, boolean isHead) {
+        this.defaultPose = defaultPose;
         this.element = element;
         this.node = node;
         this.isHead = isHead;
@@ -33,6 +36,10 @@ public class WrappedDisplay<T extends DisplayElement> {
 
     public AjNode node() {
         return this.node;
+    }
+
+    public AjPose getDefaultPose() {
+        return this.defaultPose;
     }
 
     public boolean isHead() {

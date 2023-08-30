@@ -31,7 +31,6 @@ import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 import org.provim.animatedmobs.api.model.component.AnimationComponent;
-import org.provim.animatedmobs.api.model.component.PoseComponent;
 import org.provim.animatedmobs.api.model.component.VariantComponent;
 import org.provim.animatedmobs.api.util.WrappedDisplay;
 
@@ -50,7 +49,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     protected final AnimationComponent animationComponent;
     protected final VariantComponent variantComponent;
-    protected final PoseComponent poseComponent;
 
     protected final Vector2f size;
     protected final T parent;
@@ -68,7 +66,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
         this.animationComponent = new AnimationComponent(model);
         this.variantComponent = new VariantComponent(model);
-        this.poseComponent = new PoseComponent(model);
 
         Object2ObjectOpenHashMap<String, WrappedDisplay<DisplayElement>> locators = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<WrappedDisplay<ItemDisplayElement>> bones = new ObjectArrayList<>();
@@ -96,18 +93,19 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     protected void setupElements(AjModel model, List<WrappedDisplay<ItemDisplayElement>> bones, Map<String, WrappedDisplay<DisplayElement>> locators) {
         Item rigItem = model.projectSettings().rigItem();
         for (AjNode node : model.rig().nodeMap().values()) {
+            AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
             switch (node.type()) {
                 case bone -> {
-                    ItemDisplayElement bone = this.createBone(model, node, rigItem);
+                    ItemDisplayElement bone = this.createBone(model, node, defaultPose, rigItem);
                     if (bone != null) {
-                        bones.add(WrappedDisplay.of(bone, node));
+                        bones.add(WrappedDisplay.of(bone, node, defaultPose));
                         this.addElement(bone);
                     }
                 }
                 case locator -> {
-                    DisplayElement locator = this.createLocator(model, node);
+                    DisplayElement locator = this.createLocator(model, node, defaultPose);
                     if (locator != null) {
-                        locators.put(node.name(), WrappedDisplay.of(locator, node, false));
+                        locators.put(node.name(), WrappedDisplay.of(locator, node, defaultPose, false));
                         this.addElement(locator);
                     }
                 }
@@ -116,8 +114,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected ItemDisplayElement createBone(AjModel model, AjNode node, Item rigItem) {
-        AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
+    protected ItemDisplayElement createBone(AjModel model, AjNode node, AjPose defaultPose, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
@@ -129,12 +126,11 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         tag.putInt("CustomModelData", node.customModelData());
         element.setItem(itemStack);
 
-        this.poseComponent.putDefault(node.uuid(), defaultPose);
         return element;
     }
 
     @Nullable
-    protected DisplayElement createLocator(AjModel model, AjNode node) {
+    protected DisplayElement createLocator(AjModel model, AjNode node, AjPose defaultPose) {
         if (node.entityType() != null) {
             DisplayElement locator = switch (node.entityType().getPath()) {
                 case "item_display" -> new ItemDisplayElement();
@@ -149,7 +145,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             };
 
             if (locator != null) {
-                // AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
                 // locator.setTransformation(defaultPose.matrix());
                 locator.setInterpolationDuration(2);
                 return locator;
@@ -183,8 +178,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     protected void onEntityDataLoaded() {
         for (WrappedDisplay<ItemDisplayElement> wrapped : this.bones) {
-            AjPose pose = this.poseComponent.getDefault(wrapped.node().uuid());
-            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(pose);
+            AnimationComponent.AnimationTransform transform = this.animationComponent.getInterpolatedAnimationTransform(wrapped.getDefaultPose());
             this.applyTransformWithCurrentEntityTransformation(transform, wrapped);
         }
     }
@@ -231,7 +225,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         } else {
             currentPose = this.animationComponent.findCurrentAnimationPose(this.parent.tickCount, uuid);
             if (currentPose == null) {
-                currentPose = this.poseComponent.getDefault(uuid);
+                currentPose = wrapped.getDefaultPose();
             }
         }
 
