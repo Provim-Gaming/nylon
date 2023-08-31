@@ -40,7 +40,7 @@ public class VariantComponent extends ComponentBase {
         if (this.currentVariant != null) {
             for (Bone bone : bones) {
                 AjVariant.ModelInfo modelInfo = this.currentVariant.models().get(bone.node().uuid());
-                if (modelInfo != null) {
+                if (modelInfo != null && this.currentVariant.isAffected(bone.node().name())) {
                     this.updateItem(bone.element(), modelInfo.customModelData());
                 }
             }

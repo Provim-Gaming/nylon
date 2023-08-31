@@ -39,7 +39,6 @@ import org.provim.animatedmobs.api.model.component.VariantComponent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
@@ -237,13 +236,13 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     protected void updateElement(WrappedDisplay<?> display) {
-        UUID uuid = display.node().uuid();
+        AjNode node = display.node();
         AjPose currentPose;
 
         if (this.animationComponent.extraAnimationAvailable()) {
-            currentPose = this.animationComponent.findExtraAnimationPose(uuid);
+            currentPose = this.animationComponent.findExtraAnimationPose(node);
         } else {
-            currentPose = this.animationComponent.findCurrentAnimationPose(this.parent.tickCount, uuid);
+            currentPose = this.animationComponent.findCurrentAnimationPose(this.parent.tickCount, node);
             if (currentPose == null) {
                 currentPose = display.getDefaultPose();
             }

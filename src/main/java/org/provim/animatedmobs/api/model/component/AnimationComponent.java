@@ -1,12 +1,7 @@
 package org.provim.animatedmobs.api.model.component;
 
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.provim.animatedmobs.api.model.AjAnimation;
-import org.provim.animatedmobs.api.model.AjFrame;
-import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjPose;
+import org.provim.animatedmobs.api.model.*;
 
 import java.util.UUID;
 
@@ -27,16 +22,19 @@ public class AnimationComponent extends ComponentBase {
     }
 
     @Nullable
-    public AjPose findCurrentAnimationPose(int tickCount, UUID uuid) {
-        if (this.currentAnimation == null || this.currentAnimation.frames().length == 0) {
+    public AjPose findCurrentAnimationPose(int tickCount, AjNode node) {
+        if (this.currentAnimation == null ||
+            this.currentAnimation.frames().length == 0 ||
+            this.currentAnimation.isUnaffected(node.name())
+        ) {
             return null;
         }
 
         int index = (tickCount / 2) % (this.currentAnimation.frames().length - 1);
         AjFrame currentFrame = this.currentAnimation.frames()[index];
-        AjPose pose = currentFrame.poses().get(uuid);
+        AjPose pose = currentFrame.poses().get(node.uuid());
         if (pose == null) {
-            pose = this.lastAvailable(uuid, index);
+            pose = this.lastAvailable(node.uuid(), index);
         }
         return pose;
     }
@@ -59,14 +57,17 @@ public class AnimationComponent extends ComponentBase {
         return this.extraAnimationTicks >= 0;
     }
 
-    public AjPose findExtraAnimationPose(UUID uuid) {
-        if (this.extraAnimation == null || this.extraAnimationTicks <= 0) {
+    public AjPose findExtraAnimationPose(AjNode node) {
+        if (this.extraAnimation == null ||
+            this.extraAnimationTicks <= 0 ||
+            this.extraAnimation.isUnaffected(node.name())
+        ) {
             return null;
         }
 
         int index = this.extraAnimation.frames().length - this.extraAnimationTicks;
         AjFrame currentFrame = this.extraAnimation.frames()[index];
-        return currentFrame.poses().get(uuid);
+        return currentFrame.poses().get(node.uuid());
     }
 
     public void startExtraAnimation(String animationName) {
