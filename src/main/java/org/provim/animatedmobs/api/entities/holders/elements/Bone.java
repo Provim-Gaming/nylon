@@ -4,7 +4,7 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 
-public class Bone extends WrappedDisplay<ItemDisplayElement> {
+public class Bone extends DisplayWrapper<ItemDisplayElement> {
     private final boolean isHead;
 
     public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {

@@ -29,12 +29,15 @@ public class ClientboundSetPassengersPacketMixin {
     private void am_modifyRidePacket(Entity entity, CallbackInfo ci) {
         if (entity instanceof AjEntity ajEntity) {
             AjHolderInterface holder = ajEntity.getHolder();
-            int[] displays = holder.getDisplayIds();
-            int oldLength = this.passengers.length;
-
             this.vehicle = holder.getVehicleId();
-            this.passengers = Arrays.copyOf(this.passengers, oldLength + displays.length);
-            System.arraycopy(displays, 0, this.passengers, oldLength, displays.length);
+
+            int displayVehicle = holder.getDisplayVehicleId();
+            if (this.vehicle == displayVehicle) {
+                int[] displays = holder.getDisplayIds();
+                int oldLength = this.passengers.length;
+                this.passengers = Arrays.copyOf(this.passengers, oldLength + displays.length);
+                System.arraycopy(displays, 0, this.passengers, oldLength, displays.length);
+            }
         }
     }
 }

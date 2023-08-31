@@ -1,9 +1,11 @@
-package org.provim.animatedmobs.api.entities.holders;
+package org.provim.animatedmobs.api.entities.holders.living;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
@@ -16,8 +18,9 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.animatedmobs.api.entities.holders.AbstractAjHolder;
 import org.provim.animatedmobs.api.entities.holders.elements.Bone;
-import org.provim.animatedmobs.api.entities.holders.elements.WrappedDisplay;
+import org.provim.animatedmobs.api.entities.holders.elements.DisplayWrapper;
 import org.provim.animatedmobs.api.mixins.EntityAccessor;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjPose;
@@ -58,7 +61,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
-    public void applyPose(AjPose pose, WrappedDisplay<?> display) {
+    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
@@ -91,7 +94,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (Packet<ClientGamePacketListener> packet : Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)) {
+        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)) {
             consumer.accept(packet);
         }
 
@@ -99,8 +102,20 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         }
 
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), this.hitboxInteraction.getEntityIds()));
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.getVehicleId(), this.getDisplayIds()));
+        IntList passengers = new IntArrayList();
+        this.addDirectPassengers(passengers);
+
+        consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
+        consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
+    }
+
+    protected void addDirectPassengers(IntList passengers) {
+        passengers.add(this.hitboxInteraction.getEntityId());
+    }
+
+    @Override
+    public int getDisplayVehicleId() {
+        return this.hitboxInteraction.getEntityId();
     }
 
     @Override
@@ -132,23 +147,27 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
-            this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+            this.sendScaleUpdate();
         }
     }
 
-    private void updateFire(boolean displayFire) {
+    protected void sendScaleUpdate() {
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
+    }
+
+    protected void updateFire(boolean displayFire) {
         this.displayFire = displayFire;
         this.hitboxInteraction.setOnFire(displayFire);
     }
 
-    private void updateGlow(boolean isGlowing) {
+    protected void updateGlow(boolean isGlowing) {
         this.isGlowing = isGlowing;
         for (Bone bone : this.bones) {
             bone.element().setGlowing(isGlowing);
         }
     }
 
-    private void updateScale(float scale) {
+    protected void updateScale(float scale) {
         this.scale = scale;
         this.size.mul(this.scale, this.scaledSize);
         for (Bone bone : this.bones) {

@@ -29,8 +29,8 @@ import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.animatedmobs.api.entities.holders.elements.Bone;
-import org.provim.animatedmobs.api.entities.holders.elements.Locator;
-import org.provim.animatedmobs.api.entities.holders.elements.WrappedDisplay;
+import org.provim.animatedmobs.api.entities.holders.elements.DisplayWrapper;
+import org.provim.animatedmobs.api.entities.holders.elements.LocatorDisplay;
 import org.provim.animatedmobs.api.model.AjModel;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
@@ -49,8 +49,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     protected final T parent;
 
     protected final Bone[] bones;
-    private final Map<String, Locator> locators;
-    private final ObjectLinkedOpenHashSet<Locator> activeLocators;
+    private final Map<String, LocatorDisplay> locators;
+    private final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
 
     private final AnimationComponent animationComponent;
     private final VariantComponent variantComponent;
@@ -68,7 +68,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.animationComponent = new AnimationComponent(model);
         this.variantComponent = new VariantComponent(model);
 
-        Object2ObjectOpenHashMap<String, Locator> locators = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();
         this.setupElements(model, bones, locators);
 
@@ -81,7 +81,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         }
     }
 
-    protected void setupElements(AjModel model, List<Bone> bones, Map<String, Locator> locators) {
+    protected void setupElements(AjModel model, List<Bone> bones, Map<String, LocatorDisplay> locators) {
         Item rigItem = model.projectSettings().rigItem();
         for (AjNode node : model.rig().nodeMap().values()) {
             AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
@@ -94,9 +94,9 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
                     }
                 }
                 case locator -> {
-                    DisplayElement locator = this.createLocator(model, node);
+                    DisplayElement locator = this.createLocatorDisplay(model, node);
                     if (locator != null) {
-                        locators.put(node.name(), Locator.of(locator, node, defaultPose, this));
+                        locators.put(node.name(), LocatorDisplay.of(locator, node, defaultPose, this));
                         this.addElement(locator);
                     }
                 }
@@ -120,7 +120,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected DisplayElement createLocator(AjModel model, AjNode node) {
+    protected DisplayElement createLocatorDisplay(AjModel model, AjNode node) {
         if (node.entityType() != null) {
             DisplayElement locator = switch (node.entityType().getPath()) {
                 case "item_display" -> new ItemDisplayElement();
@@ -143,18 +143,18 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         return null;
     }
 
-    public void activateLocator(Locator locator, boolean update) {
+    public void activateLocator(LocatorDisplay locator, boolean update) {
         if (this.activeLocators.add(locator)) {
             if (update) {
                 this.addElement(locator.element());
-                this.sendPacket(VirtualEntityUtils.createRidePacket(this.getVehicleId(), this.getDisplayIds()));
+                this.sendPacket(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
             } else {
                 this.addElementWithoutUpdates(locator.element());
             }
         }
     }
 
-    public void deactivateLocator(Locator locator, boolean update) {
+    public void deactivateLocator(LocatorDisplay locator, boolean update) {
         if (this.activeLocators.remove(locator)) {
             if (update) {
                 this.removeElement(locator.element());
@@ -173,7 +173,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         super.startWatchingExtraPackets(player, consumer);
 
         consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.getVehicleId(), this.getDisplayIds()));
+        consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
     }
 
     @Override
@@ -191,7 +191,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             this.applyPose(bone.getDefaultPose(), bone);
         }
 
-        for (Locator locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.activeLocators) {
             this.applyPose(locator.getDefaultPose(), locator);
         }
     }
@@ -227,7 +227,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         }
 
         if (this.activeLocators.size() > 0) {
-            for (Locator locator : this.activeLocators) {
+            for (LocatorDisplay locator : this.activeLocators) {
                 this.updateElement(locator);
             }
         }
@@ -235,7 +235,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.animationComponent.decreaseCounter();
     }
 
-    protected void updateElement(WrappedDisplay<?> display) {
+    protected void updateElement(DisplayWrapper<?> display) {
         AjNode node = display.node();
         AjPose currentPose;
 
@@ -255,7 +255,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.applyPose(currentPose, display);
     }
 
-    public void applyPose(AjPose pose, WrappedDisplay<?> display) {
+    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Vector3f scale = pose.scale();
         Vector3f translation = pose.translation();
         Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
@@ -295,7 +295,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     @Override
     @Nullable
-    public Locator getLocator(String name) {
+    public LocatorDisplay getLocator(String name) {
         return this.locators.get(name);
     }
 
@@ -308,11 +308,16 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             displays[index++] = bone.element().getEntityId();
         }
 
-        for (Locator locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.activeLocators) {
             displays[index++] = locator.element().getEntityId();
         }
 
         return displays;
+    }
+
+    @Override
+    public int getDisplayVehicleId() {
+        return this.parent.getId();
     }
 
     @Override

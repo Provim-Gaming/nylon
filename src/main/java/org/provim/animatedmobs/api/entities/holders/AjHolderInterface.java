@@ -1,11 +1,13 @@
 package org.provim.animatedmobs.api.entities.holders;
 
-import org.provim.animatedmobs.api.entities.holders.elements.Locator;
+import org.provim.animatedmobs.api.entities.holders.elements.LocatorDisplay;
 
 public interface AjHolderInterface {
-    Locator getLocator(String name);
+    LocatorDisplay getLocator(String name);
 
     int[] getDisplayIds();
+
+    int getDisplayVehicleId();
 
     int getVehicleId();
 

@@ -15,6 +15,6 @@ public record AjAnimation(
     }
 
     public enum LoopMode {
-        once, loop
+        once, hold, loop
     }
 }

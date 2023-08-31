@@ -8,13 +8,13 @@ import org.joml.Vector3fc;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 
-public abstract class WrappedDisplay<T extends DisplayElement> {
+public abstract class DisplayWrapper<T extends DisplayElement> {
     private final TrackedData trackedData = new TrackedData();
     private final AjPose defaultPose;
     private final AjNode node;
     private final T element;
 
-    protected WrappedDisplay(T element, AjNode node, AjPose defaultPose) {
+    protected DisplayWrapper(T element, AjNode node, AjPose defaultPose) {
         this.defaultPose = defaultPose;
         this.element = element;
         this.node = node;

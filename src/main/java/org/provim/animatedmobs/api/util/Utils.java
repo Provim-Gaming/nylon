@@ -15,6 +15,10 @@ import java.util.List;
 public class Utils {
 
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size) {
+        return updateClientInteraction(interaction, size, size.y);
+    }
+
+    public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size, double height) {
         // Updates the dimensions and bounding box of the interaction on the client. Note that the interactions dimensions and bounding box are two different things.
         // - The bounding box is primarily used for detecting player attacks, interactions and rendering the hitbox.
         // - The dimensions are used for certain other properties, such as the passenger riding height or the fire animation.
@@ -22,7 +26,7 @@ public class Utils {
                 // We update the POSE in this packet, which makes the client refresh the interactions dimensions.
                 // We use this to move the passenger riding height of the interaction upwards. This is raised to height * 1.325 to match the "actual" top of the interaction.
                 new ClientboundSetEntityDataPacket(interaction.getEntityId(), List.of(
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, size.y * 1.325F),
+                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, (float) height * 1.325F),
                         SynchedEntityData.DataValue.create(InteractionTrackedData.WIDTH, size.x),
                         SynchedEntityData.DataValue.create(EntityTrackedData.POSE, Pose.STANDING)
                 )),

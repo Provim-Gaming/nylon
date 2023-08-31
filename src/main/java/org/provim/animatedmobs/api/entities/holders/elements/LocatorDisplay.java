@@ -5,15 +5,15 @@ import org.provim.animatedmobs.api.entities.holders.AbstractAjHolder;
 import org.provim.animatedmobs.api.model.AjNode;
 import org.provim.animatedmobs.api.model.AjPose;
 
-public class Locator extends WrappedDisplay<DisplayElement> {
+public class LocatorDisplay extends DisplayWrapper<DisplayElement> {
     private final AbstractAjHolder<?> holder;
     private boolean isActive = true;
 
-    public static Locator of(DisplayElement element, AjNode node, AjPose defaultPose, AbstractAjHolder<?> holder) {
-        return new Locator(element, node, defaultPose, holder);
+    public static LocatorDisplay of(DisplayElement element, AjNode node, AjPose defaultPose, AbstractAjHolder<?> holder) {
+        return new LocatorDisplay(element, node, defaultPose, holder);
     }
 
-    protected Locator(DisplayElement element, AjNode node, AjPose defaultPose, AbstractAjHolder<?> holder) {
+    protected LocatorDisplay(DisplayElement element, AjNode node, AjPose defaultPose, AbstractAjHolder<?> holder) {
         super(element, node, defaultPose);
         this.holder = holder;
     }
