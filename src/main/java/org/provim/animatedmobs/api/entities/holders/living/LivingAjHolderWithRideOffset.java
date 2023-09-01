@@ -34,6 +34,7 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
         super(parent, model, updateElementsAsync);
 
         this.rideInteraction = new InteractionElement();
+        this.rideInteraction.setInvisible(true);
         this.addElement(this.rideInteraction);
     }
 

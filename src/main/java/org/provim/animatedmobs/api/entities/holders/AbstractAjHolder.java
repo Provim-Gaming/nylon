@@ -110,6 +110,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
         element.setInterpolationDuration(2);
+        element.setInvisible(true);
 
         ItemStack itemStack = new ItemStack(rigItem);
         CompoundTag tag = itemStack.getOrCreateTag();
@@ -127,7 +128,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
                 case "block_display" -> new BlockDisplayElement();
                 case "text_display" -> {
                     TextDisplayElement element = new TextDisplayElement();
-                    element.setInvisible(true);
                     element.setBackground(0);
                     yield element;
                 }
@@ -135,6 +135,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             };
 
             if (locator != null) {
+                locator.setInvisible(true);
                 locator.setInterpolationDuration(2);
                 return locator;
             }
