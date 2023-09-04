@@ -52,8 +52,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     private final Map<String, LocatorDisplay> locators;
     private final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
 
-    private final AnimationComponent animationComponent;
-    private final VariantComponent variantComponent;
+    private final AnimationComponent animation;
+    private final VariantComponent variant;
 
     private final boolean updateElementsAsync;
     private boolean isLoaded;
@@ -65,8 +65,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.tickCount = parent.tickCount - 1;
         this.parent = parent;
 
-        this.animationComponent = new AnimationComponent(model);
-        this.variantComponent = new VariantComponent(model);
+        this.animation = new AnimationComponent(model);
+        this.variant = new VariantComponent(model);
 
         Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();
@@ -233,27 +233,12 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             }
         }
 
-        this.animationComponent.decreaseCounter();
+        this.animation.tickAnimations();
     }
 
     protected void updateElement(DisplayWrapper<?> display) {
-        AjNode node = display.node();
-        AjPose currentPose;
-
-        if (this.animationComponent.extraAnimationAvailable()) {
-            currentPose = this.animationComponent.findExtraAnimationPose(node);
-        } else {
-            currentPose = this.animationComponent.findCurrentAnimationPose(this.parent.tickCount, node);
-            if (currentPose == null) {
-                currentPose = display.getDefaultPose();
-            }
-        }
-
-        if (currentPose == null) {
-            return;
-        }
-
-        this.applyPose(currentPose, display);
+        AjPose pose = this.animation.findCurrentAnimationPose(display);
+        this.applyPose(pose, display);
     }
 
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
@@ -270,28 +255,33 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Override
-    public void setCurrentAnimation(String animation) {
-        this.animationComponent.setCurrentAnimation(animation);
+    public void scheduleAnimation(String name) {
+        this.animation.scheduleAnimation(name);
     }
 
     @Override
-    public void startExtraAnimation(String animationName) {
-        this.animationComponent.startExtraAnimation(animationName);
+    public void setCurrentAnimation(String name) {
+        this.animation.setCurrentAnimation(name);
     }
 
     @Override
-    public boolean extraAnimationRunning() {
-        return this.animationComponent.extraAnimationAvailable();
+    public void scheduleExtraAnimation(String name) {
+        this.animation.scheduleExtraAnimation(name);
+    }
+
+    @Override
+    public void setExtraAnimation(String name) {
+        this.animation.setExtraAnimation(name);
     }
 
     @Override
     public void setDefaultVariant() {
-        this.variantComponent.applyDefaultVariant(this.bones);
+        this.variant.applyDefaultVariant(this.bones);
     }
 
     @Override
     public void setCurrentVariant(String variant) {
-        this.variantComponent.applyVariant(variant, this.bones);
+        this.variant.applyVariant(variant, this.bones);
     }
 
     @Override
