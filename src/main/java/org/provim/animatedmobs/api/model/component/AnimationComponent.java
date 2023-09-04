@@ -1,6 +1,5 @@
 package org.provim.animatedmobs.api.model.component;
 
-import com.mojang.logging.LogUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.animatedmobs.api.entities.holders.elements.DisplayWrapper;
@@ -140,14 +139,12 @@ public class AnimationComponent extends ComponentBase {
 
             switch (current.loopMode()) {
                 case once -> {
-                    LogUtils.getLogger().info("ONCE");
                     // play the animation once, and then reset to the first frame.
                     this.frozen = true;
                     this.frameCounter = current.length() - 1;
                 }
                 case hold -> {
                     // play the animation once, and then hold on the last frame.
-                    LogUtils.getLogger().info("HOLD");
                     this.frozen = true;
                     this.frameCounter = 1;
                 }
