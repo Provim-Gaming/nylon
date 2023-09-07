@@ -1,6 +1,9 @@
 package org.provim.animatedmobs.api.entities.holders;
 
+import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import org.provim.animatedmobs.api.entities.holders.elements.LocatorDisplay;
+
+import java.util.List;
 
 public interface AjHolderInterface {
 
@@ -59,4 +62,6 @@ public interface AjHolderInterface {
      * Sets the current extra animation immediately. This will abruptly exit running animations.
      */
     void setExtraAnimation(String name);
+
+    List<VirtualElement> getVirtualElements();
 }

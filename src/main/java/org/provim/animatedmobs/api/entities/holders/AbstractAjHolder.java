@@ -3,10 +3,7 @@ package org.provim.animatedmobs.api.entities.holders;
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
-import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
+import eu.pb4.polymer.virtualentity.api.elements.*;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -314,5 +311,9 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     @Override
     public int getVehicleId() {
         return this.parent.getId();
+    }
+
+    public List<VirtualElement> getVirtualElements() {
+        return getElements();
     }
 }
