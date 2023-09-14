@@ -1,22 +1,22 @@
 {
   "schemaVersion": 1,
-  "id": "animatedmobs-api",
+  "id": "nylon",
   "version": "${version}",
-  "name": "AnimatedMobs-api",
-  "description": "",
+  "name": "nylon",
+  "description": "AnimatedJava APi for Fabric",
   "authors": [
     "Pinnit",
     "Wesley1808"
   ],
   "contact": {
-    "repo": "https://github.com/tomalbrc/AnimatedMobs"
+    "repo": "https://github.com/tomalbrc/nylon"
   },
   "license": "All-Rights-Reserved",
   "environment": "*",
   "entrypoints": {
   },
   "mixins": [
-    "animatedmobs-api.mixins.json"
+    "nylon.mixins.json"
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
