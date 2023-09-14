@@ -1,1 +1,80 @@
-archivesBaseName = "${project.archives_base_name}-${rootProject.version}"
+plugins {
+    id 'fabric-loom' version '1.3-SNAPSHOT'
+    id 'maven-publish'
+}
+
+version = "${project.mod_version}+${project.minecraft_version}"
+group = project.maven_group
+
+allprojects {
+    apply plugin: 'fabric-loom'
+    apply plugin: 'maven-publish'
+
+    repositories {
+        maven { url 'https://maven.nucleoid.xyz' }
+        mavenLocal()
+    }
+
+    dependencies {
+        minecraft "com.mojang:minecraft:${project.minecraft_version}"
+        mappings loom.officialMojangMappings()
+        modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+        modImplementation "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+        modImplementation "eu.pb4:polymer-core:${project.polymer_version}"
+        modImplementation "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
+    }
+
+    processResources {
+        inputs.property "version", rootProject.version
+        inputs.property "minecraft_version", rootProject.minecraft_version
+        inputs.property "loader_version", rootProject.loader_version
+        filteringCharset "UTF-8"
+
+        filesMatching("fabric.mod.json") {
+            expand "version": rootProject.version,
+                    "minecraft_version": rootProject.minecraft_version,
+                    "loader_version": rootProject.loader_version
+        }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        it.options.release.set(17)
+    }
+
+    java {
+        withSourcesJar()
+    }
+}
+
+dependencies {
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    include "eu.pb4:polymer-resource-pack:${project.polymer_version}"
+    include "eu.pb4:polymer-core:${project.polymer_version}"
+    include "eu.pb4:polymer-virtual-entity:${project.polymer_version}"
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
+    from("LICENSE") {
+        rename { "${it}_${project.archivesBaseName}" }
+    }
+}
+
+// configure the maven publication
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+
+    // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
+    repositories {
+        // Add repositories to publish to here.
+        // Notice: This block does NOT have the same function as the block in the top level.
+        // The repositories here will be used for publishing your artifact, not for
+        // retrieving dependencies.
+    }
+}
