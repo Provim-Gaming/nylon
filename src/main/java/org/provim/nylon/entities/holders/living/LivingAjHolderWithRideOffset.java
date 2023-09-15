@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.entities.holders.living;
+package org.provim.nylon.entities.holders.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -9,8 +9,8 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector2f;
-import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.util.Utils;
+import org.provim.nylon.model.AjModel;
+import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 

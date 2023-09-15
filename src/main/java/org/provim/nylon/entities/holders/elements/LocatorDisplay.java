@@ -1,9 +1,9 @@
-package org.provim.animatedmobs.api.entities.holders.elements;
+package org.provim.nylon.entities.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
-import org.provim.animatedmobs.api.entities.holders.AbstractAjHolder;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
+import org.provim.nylon.entities.holders.AbstractAjHolder;
+import org.provim.nylon.model.AjNode;
+import org.provim.nylon.model.AjPose;
 
 public class LocatorDisplay extends DisplayWrapper<DisplayElement> {
     private final AbstractAjHolder<?> holder;

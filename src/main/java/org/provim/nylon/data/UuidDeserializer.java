@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.data;
+package org.provim.nylon.data;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;

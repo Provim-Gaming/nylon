@@ -1,9 +1,9 @@
-package org.provim.animatedmobs.api.model.component;
+package org.provim.nylon.model.component;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import org.provim.animatedmobs.api.entities.holders.elements.DisplayWrapper;
-import org.provim.animatedmobs.api.model.*;
+import org.provim.nylon.entities.holders.elements.DisplayWrapper;
+import org.provim.nylon.model.*;
 
 public class AnimationComponent extends ComponentBase {
     private final Animation currentAnimation = new Animation(1);

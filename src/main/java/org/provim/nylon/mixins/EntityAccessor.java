@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.mixins;
+package org.provim.nylon.mixins;
 
 import net.minecraft.world.entity.Entity;
 import org.spongepowered.asm.mixin.Mixin;

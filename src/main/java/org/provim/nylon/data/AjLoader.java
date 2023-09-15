@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.data;
+package org.provim.nylon.data;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.provim.animatedmobs.api.model.*;
+import org.provim.nylon.model.*;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -1,7 +1,7 @@
-package org.provim.animatedmobs.api.entities.holders;
+package org.provim.nylon.entities.holders;
 
 import net.minecraft.world.entity.Entity;
-import org.provim.animatedmobs.api.model.AjModel;
+import org.provim.nylon.model.AjModel;
 
 public class SimpleAjHolder extends AbstractAjHolder<Entity> {
     public SimpleAjHolder(Entity parent, AjModel model) {

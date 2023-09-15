@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "id": "nylon",
   "version": "${version}",
-  "name": "nylon",
-  "description": "AnimatedJava APi for Fabric",
+  "name": "Nylon",
+  "description": "AnimatedJava API for Fabric",
   "authors": [
     "Pinnit",
     "Wesley1808"

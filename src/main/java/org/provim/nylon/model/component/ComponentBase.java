@@ -1,6 +1,6 @@
-package org.provim.animatedmobs.api.model.component;
+package org.provim.nylon.model.component;
 
-import org.provim.animatedmobs.api.model.AjModel;
+import org.provim.nylon.model.AjModel;
 
 public abstract class ComponentBase {
     protected final AjModel model;

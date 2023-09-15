@@ -1,13 +1,13 @@
-package org.provim.animatedmobs.api.entities.holders.elements;
+package org.provim.nylon.entities.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.provim.animatedmobs.api.model.AjAnimation;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
+import org.provim.nylon.model.AjAnimation;
+import org.provim.nylon.model.AjNode;
+import org.provim.nylon.model.AjPose;
 
 public abstract class DisplayWrapper<T extends DisplayElement> {
     private final TrackedData trackedData = new TrackedData();

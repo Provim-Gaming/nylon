@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.model;
+package org.provim.nylon.model;
 
 import com.google.gson.*;
 import org.joml.Matrix4f;

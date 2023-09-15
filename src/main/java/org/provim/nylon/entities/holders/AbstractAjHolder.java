@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.entities.holders;
+package org.provim.nylon.entities.holders;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
@@ -25,14 +25,14 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.provim.animatedmobs.api.entities.holders.elements.Bone;
-import org.provim.animatedmobs.api.entities.holders.elements.DisplayWrapper;
-import org.provim.animatedmobs.api.entities.holders.elements.LocatorDisplay;
-import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
-import org.provim.animatedmobs.api.model.component.AnimationComponent;
-import org.provim.animatedmobs.api.model.component.VariantComponent;
+import org.provim.nylon.entities.holders.elements.Bone;
+import org.provim.nylon.entities.holders.elements.DisplayWrapper;
+import org.provim.nylon.entities.holders.elements.LocatorDisplay;
+import org.provim.nylon.model.AjModel;
+import org.provim.nylon.model.AjNode;
+import org.provim.nylon.model.AjPose;
+import org.provim.nylon.model.component.AnimationComponent;
+import org.provim.nylon.model.component.VariantComponent;
 
 import java.util.List;
 import java.util.Map;

@@ -1,8 +1,8 @@
-package org.provim.animatedmobs.api.entities.holders.elements;
+package org.provim.nylon.entities.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import org.provim.animatedmobs.api.model.AjNode;
-import org.provim.animatedmobs.api.model.AjPose;
+import org.provim.nylon.model.AjNode;
+import org.provim.nylon.model.AjPose;
 
 public class Bone extends DisplayWrapper<ItemDisplayElement> {
     private final boolean isHead;

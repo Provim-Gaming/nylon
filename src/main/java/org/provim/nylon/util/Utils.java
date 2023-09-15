@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.util;
+package org.provim.nylon.util;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;

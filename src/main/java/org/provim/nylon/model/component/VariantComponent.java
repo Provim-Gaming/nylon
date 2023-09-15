@@ -1,13 +1,13 @@
-package org.provim.animatedmobs.api.model.component;
+package org.provim.nylon.model.component;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.provim.animatedmobs.api.entities.holders.elements.Bone;
-import org.provim.animatedmobs.api.model.AjModel;
-import org.provim.animatedmobs.api.model.AjVariant;
+import org.provim.nylon.entities.holders.elements.Bone;
+import org.provim.nylon.model.AjModel;
+import org.provim.nylon.model.AjVariant;
 
 public class VariantComponent extends ComponentBase {
     @Nullable

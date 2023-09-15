@@ -1,7 +1,7 @@
-package org.provim.animatedmobs.api.entities.holders;
+package org.provim.nylon.entities.holders;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
-import org.provim.animatedmobs.api.entities.holders.elements.LocatorDisplay;
+import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 
 import java.util.List;
 

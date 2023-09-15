@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.entities;
+package org.provim.nylon.entities;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
@@ -6,7 +6,7 @@ import eu.pb4.polymer.virtualentity.mixin.SlimeEntityAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
-import org.provim.animatedmobs.api.entities.holders.AjHolderInterface;
+import org.provim.nylon.entities.holders.AjHolderInterface;
 
 import java.util.List;
 

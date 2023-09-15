@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.data;
+package org.provim.nylon.data;
 
 import com.google.gson.*;
 import org.joml.Vector3f;

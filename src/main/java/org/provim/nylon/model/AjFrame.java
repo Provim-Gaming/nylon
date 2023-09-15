@@ -1,4 +1,4 @@
-package org.provim.animatedmobs.api.model;
+package org.provim.nylon.model;
 
 import com.google.gson.*;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
