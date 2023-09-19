@@ -7,6 +7,8 @@ public record AjAnimation(
         AjFrame[] frames,
         @SerializedName("start_delay") int startDelay,
         @SerializedName("loop_delay") int loopDelay,
+
+        @SerializedName("duration") int duration,
         @SerializedName("loop_mode") LoopMode loopMode,
         @SerializedName("affected_bones") ObjectOpenHashSet<String> affectedBones,
         @SerializedName("affected_bones_is_a_whitelist") boolean affectedBonesIsAWhitelist

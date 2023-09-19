@@ -234,8 +234,10 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.findCurrentAnimationPose(display);
-        this.applyPose(pose, display);
+        AjPose pose = this.animation.firstPose(display);
+        if (pose != null) {
+            this.applyPose(pose, display);
+        }
     }
 
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
@@ -249,26 +251,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         display.setScale(scale);
 
         display.startInterpolation();
-    }
-
-    @Override
-    public void scheduleAnimation(String name) {
-        this.animation.scheduleAnimation(name);
-    }
-
-    @Override
-    public void setCurrentAnimation(String name) {
-        this.animation.setCurrentAnimation(name);
-    }
-
-    @Override
-    public void scheduleExtraAnimation(String name) {
-        this.animation.scheduleExtraAnimation(name);
-    }
-
-    @Override
-    public void setExtraAnimation(String name) {
-        this.animation.setExtraAnimation(name);
     }
 
     @Override
@@ -315,5 +297,21 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     public List<VirtualElement> getVirtualElements() {
         return getElements();
+    }
+
+    public void playAnimation(String name) {
+        this.playAnimation(name,null);
+    }
+
+    public void playAnimation(String name, Runnable onFinished) {
+        this.animation.playAnimation(name, onFinished);
+    }
+
+    public void pauseAnimation(String name) {
+        this.animation.pauseAnimation(name);
+    }
+
+    public void stopAnimation(String name) {
+        this.animation.stopAnimation(name);
     }
 }

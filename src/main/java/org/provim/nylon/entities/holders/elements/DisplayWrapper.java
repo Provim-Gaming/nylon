@@ -15,6 +15,7 @@ public abstract class DisplayWrapper<T extends DisplayElement> {
     private final AjNode node;
     private final T element;
     private AjPose lastAnimationPose;
+
     private AjAnimation lastAnimation;
 
     protected DisplayWrapper(T element, AjNode node, AjPose defaultPose) {
@@ -36,16 +37,13 @@ public abstract class DisplayWrapper<T extends DisplayElement> {
         return this.defaultPose;
     }
 
-    public AjPose getLastAnimationPose(AjAnimation regularAnim, AjAnimation extraAnim) {
-        if (regularAnim == this.lastAnimation || extraAnim == this.lastAnimation) {
-            return this.lastAnimationPose;
-        }
-        return this.defaultPose;
+    public AjPose getLastAnimationPose(AjAnimation animation) {
+        return animation == this.lastAnimation && this.lastAnimationPose != null ? this.lastAnimationPose : this.defaultPose;
     }
 
     public void setAnimationPose(AjPose pose, AjAnimation animation) {
-        this.lastAnimationPose = pose;
         this.lastAnimation = animation;
+        this.lastAnimationPose = pose;
     }
 
     abstract public boolean isHead();

@@ -41,27 +41,28 @@ public interface AjHolderInterface {
 
     /**
      * Schedules an animation for the main animation layer.
+     */
+    void playAnimation(String name);
+
+    /**
+     * Schedules an animation for the main animation layer.
      * <p>
-     * The animation will start when the current animation is finished.
+     * onFinished will be called on the last frame update for that animation
      */
-    void scheduleAnimation(String name);
+    void playAnimation(String name, Runnable onFinished);
 
     /**
-     * Sets the current main animation immediately. This will abruptly exit running animations.
+     * Pauses the current animation named `name`. The animation can be continued using `runAnimation`.
      */
-    void setCurrentAnimation(String name);
+    void pauseAnimation(String name);
 
     /**
-     * Schedules an animation for the extra animation layer.
-     * <p>
-     * The animation will start when the current animation is finished.
+     * Stops the current animation named `name`.
      */
-    void scheduleExtraAnimation(String name);
+    void stopAnimation(String name);
 
     /**
-     * Sets the current extra animation immediately. This will abruptly exit running animations.
+     * Returns a list of all polymer VirtualElements used for this holder
      */
-    void setExtraAnimation(String name);
-
     List<VirtualElement> getVirtualElements();
 }

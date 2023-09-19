@@ -1,94 +1,72 @@
 package org.provim.nylon.model.component;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.*;
 
+import java.util.Map;
+
 public class AnimationComponent extends ComponentBase {
-    private final Animation currentAnimation = new Animation(1);
-    private final Animation extraAnimation = new Animation(2);
+    private final Object2ObjectOpenHashMap<AjAnimation, Animation> animationList = new Object2ObjectOpenHashMap<>();
 
     public AnimationComponent(AjModel model) {
         super(model);
     }
 
-    public void scheduleAnimation(String name) {
-        this.scheduleAnimation(name, this.currentAnimation);
+    public Animation playAnimation(String name) {
+        return this.playAnimation(name, null);
     }
 
-    public void scheduleExtraAnimation(String name) {
-        this.scheduleAnimation(name, this.extraAnimation);
-    }
-
-    private void scheduleAnimation(String name, Animation anim) {
-        AjAnimation animation = this.model.animations().get(name);
-        if (anim.frameCounter >= 0 && !anim.frozen) {
-            anim.schedule(animation);
-        } else {
-            anim.set(animation);
+    public Animation playAnimation(String name, Runnable onFinished) {
+        AjAnimation anim = this.model.animations().get(name);
+        if (anim != null && !this.animationList.containsKey(anim)) {
+            this.animationList.put(anim, new Animation(anim));
         }
+        else if (this.animationList.containsKey(anim)) {
+            this.animationList.get(anim).paused = false;
+        }
+
+        this.animationList.get(anim).setOnFinishedCB(onFinished);
+
+        return this.animationList.get(anim);
     }
 
-    public void setCurrentAnimation(String name) {
+    public Animation pauseAnimation(String name) {
         AjAnimation anim = this.model.animations().get(name);
-        this.currentAnimation.set(anim);
+        if (anim != null && !this.animationList.containsKey(anim))
+            return null;
+
+        Animation animation = this.animationList.get(anim);
+        animation.paused = true;
+        return animation;
     }
 
-    public void setExtraAnimation(String name) {
-        AjAnimation anim = this.model.animations().get(name);
-        this.extraAnimation.set(anim);
+    public Animation stopAnimation(String name) {
+        return this.animationList.remove(this.model.animations().get(name));
     }
 
-    @NotNull
-    public AjPose findCurrentAnimationPose(DisplayWrapper<?> display) {
+    @Nullable
+    public AjPose firstPose(DisplayWrapper<?> display) {
         AjNode node = display.node();
+        AjPose pose = display.getDefaultPose();
 
-        // Extra animations
-        Animation anim = this.extraAnimation;
-        int counter = anim.frameCounter;
-        AjAnimation extraAnim = anim.currentAnim;
-        boolean hasExtraAnimation = extraAnim != null && counter > 0;
+        for (Map.Entry<AjAnimation,Animation> entry : this.animationList.entrySet()) {
+            if (!entry.getValue().paused) {
+                pose = display.getLastAnimationPose(entry.getKey());
+            }
 
-        AjPose frozenExtraPose = null;
-        if (hasExtraAnimation) {
-            AjPose pose = this.findAnimationPose(node, extraAnim, counter);
-            if (pose != null) {
-                if (!anim.frozen) {
-                    display.setAnimationPose(pose, extraAnim);
-                    return pose;
-                } else {
-                    frozenExtraPose = pose;
+            if (entry.getValue().canPlay()) {
+                AjPose pose2 = this.findAnimationPose(node, entry.getKey(), entry.getValue().frameCounter);
+                if (pose2 != null) {
+                    pose = pose2;
+                    display.setAnimationPose(pose, entry.getKey());
                 }
             }
         }
 
-        // Regular animations
-        anim = this.currentAnimation;
-        counter = anim.frameCounter;
-        AjAnimation regularAnim = anim.currentAnim;
-        boolean hasRegularAnimation = regularAnim != null && counter > 0;
-
-        AjPose defaultPose = display.getDefaultPose();
-        if (!hasExtraAnimation && !hasRegularAnimation) {
-            display.setAnimationPose(defaultPose, regularAnim);
-            return defaultPose;
-        }
-
-        if (hasRegularAnimation) {
-            AjPose pose = this.findAnimationPose(node, regularAnim, counter);
-            if (pose != null) {
-                display.setAnimationPose(pose, regularAnim);
-                return pose;
-            }
-        }
-
-        if (frozenExtraPose != null) {
-            display.setAnimationPose(frozenExtraPose, extraAnim);
-            return frozenExtraPose;
-        }
-
-        return display.getLastAnimationPose(regularAnim, extraAnim);
+        return pose;
     }
 
     @Nullable
@@ -102,76 +80,71 @@ public class AnimationComponent extends ComponentBase {
     }
 
     public void tickAnimations() {
-        this.currentAnimation.tick();
-        this.extraAnimation.tick();
+        this.animationList.forEach((key,animation) -> animation.tick());
+        this.animationList.entrySet().removeIf(entry -> entry.getValue().hasFinished());
     }
 
     private static class Animation {
-        private final int speed;
+        @NotNull
+        private AjAnimation animation;
+        private int frameCounter;
+        private boolean paused;
 
-        @Nullable
-        private AjAnimation currentAnim;
-        @Nullable
-        private AjAnimation scheduledAnim;
+        private boolean looped = false;
 
-        private int frameCounter = -1;
-        private boolean frozen;
+        private boolean finished = false;
 
-        public Animation(int speed) {
-            this.speed = speed;
+        private Runnable onFinishedCB = null;
+
+        public Animation(AjAnimation animation) {
+            this.animation = animation;
+            this.frameCounter = this.animation.duration() + animation.startDelay();
+            this.paused = false;
+        }
+
+        public void setOnFinishedCB(Runnable onFinishedCB) {
+            this.onFinishedCB = onFinishedCB;
         }
 
         private void tick() {
-            if (this.frameCounter >= 0 && !this.frozen) {
-                this.frameCounter -= this.speed;
-                if (this.frameCounter <= 0 && this.currentAnim != null) {
-                    this.onFinish(this.currentAnim);
+            if (this.frameCounter >= 0 && this.canPlay()) {
+                if (--this.frameCounter <= 0) {
+                    this.onFinish();
                 }
             }
         }
 
-        private void onFinish(AjAnimation current) {
-            AjAnimation next = this.scheduledAnim;
-            if (next != null && next != current) {
-                this.set(next);
-                return;
-            }
-
-            switch (current.loopMode()) {
-                case once -> {
-                    // play the animation once, and then reset to the first frame.
-                    this.frozen = true;
-                    this.frameCounter = current.length() - 1;
-                }
-                case hold -> {
-                    // play the animation once, and then hold on the last frame.
-                    this.frozen = true;
-                    this.frameCounter = 1;
-                }
+        private void onFinish() {
+            switch (animation.loopMode()) {
+                // todo: reset to "first frame"
+                case once -> // play the animation once, and then reset to the first frame.
+                        this.finished = true;
+                case hold -> // play the animation once, and then hold on the last frame.
+                        this.finished = true;
                 case loop -> {
-                    // todo: implement loop delay
-                    this.frameCounter = current.length() - 1;
+                    this.frameCounter = animation.duration()-1 + animation.loopDelay();
+                    this.looped = true;
                 }
             }
+
+            if (this.onFinishedCB != null)
+                this.onFinishedCB.run();
         }
 
-        private void schedule(AjAnimation anim) {
-            if (this.scheduledAnim == anim) {
-                return;
-            }
-
-            this.scheduledAnim = anim;
+        private boolean inLoopDelay() {
+            return animation.loopDelay() > 0 && looped ? this.frameCounter >= animation.duration() - (looped ? 0 : animation.startDelay()) - animation.loopDelay() : false;
         }
 
-        private void set(AjAnimation anim) {
-            if (this.currentAnim == anim && !this.frozen) {
-                return;
-            }
+        private boolean inStartDelay() {
+            return animation.startDelay() > 0 ? this.frameCounter >= animation.duration() - (looped ? 0 : animation.startDelay()) : false;
+        }
 
-            this.scheduledAnim = null;
-            this.currentAnim = anim;
-            this.frameCounter = anim != null ? anim.length() - 1 : -1;
-            this.frozen = false;
+        public boolean hasFinished() {
+            return this.finished;
+        }
+
+        public boolean canPlay() {
+            return !this.paused && !this.finished && !this.inLoopDelay() && !this.inStartDelay();
         }
     }
 }
