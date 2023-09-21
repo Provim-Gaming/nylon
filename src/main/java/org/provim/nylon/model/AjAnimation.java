@@ -18,10 +18,6 @@ public record AjAnimation(
         return this.affectedBonesIsAWhitelist == this.affectedBones.contains(boneName);
     }
 
-    public int length() {
-        return this.frames.length;
-    }
-
     public enum LoopMode {
         once, hold, loop
     }

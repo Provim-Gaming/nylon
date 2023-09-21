@@ -1,6 +1,6 @@
 package org.provim.nylon.model.component;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
@@ -9,20 +9,20 @@ import org.provim.nylon.model.*;
 import java.util.Map;
 
 public class AnimationComponent extends ComponentBase {
-    private final Object2ObjectOpenHashMap<AjAnimation, Animation> animationList = new Object2ObjectOpenHashMap<>();
+    private final Object2ObjectLinkedOpenHashMap<AjAnimation, Animation> animationList = new Object2ObjectLinkedOpenHashMap<>();
 
     public AnimationComponent(AjModel model) {
         super(model);
     }
 
-    public Animation playAnimation(String name) {
-        return this.playAnimation(name, null);
+    public Animation playAnimation(String name, Runnable onFinished) {
+        return this.playAnimation(name, 1, onFinished);
     }
 
-    public Animation playAnimation(String name, Runnable onFinished) {
+    public Animation playAnimation(String name, int speed, Runnable onFinished) {
         AjAnimation anim = this.model.animations().get(name);
         if (anim != null && !this.animationList.containsKey(anim)) {
-            this.animationList.put(anim, new Animation(anim));
+            this.animationList.put(anim, new Animation(anim, speed));
         }
         else if (this.animationList.containsKey(anim)) {
             this.animationList.get(anim).paused = false;
@@ -72,7 +72,7 @@ public class AnimationComponent extends ComponentBase {
     @Nullable
     private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
         if (current.isAffected(node.name())) {
-            int index = current.length() - counter;
+            int index = current.duration() - counter;
             AjFrame frame = current.frames()[index];
             return frame.poses().get(node.uuid());
         }
@@ -88,6 +88,7 @@ public class AnimationComponent extends ComponentBase {
         @NotNull
         private AjAnimation animation;
         private int frameCounter;
+        private int speed;
         private boolean paused;
 
         private boolean looped = false;
@@ -96,9 +97,10 @@ public class AnimationComponent extends ComponentBase {
 
         private Runnable onFinishedCB = null;
 
-        public Animation(AjAnimation animation) {
+        public Animation(AjAnimation animation, int speed) {
             this.animation = animation;
-            this.frameCounter = this.animation.duration() + animation.startDelay();
+            this.frameCounter = this.animation.duration()-1 + animation.startDelay();
+            this.speed = speed;
             this.paused = false;
         }
 
@@ -108,7 +110,8 @@ public class AnimationComponent extends ComponentBase {
 
         private void tick() {
             if (this.frameCounter >= 0 && this.canPlay()) {
-                if (--this.frameCounter <= 0) {
+                this.frameCounter -= speed;
+                if (this.frameCounter <= 0) {
                     this.onFinish();
                 }
             }

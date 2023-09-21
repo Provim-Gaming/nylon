@@ -91,7 +91,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
                     }
                 }
                 case locator -> {
-                    DisplayElement locator = this.createLocatorDisplay(model, node);
+                    DisplayElement locator = this.createLocatorDisplay(node);
                     if (locator != null) {
                         locators.put(node.name(), LocatorDisplay.of(locator, node, defaultPose, this));
                         this.addElement(locator);
@@ -118,7 +118,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected DisplayElement createLocatorDisplay(AjModel model, AjNode node) {
+    protected DisplayElement createLocatorDisplay(AjNode node) {
         if (node.entityType() != null) {
             DisplayElement locator = switch (node.entityType().getPath()) {
                 case "item_display" -> new ItemDisplayElement();
@@ -227,6 +227,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         if (this.activeLocators.size() > 0) {
             for (LocatorDisplay locator : this.activeLocators) {
                 this.updateElement(locator);
+                locator.updateTransformationConsumer();
             }
         }
 
@@ -305,6 +306,10 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
 
     public void playAnimation(String name, Runnable onFinished) {
         this.animation.playAnimation(name, onFinished);
+    }
+
+    public void playAnimation(String name, int speed, Runnable onFinished) {
+        this.animation.playAnimation(name, speed, onFinished);
     }
 
     public void pauseAnimation(String name) {
