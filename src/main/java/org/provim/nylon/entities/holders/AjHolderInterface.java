@@ -45,11 +45,21 @@ public interface AjHolderInterface {
     void playAnimation(String name);
 
     /**
+     * See above, allows to specify the animation speed
+     */
+    void playAnimation(String name, int speed);
+
+    /**
      * Schedules an animation for the main animation layer.
      * <p>
      * onFinished will be called on the last frame update for that animation
      */
     void playAnimation(String name, Runnable onFinished);
+
+    /**
+     * See above, allows to specify the animation speed
+     */
+    void playAnimation(String name, int speed, Runnable onFinished);
 
     /**
      * Pauses the current animation named `name`. The animation can be continued using `runAnimation`.

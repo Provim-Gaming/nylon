@@ -304,6 +304,10 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         this.playAnimation(name,null);
     }
 
+    public void playAnimation(String name, int speed) {
+        this.playAnimation(name, speed,null);
+    }
+
     public void playAnimation(String name, Runnable onFinished) {
         this.animation.playAnimation(name, onFinished);
     }
