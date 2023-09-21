@@ -24,9 +24,9 @@ public class Utils {
         // - The dimensions are used for certain other properties, such as the passenger riding height or the fire animation.
         return List.of(
                 // We update the POSE in this packet, which makes the client refresh the interactions dimensions.
-                // We use this to move the passenger riding height of the interaction upwards. This is raised to height * 1.325 to match the "actual" top of the interaction.
+                // We use this to move the passenger riding height of the interaction upwards.
                 new ClientboundSetEntityDataPacket(interaction.getEntityId(), List.of(
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, (float) height * 1.325F),
+                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, (float) height),
                         SynchedEntityData.DataValue.create(InteractionTrackedData.WIDTH, size.x),
                         SynchedEntityData.DataValue.create(EntityTrackedData.POSE, Pose.STANDING)
                 )),
