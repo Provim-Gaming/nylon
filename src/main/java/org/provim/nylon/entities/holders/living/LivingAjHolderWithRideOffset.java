@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /**
  * Extension of {@link LivingAjHolder} that allows for custom passenger riding offsets.
  * <p>
- * This will use {@link Entity#getPassengersRidingOffset()} as the offset.
+ * This will use {@link Entity#getPassengerRidingPosition(Entity).y()} of the first passenger as the offset.
  * <p>
  * It works by adding an extra zero bounding boxed {@link InteractionElement} to the parent entity,
  * which is used as the vehicle. This will add a very minor overhead on the client.
@@ -42,7 +42,7 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengersRidingOffset())) {
+        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengerRidingPosition(this.parent.getFirstPassenger()).y)) {
             consumer.accept(packet);
         }
     }
@@ -56,7 +56,7 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     @Override
     protected void sendScaleUpdate() {
         super.sendScaleUpdate();
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengersRidingOffset())));
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengerRidingPosition(this.parent.getFirstPassenger()).y)));
     }
 
     @Override
