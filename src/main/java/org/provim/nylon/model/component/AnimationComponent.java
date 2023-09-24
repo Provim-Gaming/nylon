@@ -25,7 +25,7 @@ public class AnimationComponent extends ComponentBase {
             this.animationList.put(anim, new Animation(anim, speed));
         }
         else if (this.animationList.containsKey(anim)) {
-            this.animationList.get(anim).paused = false;
+            this.animationList.get(anim).state = Animation.State.PLAYING;
         }
 
         this.animationList.get(anim).setOnFinishedCB(onFinished);
@@ -39,7 +39,7 @@ public class AnimationComponent extends ComponentBase {
             return null;
 
         Animation animation = this.animationList.get(anim);
-        animation.paused = true;
+        animation.state = Animation.State.PAUSED;
         return animation;
     }
 
@@ -50,14 +50,14 @@ public class AnimationComponent extends ComponentBase {
     @Nullable
     public AjPose firstPose(DisplayWrapper<?> display) {
         AjNode node = display.node();
-        AjPose pose = display.getDefaultPose();
+        AjPose pose = null;
 
         for (Map.Entry<AjAnimation,Animation> entry : this.animationList.entrySet()) {
-            if (!entry.getValue().paused) {
-                pose = display.getLastAnimationPose(entry.getKey());
+            if (entry.getValue().inResetState()) {
+                pose = display.getDefaultPose();
             }
 
-            if (entry.getValue().canPlay()) {
+            if (entry.getValue().shouldAnimate()) {
                 AjPose pose2 = this.findAnimationPose(node, entry.getKey(), entry.getValue().frameCounter);
                 if (pose2 != null) {
                     pose = pose2;
@@ -72,7 +72,7 @@ public class AnimationComponent extends ComponentBase {
     @Nullable
     private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
         if (current.isAffected(node.name())) {
-            int index = current.duration() - counter;
+            int index = current.duration() - (counter+1);
             AjFrame frame = current.frames()[index];
             return frame.poses().get(node.uuid());
         }
@@ -80,20 +80,25 @@ public class AnimationComponent extends ComponentBase {
     }
 
     public void tickAnimations() {
-        this.animationList.forEach((key,animation) -> animation.tick());
         this.animationList.entrySet().removeIf(entry -> entry.getValue().hasFinished());
+        this.animationList.forEach((key,animation) -> animation.tick());
     }
 
     private static class Animation {
+        enum State {
+            PLAYING,
+            PAUSED,
+            FINISHED_RESET_DEFAULT,
+            FINISHED,
+        }
+
         @NotNull
         private AjAnimation animation;
         private int frameCounter;
         private int speed;
-        private boolean paused;
+        private State state;
 
         private boolean looped = false;
-
-        private boolean finished = false;
 
         private Runnable onFinishedCB = null;
 
@@ -101,7 +106,11 @@ public class AnimationComponent extends ComponentBase {
             this.animation = animation;
             this.frameCounter = this.animation.duration()-1 + animation.startDelay();
             this.speed = speed;
-            this.paused = false;
+            this.state = State.PLAYING;
+        }
+
+        public boolean inResetState() {
+            return this.state == State.FINISHED_RESET_DEFAULT;
         }
 
         public void setOnFinishedCB(Runnable onFinishedCB) {
@@ -109,9 +118,9 @@ public class AnimationComponent extends ComponentBase {
         }
 
         private void tick() {
-            if (this.frameCounter >= 0 && this.canPlay()) {
+            if (this.frameCounter+speed >= 0 && this.shouldAnimate()) {
                 this.frameCounter -= speed;
-                if (this.frameCounter <= 0) {
+                if (this.frameCounter < 0) {
                     this.onFinish();
                 }
             }
@@ -120,10 +129,17 @@ public class AnimationComponent extends ComponentBase {
         private void onFinish() {
             switch (animation.loopMode()) {
                 // todo: reset to "first frame"
-                case once -> // play the animation once, and then reset to the first frame.
-                        this.finished = true;
+                case once -> {
+                    // play the animation once, and then reset to the first frame.
+                    if (this.state == State.FINISHED_RESET_DEFAULT) {
+                        this.state = State.FINISHED;
+                    } else {
+                        this.state = State.FINISHED_RESET_DEFAULT;
+                        this.frameCounter = 1;
+                    }
+                }
                 case hold -> // play the animation once, and then hold on the last frame.
-                        this.finished = true;
+                        this.state = State.FINISHED;
                 case loop -> {
                     this.frameCounter = animation.duration()-1 + animation.loopDelay();
                     this.looped = true;
@@ -143,11 +159,11 @@ public class AnimationComponent extends ComponentBase {
         }
 
         public boolean hasFinished() {
-            return this.finished;
+            return this.state == State.FINISHED;
         }
 
-        public boolean canPlay() {
-            return !this.paused && !this.finished && !this.inLoopDelay() && !this.inStartDelay();
+        public boolean shouldAnimate() {
+            return this.state != State.PAUSED && this.state != State.FINISHED && !this.inLoopDelay() && !this.inStartDelay();
         }
     }
 }
