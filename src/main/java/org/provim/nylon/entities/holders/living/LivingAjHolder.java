@@ -133,6 +133,17 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         super.updateElements();
     }
 
+    @Override
+    protected void updateElement(DisplayWrapper<?> display) {
+        AjPose pose = this.animation.firstPose(display);
+        if (pose == null) {
+            // we always need a valid pose for body rotation & head rotation
+            this.applyPose(display.getDefaultPose(), display);
+        } else {
+            this.applyPose(pose, display);
+        }
+    }
+
     private void updateTrackedData() {
         boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire());
         if (displayFire != this.displayFire) {

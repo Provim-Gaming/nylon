@@ -49,8 +49,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     private final Map<String, LocatorDisplay> locators;
     private final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
 
-    private final AnimationComponent animation;
-    private final VariantComponent variant;
+    protected final AnimationComponent animation;
+    protected final VariantComponent variant;
 
     private final boolean updateElementsAsync;
     private boolean isLoaded;

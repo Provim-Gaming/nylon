@@ -5,7 +5,6 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.provim.nylon.model.AjAnimation;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 
@@ -14,15 +13,11 @@ public abstract class DisplayWrapper<T extends DisplayElement> {
     private final AjPose defaultPose;
     private final AjNode node;
     private final T element;
-    private AjPose lastAnimationPose;
-
-    private AjAnimation lastAnimation;
 
     protected DisplayWrapper(T element, AjNode node, AjPose defaultPose) {
         this.defaultPose = defaultPose;
         this.element = element;
         this.node = node;
-        this.lastAnimationPose = defaultPose;
     }
 
     public T element() {
@@ -35,15 +30,6 @@ public abstract class DisplayWrapper<T extends DisplayElement> {
 
     public AjPose getDefaultPose() {
         return this.defaultPose;
-    }
-
-    public AjPose getLastAnimationPose(AjAnimation animation) {
-        return animation == this.lastAnimation && this.lastAnimationPose != null ? this.lastAnimationPose : this.defaultPose;
-    }
-
-    public void setAnimationPose(AjPose pose, AjAnimation animation) {
-        this.lastAnimation = animation;
-        this.lastAnimationPose = pose;
     }
 
     abstract public boolean isHead();

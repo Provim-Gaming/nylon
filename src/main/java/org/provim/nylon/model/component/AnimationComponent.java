@@ -55,13 +55,10 @@ public class AnimationComponent extends ComponentBase {
         for (Map.Entry<AjAnimation,Animation> entry : this.animationList.entrySet()) {
             if (entry.getValue().inResetState()) {
                 pose = display.getDefaultPose();
-            }
-
-            if (entry.getValue().shouldAnimate()) {
+            } else if (entry.getValue().shouldAnimate()) {
                 AjPose pose2 = this.findAnimationPose(node, entry.getKey(), entry.getValue().frameCounter);
                 if (pose2 != null) {
                     pose = pose2;
-                    display.setAnimationPose(pose, entry.getKey());
                 }
             }
         }
