@@ -91,9 +91,9 @@ public class AnimationComponent extends ComponentBase {
         }
 
         @NotNull
-        private AjAnimation animation;
+        private final AjAnimation animation;
         private int frameCounter;
-        private int speed;
+        private final int speed;
         private State state;
 
         private boolean looped = false;
@@ -149,11 +149,11 @@ public class AnimationComponent extends ComponentBase {
         }
 
         private boolean inLoopDelay() {
-            return animation.loopDelay() > 0 && looped ? this.frameCounter >= animation.duration() - (looped ? 0 : animation.startDelay()) - animation.loopDelay() : false;
+            return animation.loopDelay() > 0 && looped && this.frameCounter >= animation.duration() - animation.loopDelay();
         }
 
         private boolean inStartDelay() {
-            return animation.startDelay() > 0 ? this.frameCounter >= animation.duration() - (looped ? 0 : animation.startDelay()) : false;
+            return animation.startDelay() > 0 && this.frameCounter >= animation.duration() - (looped ? 0 : animation.startDelay());
         }
 
         public boolean hasFinished() {
