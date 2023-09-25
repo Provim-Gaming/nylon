@@ -24,7 +24,7 @@ public class AnimationComponent extends ComponentBase {
         if (anim != null && !this.animationList.containsKey(anim)) {
             this.animationList.put(anim, new Animation(anim, speed));
         }
-        else if (this.animationList.containsKey(anim)) {
+        else if (this.animationList.containsKey(anim) && this.animationList.get(anim).state == Animation.State.PAUSED) {
             this.animationList.get(anim).state = Animation.State.PLAYING;
         }
 
@@ -35,7 +35,8 @@ public class AnimationComponent extends ComponentBase {
 
     public Animation pauseAnimation(String name) {
         AjAnimation anim = this.model.animations().get(name);
-        if (anim != null && !this.animationList.containsKey(anim))
+        boolean contains = this.animationList.containsKey(anim);
+        if (anim != null && !contains || contains && this.animationList.get(anim).state == Animation.State.PLAYING)
             return null;
 
         Animation animation = this.animationList.get(anim);
