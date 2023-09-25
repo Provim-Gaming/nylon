@@ -70,7 +70,7 @@ public class AnimationComponent extends ComponentBase {
     @Nullable
     private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
         if (current.isAffected(node.name())) {
-            int index = current.duration() - (counter+1);
+            int index = (current.duration()-1) - Math.max(counter, 0);
             AjFrame frame = current.frames()[index];
             return frame.poses().get(node.uuid());
         }
