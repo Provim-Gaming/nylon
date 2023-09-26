@@ -42,7 +42,7 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengerRidingPosition(this.parent.getFirstPassenger()).y)) {
+        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))) {
             consumer.accept(packet);
         }
     }
@@ -56,7 +56,7 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     @Override
     protected void sendScaleUpdate() {
         super.sendScaleUpdate();
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, this.parent.getPassengerRidingPosition(this.parent.getFirstPassenger()).y)));
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))));
     }
 
     @Override

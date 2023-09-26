@@ -7,12 +7,23 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
+import org.provim.nylon.mixins.EntityAccessor;
 
 import java.util.List;
 
 public class Utils {
+    public static boolean hasVisualFire(Entity entity) {
+        return ((EntityAccessor) entity).am_hasVisualFire();
+    }
+
+    public static float getRideOffset(Entity entity) {
+        return entity.getBbHeight() + entity.getMyRidingOffset(entity);
+    }
 
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size) {
         return updateClientInteraction(interaction, size, size.y);

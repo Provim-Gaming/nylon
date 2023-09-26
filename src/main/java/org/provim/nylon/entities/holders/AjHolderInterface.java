@@ -1,10 +1,12 @@
 package org.provim.nylon.entities.holders;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
+import net.minecraft.world.entity.Entity;
 import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 
 import java.util.List;
 
+@SuppressWarnings("unused")
 public interface AjHolderInterface {
 
     /**
@@ -75,4 +77,9 @@ public interface AjHolderInterface {
      * Returns a list of all polymer VirtualElements used for this holder
      */
     List<VirtualElement> getVirtualElements();
+
+    /**
+     * Returns the parent entity
+     */
+    Entity getParent();
 }

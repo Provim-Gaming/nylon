@@ -21,7 +21,6 @@ import org.joml.Vector3f;
 import org.provim.nylon.entities.holders.AbstractAjHolder;
 import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
-import org.provim.nylon.mixins.EntityAccessor;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
@@ -46,12 +45,6 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
         this.addElement(this.hitboxInteraction);
-
-        if (this.bones.length > 0) {
-            ItemDisplayElement element = this.bones[0].element();
-            element.setShadowRadius(this.size.x / 2.f);
-            element.setShadowStrength(0.8f);
-        }
     }
 
     @Override
@@ -145,7 +138,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     private void updateTrackedData() {
-        boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || this.parent instanceof EntityAccessor entity && entity.am_hasVisualFire());
+        boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || Utils.hasVisualFire(this.parent));
         if (displayFire != this.displayFire) {
             this.updateFire(displayFire);
         }

@@ -1,10 +1,11 @@
 package org.provim.nylon.entities;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
+import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import eu.pb4.polymer.virtualentity.mixin.SlimeEntityAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import org.provim.nylon.entities.holders.AjHolderInterface;
 
@@ -15,14 +16,24 @@ public interface AjEntity extends PolymerEntity {
 
     @Override
     default EntityType<?> getPolymerEntityType(ServerPlayer player) {
-        return EntityType.SLIME;
+        return EntityType.BLOCK_DISPLAY;
     }
 
     @Override
     default void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
-        data.add(SynchedEntityData.DataValue.create(SlimeEntityAccessor.getSLIME_SIZE(), 0));
+        Entity parent = this.getHolder().getParent();
+
+        // Adds entity shadows
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.SHADOW_RADIUS, parent.getBbWidth() * 0.65f));
+
+        // Adds movement and rotation interpolation
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.TELEPORTATION_DURATION, 3));
+
+        // Minimal culling box size for client performance
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.WIDTH, 0.01f));
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.HEIGHT, 0.01f));
+
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));
-        data.add(SynchedEntityData.DataValue.create(EntityTrackedData.FLAGS, (byte) ((1 << EntityTrackedData.INVISIBLE_FLAG_INDEX))));
     }
 }

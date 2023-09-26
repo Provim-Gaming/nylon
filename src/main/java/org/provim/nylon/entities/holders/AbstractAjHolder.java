@@ -296,30 +296,42 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         return this.parent.getId();
     }
 
+    @Override
+    public T getParent() {
+        return this.parent;
+    }
+
+    @Override
     public List<VirtualElement> getVirtualElements() {
-        return getElements();
+        return this.getElements();
     }
 
+    @Override
     public void playAnimation(String name) {
-        this.playAnimation(name,null);
+        this.playAnimation(name, null);
     }
 
+    @Override
     public void playAnimation(String name, int speed) {
-        this.playAnimation(name, speed,null);
+        this.playAnimation(name, speed, null);
     }
 
+    @Override
     public void playAnimation(String name, Runnable onFinished) {
         this.animation.playAnimation(name, onFinished);
     }
 
+    @Override
     public void playAnimation(String name, int speed, Runnable onFinished) {
         this.animation.playAnimation(name, speed, onFinished);
     }
 
+    @Override
     public void pauseAnimation(String name) {
         this.animation.pauseAnimation(name);
     }
 
+    @Override
     public void stopAnimation(String name) {
         this.animation.stopAnimation(name);
     }
