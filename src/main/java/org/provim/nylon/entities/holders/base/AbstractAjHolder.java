@@ -11,12 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-import net.minecraft.server.network.ServerGamePacketListenerImpl;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -36,7 +30,6 @@ import org.provim.nylon.model.component.VariantComponent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
 
 public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder {
 
@@ -112,6 +105,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     }
 
     @Nullable
+    @SuppressWarnings("ConstantConditions")
     protected DisplayElement createLocatorDisplay(AjNode node) {
         if (node.entityType() != null) {
             DisplayElement locator = switch (node.entityType().getPath()) {
@@ -154,14 +148,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
                 this.removeElementWithoutUpdates(locator.element());
             }
         }
-    }
-
-    @Override
-    protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
-        super.startWatchingExtraPackets(player, consumer);
-
-        consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
     }
 
     protected void onEntityDataLoaded() {

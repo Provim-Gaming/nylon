@@ -50,16 +50,16 @@ public abstract class AjElementHolder extends ElementHolder implements AjHolderI
             return;
         }
 
-        if (this.updateElementsAsync) {
-            EXECUTOR.execute(super::tick);
-        } else {
-            super.tick();
-        }
+        super.tick();
     }
 
     @Override
     protected final void onTick() {
-        this.updateElements();
+        if (this.updateElementsAsync) {
+            EXECUTOR.execute(this::updateElements);
+        } else {
+            this.updateElements();
+        }
     }
 
     @Override
