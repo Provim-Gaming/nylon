@@ -25,13 +25,11 @@ public interface AjEntity extends PolymerEntity {
 
         // Adds entity shadows
         data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.SHADOW_RADIUS, parent.getBbWidth() * 0.65f));
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.WIDTH, parent.getBbWidth()));
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.HEIGHT, parent.getBbHeight()));
 
         // Adds movement and rotation interpolation
         data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.TELEPORTATION_DURATION, 3));
-
-        // Minimal culling box size for client performance
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.WIDTH, 0.01f));
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.HEIGHT, 0.01f));
 
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));

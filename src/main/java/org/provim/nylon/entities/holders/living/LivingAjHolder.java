@@ -8,6 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
@@ -98,7 +99,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         this.addDirectPassengers(passengers);
 
         consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
+        consumer.accept(new ClientboundSetPassengersPacket(this.parent));
     }
 
     protected void addDirectPassengers(IntList passengers) {

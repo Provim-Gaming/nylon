@@ -16,7 +16,7 @@ import java.util.List;
 
 public class Utils {
     public static boolean hasVisualFire(Entity entity) {
-        return ((EntityAccessor) entity).am_hasVisualFire();
+        return ((EntityAccessor) entity).nylon$hasVisualFire();
     }
 
     public static float getRideOffset(Entity entity) {
