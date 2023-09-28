@@ -66,7 +66,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             translation.mul(this.scale);
             scale.mul(this.scale);
         }
-        translation.add(0, -this.scaledSize.y, 0);
+        translation.add(0, -this.scaledSize.y + 0.01f, 0);
 
         Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
         if (display.isHead()) {
