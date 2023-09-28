@@ -11,7 +11,7 @@
   "contact": {
     "repo": "https://github.com/tomalbrc/nylon"
   },
-  "license": "All-Rights-Reserved",
+  "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
   },

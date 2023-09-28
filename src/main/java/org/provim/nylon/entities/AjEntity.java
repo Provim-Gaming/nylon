@@ -7,7 +7,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import org.provim.nylon.entities.holders.AjHolderInterface;
+import org.provim.nylon.entities.holders.base.AjHolderInterface;
 
 import java.util.List;
 

@@ -1,6 +1,7 @@
 package org.provim.nylon.entities.holders;
 
 import net.minecraft.world.entity.Entity;
+import org.provim.nylon.entities.holders.base.AbstractAjHolder;
 import org.provim.nylon.model.AjModel;
 
 public class SimpleAjHolder extends AbstractAjHolder<Entity> {

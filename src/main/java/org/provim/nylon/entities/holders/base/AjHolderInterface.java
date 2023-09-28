@@ -1,4 +1,4 @@
-package org.provim.nylon.entities.holders;
+package org.provim.nylon.entities.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.world.entity.Entity;

@@ -1,14 +1,15 @@
-package org.provim.nylon.entities.holders;
+package org.provim.nylon.entities.holders.base;
 
 import com.mojang.math.Axis;
-import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.elements.*;
+import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
+import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
+import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
+import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -20,7 +21,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -36,11 +36,9 @@ import org.provim.nylon.model.component.VariantComponent;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 import java.util.function.Consumer;
 
-public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder implements AjHolderInterface {
-    private static final Executor EXECUTOR = Util.backgroundExecutor();
+public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder {
 
     protected final Vector2f size;
     protected final T parent;
@@ -52,14 +50,10 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
 
-    private final boolean updateElementsAsync;
-    private boolean isLoaded;
-    private int tickCount;
-
     protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
+        super(updateElementsAsync);
+
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
-        this.updateElementsAsync = updateElementsAsync;
-        this.tickCount = parent.tickCount - 1;
         this.parent = parent;
 
         this.animation = new AnimationComponent(model);
@@ -84,7 +78,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
             AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
             switch (node.type()) {
                 case bone -> {
-                    ItemDisplayElement bone = this.createBone(model, node, rigItem);
+                    ItemDisplayElement bone = this.createBone(node, rigItem);
                     if (bone != null) {
                         bones.add(Bone.of(bone, node, defaultPose));
                         this.addElement(bone);
@@ -102,7 +96,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Nullable
-    protected ItemDisplayElement createBone(AjModel model, AjNode node, Item rigItem) {
+    protected ItemDisplayElement createBone(AjNode node, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
@@ -163,25 +157,11 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     }
 
     @Override
-    protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
-    }
-
-    @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
         consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
-    }
-
-    @Override
-    public final boolean startWatching(ServerGamePacketListenerImpl player) {
-        if (!this.isLoaded) {
-            this.isLoaded = true;
-            this.onEntityDataLoaded();
-        }
-
-        return super.startWatching(player);
     }
 
     protected void onEntityDataLoaded() {
@@ -192,31 +172,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
         for (LocatorDisplay locator : this.activeLocators) {
             this.applyPose(locator.getDefaultPose(), locator);
         }
-    }
-
-    @Override
-    public final void tick() {
-        if (this.tickCount++ % 2 != 0) {
-            return;
-        }
-
-        int parentTickCount = this.parent.tickCount;
-        if (parentTickCount < this.tickCount) {
-            // If the parent entity is behind, they likely haven't been ticked - in which case we don't need to update our elements.
-            this.tickCount = parentTickCount;
-            return;
-        }
-
-        if (this.updateElementsAsync) {
-            EXECUTOR.execute(super::tick);
-        } else {
-            super.tick();
-        }
-    }
-
-    @Override
-    protected final void onTick() {
-        this.updateElements();
     }
 
     protected void updateElements() {
@@ -299,11 +254,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends ElementHolder i
     @Override
     public T getParent() {
         return this.parent;
-    }
-
-    @Override
-    public List<VirtualElement> getVirtualElements() {
-        return this.getElements();
     }
 
     @Override

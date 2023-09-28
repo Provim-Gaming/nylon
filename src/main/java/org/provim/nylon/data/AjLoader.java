@@ -12,7 +12,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.model.*;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.UUID;
 
 public class AjLoader {
@@ -46,20 +49,14 @@ public class AjLoader {
     }
 
     public static AjModel load(String path) throws IllegalArgumentException, JsonParseException {
-        InputStream input = null;
         try {
-            input = new FileInputStream(path);
-            if (input == null) {
-                throw new IllegalArgumentException("Model doesn't exist: " + path);
-            }
+            InputStream input = new FileInputStream(path);
 
             AjModel model = GSON.fromJson(new InputStreamReader(input), AjModel.class);
-
             AjLoader.replaceModelData(model);
-
             return model;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
         }
     }
 

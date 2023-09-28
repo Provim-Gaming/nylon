@@ -23,8 +23,7 @@ public class AnimationComponent extends ComponentBase {
         AjAnimation anim = this.model.animations().get(name);
         if (anim != null && !this.animationList.containsKey(anim)) {
             this.animationList.put(anim, new Animation(anim, speed));
-        }
-        else if (this.animationList.containsKey(anim) && this.animationList.get(anim).state == Animation.State.PAUSED) {
+        } else if (this.animationList.containsKey(anim) && this.animationList.get(anim).state == Animation.State.PAUSED) {
             this.animationList.get(anim).state = Animation.State.PLAYING;
         }
 
@@ -53,7 +52,7 @@ public class AnimationComponent extends ComponentBase {
         AjNode node = display.node();
         AjPose pose = null;
 
-        for (Map.Entry<AjAnimation,Animation> entry : this.animationList.entrySet()) {
+        for (Map.Entry<AjAnimation, Animation> entry : this.animationList.entrySet()) {
             if (entry.getValue().inResetState()) {
                 pose = display.getDefaultPose();
             } else if (entry.getValue().shouldAnimate()) {
@@ -70,7 +69,7 @@ public class AnimationComponent extends ComponentBase {
     @Nullable
     private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
         if (current.isAffected(node.name())) {
-            int index = (current.duration()-1) - Math.max(counter, 0);
+            int index = (current.duration() - 1) - Math.max(counter, 0);
             AjFrame frame = current.frames()[index];
             return frame.poses().get(node.uuid());
         }
@@ -79,7 +78,7 @@ public class AnimationComponent extends ComponentBase {
 
     public void tickAnimations() {
         this.animationList.entrySet().removeIf(entry -> entry.getValue().hasFinished());
-        this.animationList.forEach((key,animation) -> animation.tick());
+        this.animationList.forEach((key, animation) -> animation.tick());
     }
 
     private static class Animation {
@@ -102,7 +101,7 @@ public class AnimationComponent extends ComponentBase {
 
         public Animation(AjAnimation animation, int speed) {
             this.animation = animation;
-            this.frameCounter = this.animation.duration()-1 + animation.startDelay();
+            this.frameCounter = this.animation.duration() - 1 + animation.startDelay();
             this.speed = speed;
             this.state = State.PLAYING;
         }
@@ -116,7 +115,7 @@ public class AnimationComponent extends ComponentBase {
         }
 
         private void tick() {
-            if (this.frameCounter+speed >= 0 && this.shouldAnimate()) {
+            if (this.frameCounter + speed >= 0 && this.shouldAnimate()) {
                 this.frameCounter -= speed;
                 if (this.frameCounter < 0) {
                     this.onFinish();
@@ -139,7 +138,7 @@ public class AnimationComponent extends ComponentBase {
                 case hold -> // play the animation once, and then hold on the last frame.
                         this.state = State.FINISHED;
                 case loop -> {
-                    this.frameCounter = animation.duration()-1 + animation.loopDelay();
+                    this.frameCounter = animation.duration() - 1 + animation.loopDelay();
                     this.looped = true;
                 }
             }

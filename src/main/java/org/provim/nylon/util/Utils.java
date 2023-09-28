@@ -8,9 +8,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Pose;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.provim.nylon.mixins.EntityAccessor;
 
@@ -29,7 +27,7 @@ public class Utils {
         return updateClientInteraction(interaction, size, size.y);
     }
 
-    public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size, double height) {
+    public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size, float height) {
         // Updates the dimensions and bounding box of the interaction on the client. Note that the interactions dimensions and bounding box are two different things.
         // - The bounding box is primarily used for detecting player attacks, interactions and rendering the hitbox.
         // - The dimensions are used for certain other properties, such as the passenger riding height or the fire animation.
@@ -37,7 +35,7 @@ public class Utils {
                 // We update the POSE in this packet, which makes the client refresh the interactions dimensions.
                 // We use this to move the passenger riding height of the interaction upwards.
                 new ClientboundSetEntityDataPacket(interaction.getEntityId(), List.of(
-                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, (float) height),
+                        SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, height),
                         SynchedEntityData.DataValue.create(InteractionTrackedData.WIDTH, size.x),
                         SynchedEntityData.DataValue.create(EntityTrackedData.POSE, Pose.STANDING)
                 )),
