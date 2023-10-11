@@ -17,7 +17,7 @@ import java.util.function.Consumer;
 /**
  * Extension of {@link LivingAjHolder} that allows for custom passenger riding offsets.
  * <p>
- * This will use {@link Entity#getPassengerRidingPosition(Entity).y()} of the first passenger as the offset.
+ * This will use {@link Entity#getBbHeight} + {@link Entity#getMyRidingOffset} as the ride height.
  * <p>
  * It works by adding an extra zero bounding boxed {@link InteractionElement} to the parent entity,
  * which is used as the vehicle. This will add a very minor overhead on the client.

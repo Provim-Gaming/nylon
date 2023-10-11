@@ -20,6 +20,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.nylon.entities.holders.base.AbstractAjHolder;
 import org.provim.nylon.entities.holders.elements.Bone;
+import org.provim.nylon.entities.holders.elements.CollisionElement;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
@@ -29,6 +30,7 @@ import java.util.function.Consumer;
 
 public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private final InteractionElement hitboxInteraction;
+    private final CollisionElement collisionElement;
     private final Vector2f scaledSize;
     private float deathAngle;
     private float scale;
@@ -45,6 +47,9 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
         this.addElement(this.hitboxInteraction);
+
+        this.collisionElement = CollisionElement.createWithRedirect(parent);
+        this.addElement(this.collisionElement);
     }
 
     @Override
@@ -104,6 +109,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
     protected void addDirectPassengers(IntList passengers) {
         passengers.add(this.hitboxInteraction.getEntityId());
+        passengers.add(this.collisionElement.getEntityId());
     }
 
     @Override
@@ -174,8 +180,13 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     protected void updateScale(float scale) {
         this.scale = scale;
         this.size.mul(this.scale, this.scaledSize);
+        this.collisionElement.setSize(Utils.toSlimeSize(Math.min(this.scaledSize.x, this.scaledSize.y)));
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
+    }
+
+    public int getCollisionId() {
+        return this.collisionElement.getEntityId();
     }
 }

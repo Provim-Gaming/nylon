@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import org.joml.Vector2f;
@@ -21,6 +22,10 @@ public class Utils {
 
     public static float getRideOffset(Entity entity) {
         return entity.getBbHeight() + entity.getMyRidingOffset(entity);
+    }
+
+    public static int toSlimeSize(float size) {
+        return Mth.floor(size / 2.04F / 0.255F);
     }
 
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size) {
