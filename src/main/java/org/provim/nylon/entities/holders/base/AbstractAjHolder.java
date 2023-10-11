@@ -37,8 +37,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     protected final T parent;
 
     protected final Bone[] bones;
-    private final Map<String, LocatorDisplay> locators;
-    private final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
+    protected final Map<String, LocatorDisplay> locators;
+    protected final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
 
     protected final AnimationComponent animation;
     protected final VariantComponent variant;

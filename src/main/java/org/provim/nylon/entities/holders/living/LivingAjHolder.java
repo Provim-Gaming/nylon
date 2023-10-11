@@ -22,6 +22,7 @@ import org.provim.nylon.entities.holders.base.AbstractAjHolder;
 import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.entities.holders.elements.CollisionElement;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
+import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
@@ -35,6 +36,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private float deathAngle;
     private float scale;
     private boolean isGlowing;
+    private boolean isInvisible;
     private boolean displayFire;
 
     public LivingAjHolder(LivingEntity parent, AjModel model) {
@@ -159,6 +161,11 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             this.updateGlow(isGlowing);
         }
 
+        boolean isInvisible = this.parent.isInvisible();
+        if (isInvisible != this.isInvisible) {
+            this.updateInvisibility(isInvisible);
+        }
+
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
@@ -179,6 +186,18 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         this.isGlowing = isGlowing;
         for (Bone bone : this.bones) {
             bone.element().setGlowing(isGlowing);
+        }
+
+        for (LocatorDisplay locator : this.activeLocators) {
+            locator.element().setGlowing(isGlowing);
+        }
+    }
+
+    protected void updateInvisibility(boolean isInvisible) {
+        this.isInvisible = isInvisible;
+        this.hitboxInteraction.setInvisible(isInvisible);
+        for (Bone bone : this.bones) {
+            bone.setInvisible(isInvisible);
         }
     }
 

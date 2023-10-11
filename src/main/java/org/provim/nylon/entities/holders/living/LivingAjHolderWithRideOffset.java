@@ -60,11 +60,6 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     }
 
     @Override
-    public int getDisplayVehicleId() {
-        return super.getDisplayVehicleId();
-    }
-
-    @Override
     public int getVehicleId() {
         return this.rideInteraction.getEntityId();
     }
