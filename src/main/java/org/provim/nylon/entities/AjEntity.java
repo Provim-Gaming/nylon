@@ -7,11 +7,13 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.entities.holders.base.AjHolderInterface;
 
 import java.util.List;
 
 public interface AjEntity extends PolymerEntity {
+    @NotNull
     AjHolderInterface getHolder();
 
     @Override

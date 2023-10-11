@@ -123,6 +123,11 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
+    public int getLeashedId() {
+        return this.collisionElement.getEntityId();
+    }
+
+    @Override
     public void updateElements() {
         if (this.parent.deathTime > 0) {
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
@@ -184,9 +189,5 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
-    }
-
-    public int getCollisionId() {
-        return this.collisionElement.getEntityId();
     }
 }

@@ -238,6 +238,11 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     }
 
     @Override
+    public int getLeashedId() {
+        return this.parent.getId();
+    }
+
+    @Override
     public T getParent() {
         return this.parent;
     }

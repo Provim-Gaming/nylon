@@ -2,6 +2,7 @@ package org.provim.nylon.entities.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Mob;
 import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 
 import java.util.List;
@@ -22,14 +23,21 @@ public interface AjHolderInterface {
     int[] getDisplayIds();
 
     /**
-     * Returns the entity id used for displaying the model (display entities).
+     * Returns the entity id of the vehicle of the display entities.
      */
     int getDisplayVehicleId();
 
     /**
-     * Returns the entity id used for mounting mobs and players.
+     * Returns the entity id of the vehicle used for mounting mobs and players.
      */
     int getVehicleId();
+
+    /**
+     * Returns the entity id that should be used for leashing mobs.
+     * <p>
+     * If the entity id is not from a {@link Mob} (clientside), the leash will not be rendered.
+     */
+    int getLeashedId();
 
     /**
      * Resets the model variant back to default.
@@ -42,44 +50,47 @@ public interface AjHolderInterface {
     void setCurrentVariant(String currentVariant);
 
     /**
-     * Schedules an animation for the main animation layer.
+     * Starts playing an animation on the model.
      */
     void playAnimation(String name);
 
     /**
-     * See above, allows to specify the animation speed
+     * Starts playing an animation on the model.
+     * @param speed: The animation speed.
      */
     void playAnimation(String name, int speed);
 
     /**
-     * Schedules an animation for the main animation layer.
-     * <p>
-     * onFinished will be called on the last frame update for that animation
+     * Starts playing an animation on the model.
+     * @param onFinished: Callback to be executed on the last frame of the animation.
      */
     void playAnimation(String name, Runnable onFinished);
 
     /**
-     * See above, allows to specify the animation speed
+     * Starts playing an animation on the model.
+     * @param speed: The animation speed.
+     * @param onFinished: Callback to be executed on the last frame of the animation.
      */
     void playAnimation(String name, int speed, Runnable onFinished);
 
     /**
-     * Pauses the current animation named `name`. The animation can be continued using `runAnimation`.
+     * Pauses the current animation with the given name.
+     * The animation can be continued using `runAnimation`.
      */
     void pauseAnimation(String name);
 
     /**
-     * Stops the current animation named `name`.
+     * Stops the current animation with the given name.
      */
     void stopAnimation(String name);
 
     /**
-     * Returns a list of all polymer VirtualElements used for this holder
+     * Returns a list of all Polymer {@link VirtualElement} used in this holder.
      */
     List<VirtualElement> getVirtualElements();
 
     /**
-     * Returns the parent entity
+     * Returns the parent entity.
      */
     Entity getParent();
 }
