@@ -11,7 +11,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import org.joml.Vector2f;
-import org.provim.nylon.mixins.EntityAccessor;
+import org.provim.nylon.mixins.accessors.EntityAccessor;
 
 import java.util.List;
 

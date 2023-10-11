@@ -56,19 +56,22 @@ public interface AjHolderInterface {
 
     /**
      * Starts playing an animation on the model.
+     *
      * @param speed: The animation speed.
      */
     void playAnimation(String name, int speed);
 
     /**
      * Starts playing an animation on the model.
+     *
      * @param onFinished: Callback to be executed on the last frame of the animation.
      */
     void playAnimation(String name, Runnable onFinished);
 
     /**
      * Starts playing an animation on the model.
-     * @param speed: The animation speed.
+     *
+     * @param speed:      The animation speed.
      * @param onFinished: Callback to be executed on the last frame of the animation.
      */
     void playAnimation(String name, int speed, Runnable onFinished);

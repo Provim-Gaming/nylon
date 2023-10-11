@@ -23,6 +23,7 @@ import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.entities.holders.elements.CollisionElement;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.entities.holders.elements.LocatorDisplay;
+import org.provim.nylon.mixins.accessors.LivingEntityAccessor;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
@@ -34,7 +35,9 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private final CollisionElement collisionElement;
     private final Vector2f scaledSize;
     private float deathAngle;
+
     private float scale;
+    private int effectColor;
     private boolean isGlowing;
     private boolean isInvisible;
     private boolean displayFire;
@@ -99,7 +102,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         }
 
         if (this.parent.canBreatheUnderwater()) {
-            consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
+            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         }
 
         IntList passengers = new IntArrayList();
@@ -166,6 +169,11 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             this.updateInvisibility(isInvisible);
         }
 
+        int effectColor = this.parent.getEntityData().get(LivingEntityAccessor.getDATA_EFFECT_COLOR_ID());
+        if (effectColor != this.effectColor) {
+            this.updateEffectColor(effectColor);
+        }
+
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
@@ -199,6 +207,11 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         for (Bone bone : this.bones) {
             bone.setInvisible(isInvisible);
         }
+    }
+
+    protected void updateEffectColor(int effectColor) {
+        this.effectColor = effectColor;
+        this.collisionElement.getDataTracker().set(LivingEntityAccessor.getDATA_EFFECT_COLOR_ID(), effectColor);
     }
 
     protected void updateScale(float scale) {

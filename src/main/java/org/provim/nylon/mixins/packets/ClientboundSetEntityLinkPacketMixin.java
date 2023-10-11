@@ -1,4 +1,4 @@
-package org.provim.nylon.mixins;
+package org.provim.nylon.mixins.packets;
 
 import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.world.entity.Entity;
