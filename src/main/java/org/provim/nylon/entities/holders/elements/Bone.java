@@ -31,8 +31,11 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     public void setInvisible(boolean invisible) {
-        this.invisible = invisible;
+        if (this.invisible == invisible) {
+            return;
+        }
 
+        this.invisible = invisible;
         if (invisible) {
             this.setTrackedItem(ItemStack.EMPTY);
         } else {

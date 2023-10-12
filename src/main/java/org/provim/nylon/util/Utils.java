@@ -28,6 +28,10 @@ public class Utils {
         return Mth.floor(size / 2.04F / 0.255F);
     }
 
+    public static boolean getSharedFlag(byte value, int flag) {
+        return (value & 1 << flag) != 0;
+    }
+
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, Vector2f size) {
         return updateClientInteraction(interaction, size, size.y);
     }

@@ -24,4 +24,8 @@ public class SimpleAjHolder extends AbstractAjHolder<Entity> {
         super.startWatchingExtraPackets(player, consumer);
         consumer.accept(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
     }
+
+    @Override
+    public void updateOnFire(boolean displayFire) {
+    }
 }

@@ -10,6 +10,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -22,10 +23,9 @@ import org.provim.nylon.entities.holders.base.AbstractAjHolder;
 import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.entities.holders.elements.CollisionElement;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
-import org.provim.nylon.entities.holders.elements.LocatorDisplay;
-import org.provim.nylon.mixins.accessors.LivingEntityAccessor;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
+import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -35,12 +35,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private final CollisionElement collisionElement;
     private final Vector2f scaledSize;
     private float deathAngle;
-
     private float scale;
-    private int effectColor;
-    private boolean isGlowing;
-    private boolean isInvisible;
-    private boolean displayFire;
 
     public LivingAjHolder(LivingEntity parent, AjModel model) {
         this(parent, model, false);
@@ -61,6 +56,32 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     public void onEntityDataLoaded() {
         this.updateScale(this.parent.getScale());
         super.onEntityDataLoaded();
+    }
+
+    @Override
+    public void updateElements() {
+        if (this.parent.deathTime > 0) {
+            this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
+        }
+
+        float scale = this.parent.getScale();
+        if (scale != this.scale) {
+            this.updateScale(scale);
+            this.sendScaleUpdate();
+        }
+
+        super.updateElements();
+    }
+
+    @Override
+    protected void updateElement(DisplayWrapper<?> display) {
+        AjPose pose = this.animation.firstPose(display);
+        if (pose == null) {
+            // we always need a valid pose for body rotation & head rotation
+            this.applyPose(display.getDefaultPose(), display);
+        } else {
+            this.applyPose(pose, display);
+        }
     }
 
     @Override
@@ -133,85 +154,22 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
-    public void updateElements() {
-        if (this.parent.deathTime > 0) {
-            this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
+        super.onSyncedDataUpdated(key, object);
+        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
+            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
         }
-
-        this.updateTrackedData();
-        super.updateElements();
     }
 
     @Override
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.firstPose(display);
-        if (pose == null) {
-            // we always need a valid pose for body rotation & head rotation
-            this.applyPose(display.getDefaultPose(), display);
-        } else {
-            this.applyPose(pose, display);
-        }
-    }
-
-    private void updateTrackedData() {
-        boolean displayFire = !this.parent.fireImmune() && (this.parent.getRemainingFireTicks() > 0 || Utils.hasVisualFire(this.parent));
-        if (displayFire != this.displayFire) {
-            this.updateFire(displayFire);
-        }
-
-        boolean isGlowing = this.parent.isCurrentlyGlowing();
-        if (isGlowing != this.isGlowing) {
-            this.updateGlow(isGlowing);
-        }
-
-        boolean isInvisible = this.parent.isInvisible();
-        if (isInvisible != this.isInvisible) {
-            this.updateInvisibility(isInvisible);
-        }
-
-        int effectColor = this.parent.getEntityData().get(LivingEntityAccessor.getDATA_EFFECT_COLOR_ID());
-        if (effectColor != this.effectColor) {
-            this.updateEffectColor(effectColor);
-        }
-
-        float scale = this.parent.getScale();
-        if (scale != this.scale) {
-            this.updateScale(scale);
-            this.sendScaleUpdate();
-        }
-    }
-
-    protected void sendScaleUpdate() {
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
-    }
-
-    protected void updateFire(boolean displayFire) {
-        this.displayFire = displayFire;
+    protected void updateOnFire(boolean displayFire) {
         this.hitboxInteraction.setOnFire(displayFire);
     }
 
-    protected void updateGlow(boolean isGlowing) {
-        this.isGlowing = isGlowing;
-        for (Bone bone : this.bones) {
-            bone.element().setGlowing(isGlowing);
-        }
-
-        for (LocatorDisplay locator : this.activeLocators) {
-            locator.element().setGlowing(isGlowing);
-        }
-    }
-
+    @Override
     protected void updateInvisibility(boolean isInvisible) {
-        this.isInvisible = isInvisible;
         this.hitboxInteraction.setInvisible(isInvisible);
-        for (Bone bone : this.bones) {
-            bone.setInvisible(isInvisible);
-        }
-    }
-
-    protected void updateEffectColor(int effectColor) {
-        this.effectColor = effectColor;
-        this.collisionElement.getDataTracker().set(LivingEntityAccessor.getDATA_EFFECT_COLOR_ID(), effectColor);
+        super.updateInvisibility(isInvisible);
     }
 
     protected void updateScale(float scale) {
@@ -221,5 +179,9 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
+    }
+
+    protected void sendScaleUpdate() {
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, this.scaledSize)));
     }
 }

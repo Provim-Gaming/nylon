@@ -1,6 +1,7 @@
 package org.provim.nylon.entities.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import org.provim.nylon.entities.holders.elements.LocatorDisplay;
@@ -9,6 +10,13 @@ import java.util.List;
 
 @SuppressWarnings("unused")
 public interface AjHolderInterface {
+
+    /**
+     * Notifies the holder that the synchronized data has been updated.
+     * <p>
+     * Holder implementations can use this to update their element data.
+     */
+    void onSyncedDataUpdated(EntityDataAccessor<?> key, Object value);
 
     /**
      * Returns the locator with the given name.

@@ -1,16 +1,18 @@
 package org.provim.nylon.entities.holders.base;
 
 import com.mojang.math.Axis;
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
+import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -27,6 +29,7 @@ import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.model.component.AnimationComponent;
 import org.provim.nylon.model.component.VariantComponent;
+import org.provim.nylon.util.Utils;
 
 import java.util.List;
 import java.util.Map;
@@ -133,7 +136,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         if (this.activeLocators.add(locator)) {
             if (update) {
                 this.addElement(locator.element());
-                this.sendPacket(VirtualEntityUtils.createRidePacket(this.getDisplayVehicleId(), this.getDisplayIds()));
+                this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
             } else {
                 this.addElementWithoutUpdates(locator.element());
             }
@@ -193,6 +196,34 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         display.setScale(scale);
 
         display.startInterpolation();
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
+        if (key.equals(EntityTrackedData.FLAGS)) {
+            byte value = (byte) object;
+            this.updateOnFire(Utils.getSharedFlag(value, EntityTrackedData.ON_FIRE_FLAG_INDEX));
+            this.updateGlowing(Utils.getSharedFlag(value, EntityTrackedData.GLOWING_FLAG_INDEX));
+            this.updateInvisibility(Utils.getSharedFlag(value, EntityTrackedData.INVISIBLE_FLAG_INDEX));
+        }
+    }
+
+    protected abstract void updateOnFire(boolean displayFire);
+
+    protected void updateInvisibility(boolean isInvisible) {
+        for (Bone bone : this.bones) {
+            bone.setInvisible(isInvisible);
+        }
+    }
+
+    protected void updateGlowing(boolean isGlowing) {
+        for (Bone bone : this.bones) {
+            bone.element().setGlowing(isGlowing);
+        }
+
+        for (LocatorDisplay locator : this.activeLocators) {
+            locator.element().setGlowing(isGlowing);
+        }
     }
 
     @Override

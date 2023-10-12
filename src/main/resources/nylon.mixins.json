@@ -4,10 +4,11 @@
   "package": "org.provim.nylon.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessors.EntityAccessor",
+    "accessors.LivingEntityAccessor",
     "packets.ClientboundSetEntityLinkPacketMixin",
     "packets.ClientboundSetPassengersPacketMixin",
-    "accessors.EntityAccessor",
-    "accessors.LivingEntityAccessor"
+    "tracking.SynchedEntityDataMixin"
   ],
   "injectors": {
     "defaultRequire": 1
