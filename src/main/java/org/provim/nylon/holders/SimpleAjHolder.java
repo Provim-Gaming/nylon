@@ -1,11 +1,11 @@
-package org.provim.nylon.entities.holders;
+package org.provim.nylon.holders;
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
-import org.provim.nylon.entities.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.model.AjModel;
 
 import java.util.function.Consumer;

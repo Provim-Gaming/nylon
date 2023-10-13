@@ -1,4 +1,4 @@
-package org.provim.nylon.entities.holders.living;
+package org.provim.nylon.holders.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
