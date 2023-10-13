@@ -83,12 +83,22 @@ public class AnimationComponent extends ComponentBase implements Animator {
         return pose;
     }
 
-    @Nullable
     private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
         if (current.isAffected(node.name())) {
             int index = (current.duration() - 1) - Math.max(counter, 0);
             AjFrame frame = current.frames()[index];
-            return frame.poses().get(node.uuid());
+            AjPose pose = frame.poses().get(node.uuid());
+            // backtrack, fix for bones that do not have transformations until the end of an animation.
+            // but also in cases where the update interval of (currently 2) skips an important keyframe
+            if (pose == null) {
+                for (int i = index; i >= 0; --i) {
+                    if (current.frames()[i] != null && current.frames()[i].poses().get(node.uuid()) != null) {
+                        return current.frames()[i].poses().get(node.uuid());
+                    }
+                }
+            }
+
+            return pose;
         }
         return null;
     }
