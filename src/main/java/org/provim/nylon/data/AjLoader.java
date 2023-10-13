@@ -12,7 +12,10 @@ import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.model.*;
 
-import java.io.*;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.UUID;
 
 public class AjLoader {
@@ -30,36 +33,37 @@ public class AjLoader {
 
     public static AjModel require(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
         String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
+
         InputStream input = AjLoader.class.getResourceAsStream(path);
         if (input == null) {
             throw new IllegalArgumentException("Model doesn't exist: " + path);
         }
 
-        return AjLoader.load(path, input);
-    }
-
-    public static AjModel require(String path) throws IllegalArgumentException, JsonParseException {
-        try (InputStream input = new FileInputStream(path)) {
-            return AjLoader.load(path, input);
-        } catch (IOException exception) {
-            throw new IllegalArgumentException("Model doesn't exist: " + path);
-        }
-    }
-
-    private static AjModel load(String path, InputStream input) throws JsonParseException {
         try (Reader reader = new InputStreamReader(input)) {
             AjModel model = GSON.fromJson(reader, AjModel.class);
-            AjLoader.replaceData(model);
+            AjLoader.replaceModelData(model);
             return model;
         } catch (Throwable throwable) {
             throw new JsonParseException("Failed to parse model: " + path, throwable);
         }
     }
 
-    private static void replaceData(AjModel model) {
+    public static AjModel load(String path) throws IllegalArgumentException, JsonParseException {
+        try {
+            InputStream input = new FileInputStream(path);
+
+            AjModel model = GSON.fromJson(new InputStreamReader(input), AjModel.class);
+            AjLoader.replaceModelData(model);
+            return model;
+        } catch (Exception ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    private static void replaceModelData(AjModel model) {
         Item rigItem = model.projectSettings().rigItem();
 
-        // Node model data
+        // Node models
         Object2ObjectOpenHashMap<UUID, AjNode> nodeMap = model.rig().nodeMap();
         for (AjNode entry : nodeMap.values()) {
             if (entry.type().hasModelData()) {
@@ -74,7 +78,7 @@ public class AjLoader {
             }
         }
 
-        // Variant model data
+        // Variant models
         for (AjVariant variant : model.variants().values()) {
             Object2ObjectOpenHashMap<UUID, AjVariant.ModelInfo> models = variant.models();
             for (UUID uuid : models.keySet()) {
@@ -82,16 +86,6 @@ public class AjLoader {
                         PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value(),
                         modelInfo.resourceLocation()
                 )));
-            }
-        }
-
-        // Animations
-        for (AjAnimation animation : model.animations().values()) {
-            for (AjFrame frame : animation.frames()) {
-                frame.poses().entrySet().removeIf(entry -> {
-                    AjNode node = nodeMap.get(entry.getKey());
-                    return !animation.isAffected(node.name());
-                });
             }
         }
     }

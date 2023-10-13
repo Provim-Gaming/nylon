@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.base;
+package org.provim.nylon.entities.holders.base;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
@@ -24,9 +24,9 @@ import org.joml.Vector3f;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
-import org.provim.nylon.holders.elements.Bone;
-import org.provim.nylon.holders.elements.DisplayWrapper;
-import org.provim.nylon.holders.elements.LocatorDisplay;
+import org.provim.nylon.entities.holders.elements.Bone;
+import org.provim.nylon.entities.holders.elements.DisplayWrapper;
+import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
@@ -53,8 +53,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
         this.parent = parent;
 
-        this.animation = new AnimationComponent(model, parent.getServer(), updateElementsAsync);
-        this.variant = new VariantComponent(model, parent.getServer());
+        this.animation = new AnimationComponent(model);
+        this.variant = new VariantComponent(model);
 
         Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();

@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.base;
+package org.provim.nylon.entities.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;

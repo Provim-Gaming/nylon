@@ -4,7 +4,7 @@ import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
-import org.provim.nylon.holders.elements.LocatorDisplay;
+import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 
 import java.util.List;
 

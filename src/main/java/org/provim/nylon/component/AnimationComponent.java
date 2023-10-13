@@ -2,24 +2,20 @@ package org.provim.nylon.component;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
-import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.*;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
-    private final List<Animation> animationList;
+    private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
 
-    public AnimationComponent(AjModel model, MinecraftServer server, boolean async) {
-        super(model, server);
-        this.animationList = async ? new CopyOnWriteArrayList<>() : new ObjectArrayList<>();
+    public AnimationComponent(AjModel model) {
+        super(model);
     }
 
     @Override
@@ -35,7 +31,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         if (animation != null) {
-            animation.setOnFinishedCallback(onFinished);
+            animation.setOnFinishedCB(onFinished);
         }
     }
 
@@ -68,22 +64,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
         this.animationList.remove(anim);
     }
 
-    public void tickAnimations() {
-        ObjectArrayList<String> toRemove = new ObjectArrayList<>();
-        for (Animation animation : this.animationList) {
-            if (animation.hasFinished()) {
-                toRemove.add(animation.name);
-            } else {
-                animation.tick(this.server);
-            }
-        }
-
-        for (String name : toRemove) {
-            this.removeAnimationInternal(name);
-        }
-    }
-
-
     @Nullable
     public AjPose firstPose(DisplayWrapper<?> display) {
         AjNode node = display.node();
@@ -93,7 +73,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             if (anim.inResetState()) {
                 pose = display.getDefaultPose();
             } else if (anim.shouldAnimate()) {
-                AjPose animationPose = anim.currentFrame.poses().get(node.uuid());
+                AjPose animationPose = this.findAnimationPose(node, anim.animation, anim.frameCounter);
                 if (animationPose != null) {
                     return animationPose;
                 }
@@ -103,6 +83,31 @@ public class AnimationComponent extends ComponentBase implements Animator {
         return pose;
     }
 
+    @Nullable
+    private AjPose findAnimationPose(AjNode node, AjAnimation current, int counter) {
+        if (current.isAffected(node.name())) {
+            int index = (current.duration() - 1) - Math.max(counter, 0);
+            AjFrame frame = current.frames()[index];
+            return frame.poses().get(node.uuid());
+        }
+        return null;
+    }
+
+    public void tickAnimations() {
+        ObjectArrayList<String> toRemove = new ObjectArrayList<>();
+        for (Animation animation : this.animationList) {
+            if (animation.hasFinished()) {
+                toRemove.add(animation.name);
+            } else {
+                animation.tick();
+            }
+        }
+
+        for (String name : toRemove) {
+            this.removeAnimationInternal(name);
+        }
+    }
+
     private static class Animation implements Comparable<Animation> {
         @NotNull
         private final AjAnimation animation;
@@ -110,45 +115,38 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private final int speed;
         private final int priority;
 
-        private AjFrame currentFrame;
         private int frameCounter;
         private boolean looped;
         private State state;
-        private Runnable onFinishedCallback;
+        private Runnable onFinishedCB;
 
         public Animation(String name, AjAnimation animation, int speed, int priority) {
             this.name = name;
             this.animation = animation;
+            this.frameCounter = this.animation.duration() - 1 + animation.startDelay();
             this.speed = speed;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
-            this.updateFrame(animation.duration() - 1 + animation.startDelay());
         }
 
         public boolean inResetState() {
             return this.state == State.FINISHED_RESET_DEFAULT;
         }
 
-        public void setOnFinishedCallback(Runnable onFinishedCallback) {
-            this.onFinishedCallback = onFinishedCallback;
+        public void setOnFinishedCB(Runnable onFinishedCB) {
+            this.onFinishedCB = onFinishedCB;
         }
 
-        private void tick(MinecraftServer server) {
+        private void tick() {
             if (this.frameCounter + this.speed >= 0 && this.shouldAnimate()) {
-                this.updateFrame(this.frameCounter - this.speed);
-
+                this.frameCounter -= this.speed;
                 if (this.frameCounter < 0) {
-                    this.onFinish(server);
+                    this.onFinish();
                 }
             }
         }
 
-        private void updateFrame(int frame) {
-            this.frameCounter = frame;
-            this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - Math.max(frame, 0)];
-        }
-
-        private void onFinish(MinecraftServer server) {
+        private void onFinish() {
             switch (this.animation.loopMode()) {
                 case once -> {
                     // todo: reset to "first frame"
@@ -157,7 +155,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
                         this.state = State.FINISHED;
                     } else {
                         this.state = State.FINISHED_RESET_DEFAULT;
-                        this.updateFrame(1);
+                        this.frameCounter = 1;
                     }
                 }
                 case hold -> {
@@ -165,13 +163,13 @@ public class AnimationComponent extends ComponentBase implements Animator {
                     this.state = State.FINISHED;
                 }
                 case loop -> {
-                    this.updateFrame(this.animation.duration() - 1 + this.animation.loopDelay());
+                    this.frameCounter = this.animation.duration() - 1 + this.animation.loopDelay();
                     this.looped = true;
                 }
             }
 
-            if (this.onFinishedCallback != null) {
-                server.execute(this.onFinishedCallback);
+            if (this.onFinishedCB != null) {
+                this.onFinishedCB.run();
             }
         }
 

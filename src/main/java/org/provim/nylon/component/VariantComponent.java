@@ -1,8 +1,7 @@
 package org.provim.nylon.component;
 
-import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.Nullable;
-import org.provim.nylon.holders.elements.Bone;
+import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjVariant;
 
@@ -10,8 +9,8 @@ public class VariantComponent extends ComponentBase {
     @Nullable
     private AjVariant currentVariant = null;
 
-    public VariantComponent(AjModel model, MinecraftServer server) {
-        super(model, server);
+    public VariantComponent(AjModel model) {
+        super(model);
     }
 
     public void applyDefaultVariant(Bone[] bones) {

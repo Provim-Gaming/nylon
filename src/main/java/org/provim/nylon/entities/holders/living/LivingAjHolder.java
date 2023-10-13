@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.living;
+package org.provim.nylon.entities.holders.living;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
@@ -19,10 +19,10 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.holders.elements.Bone;
-import org.provim.nylon.holders.elements.CollisionElement;
-import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.entities.holders.base.AbstractAjHolder;
+import org.provim.nylon.entities.holders.elements.Bone;
+import org.provim.nylon.entities.holders.elements.CollisionElement;
+import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
