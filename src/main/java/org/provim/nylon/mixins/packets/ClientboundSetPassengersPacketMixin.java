@@ -2,8 +2,8 @@ package org.provim.nylon.mixins.packets;
 
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.world.entity.Entity;
-import org.provim.nylon.entities.AjEntity;
-import org.provim.nylon.entities.holders.base.AjHolderInterface;
+import org.provim.nylon.api.AjEntity;
+import org.provim.nylon.api.AjHolderInterface;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;

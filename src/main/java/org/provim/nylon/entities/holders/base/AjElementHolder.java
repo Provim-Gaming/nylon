@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.Util;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.api.AjHolderInterface;
 
 import java.util.List;
 import java.util.concurrent.Executor;

@@ -11,15 +11,10 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import org.joml.Vector2f;
-import org.provim.nylon.mixins.accessors.EntityAccessor;
 
 import java.util.List;
 
 public class Utils {
-    public static boolean hasVisualFire(Entity entity) {
-        return ((EntityAccessor) entity).nylon$hasVisualFire();
-    }
-
     public static float getRideOffset(Entity entity) {
         return entity.getBbHeight() + entity.getMyRidingOffset(entity);
     }

@@ -1,4 +1,4 @@
-package org.provim.nylon.model.component;
+package org.provim.nylon.component;
 
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.entities.holders.elements.Bone;

@@ -1,4 +1,4 @@
-package org.provim.nylon.entities;
+package org.provim.nylon.api;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
@@ -7,7 +7,6 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import org.provim.nylon.entities.holders.base.AjHolderInterface;
 
 import java.util.List;
 

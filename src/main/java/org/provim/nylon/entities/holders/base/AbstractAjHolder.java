@@ -21,14 +21,15 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.api.Animator;
+import org.provim.nylon.component.AnimationComponent;
+import org.provim.nylon.component.VariantComponent;
 import org.provim.nylon.entities.holders.elements.Bone;
 import org.provim.nylon.entities.holders.elements.DisplayWrapper;
 import org.provim.nylon.entities.holders.elements.LocatorDisplay;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
-import org.provim.nylon.model.component.AnimationComponent;
-import org.provim.nylon.model.component.VariantComponent;
 import org.provim.nylon.util.Utils;
 
 import java.util.List;
@@ -279,32 +280,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     }
 
     @Override
-    public void playAnimation(String name) {
-        this.playAnimation(name, null);
-    }
-
-    @Override
-    public void playAnimation(String name, int speed) {
-        this.playAnimation(name, speed, null);
-    }
-
-    @Override
-    public void playAnimation(String name, Runnable onFinished) {
-        this.animation.playAnimation(name, onFinished);
-    }
-
-    @Override
-    public void playAnimation(String name, int speed, Runnable onFinished) {
-        this.animation.playAnimation(name, speed, onFinished);
-    }
-
-    @Override
-    public void pauseAnimation(String name) {
-        this.animation.pauseAnimation(name);
-    }
-
-    @Override
-    public void stopAnimation(String name) {
-        this.animation.stopAnimation(name);
+    public Animator getAnimator() {
+        return this.animation;
     }
 }

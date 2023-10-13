@@ -1,4 +1,4 @@
-package org.provim.nylon.entities.holders.base;
+package org.provim.nylon.api;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -58,50 +58,17 @@ public interface AjHolderInterface {
     void setCurrentVariant(String currentVariant);
 
     /**
-     * Starts playing an animation on the model.
+     * Returns the animator for this model.
      */
-    void playAnimation(String name);
-
-    /**
-     * Starts playing an animation on the model.
-     *
-     * @param speed: The animation speed.
-     */
-    void playAnimation(String name, int speed);
-
-    /**
-     * Starts playing an animation on the model.
-     *
-     * @param onFinished: Callback to be executed on the last frame of the animation.
-     */
-    void playAnimation(String name, Runnable onFinished);
-
-    /**
-     * Starts playing an animation on the model.
-     *
-     * @param speed:      The animation speed.
-     * @param onFinished: Callback to be executed on the last frame of the animation.
-     */
-    void playAnimation(String name, int speed, Runnable onFinished);
-
-    /**
-     * Pauses the current animation with the given name.
-     * The animation can be continued using `runAnimation`.
-     */
-    void pauseAnimation(String name);
-
-    /**
-     * Stops the current animation with the given name.
-     */
-    void stopAnimation(String name);
-
-    /**
-     * Returns a list of all Polymer {@link VirtualElement} used in this holder.
-     */
-    List<VirtualElement> getVirtualElements();
+    Animator getAnimator();
 
     /**
      * Returns the parent entity.
      */
     Entity getParent();
+
+    /**
+     * Returns a list of all Polymer {@link VirtualElement} used in this holder.
+     */
+    List<VirtualElement> getVirtualElements();
 }
