@@ -1,4 +1,4 @@
-package org.provim.nylon.entities.holders.elements;
+package org.provim.nylon.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;

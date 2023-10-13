@@ -1,8 +1,8 @@
-package org.provim.nylon.entities.holders.elements;
+package org.provim.nylon.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.joml.Matrix4f;
-import org.provim.nylon.entities.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 

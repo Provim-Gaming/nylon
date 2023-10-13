@@ -1,4 +1,4 @@
-package org.provim.nylon.entities.holders.elements;
+package org.provim.nylon.holders.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import org.joml.Quaternionf;
