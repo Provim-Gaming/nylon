@@ -84,15 +84,5 @@ public class AjLoader {
                 )));
             }
         }
-
-        // Animations
-        for (AjAnimation animation : model.animations().values()) {
-            for (AjFrame frame : animation.frames()) {
-                frame.poses().entrySet().removeIf(entry -> {
-                    AjNode node = nodeMap.get(entry.getKey());
-                    return !animation.isAffected(node.name());
-                });
-            }
-        }
     }
 }

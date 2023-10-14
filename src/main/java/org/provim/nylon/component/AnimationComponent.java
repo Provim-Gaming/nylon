@@ -86,14 +86,13 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     @Nullable
     public AjPose firstPose(DisplayWrapper<?> display) {
-        AjNode node = display.node();
         AjPose pose = null;
 
         for (Animation anim : this.animationList) {
             if (anim.inResetState()) {
                 pose = display.getDefaultPose();
             } else if (anim.shouldAnimate()) {
-                AjPose animationPose = anim.currentFrame.poses().get(node.uuid());
+                AjPose animationPose = this.findAnimationPose(display, anim);
                 if (animationPose != null) {
                     return animationPose;
                 }
@@ -101,6 +100,24 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         return pose;
+    }
+
+    @Nullable
+    private AjPose findAnimationPose(DisplayWrapper<?> display, Animation anim) {
+        AjNode node = display.node();
+        AjAnimation animation = anim.animation;
+
+        if (!animation.isAffected(node.name())) {
+            return null;
+        }
+
+        AjPose pose = anim.currentFrame.poses().get(node.uuid());
+        if (pose != null) {
+            display.setLastPose(pose, animation);
+            return pose;
+        }
+
+        return display.getLastPose(animation);
     }
 
     private static class Animation implements Comparable<Animation> {
