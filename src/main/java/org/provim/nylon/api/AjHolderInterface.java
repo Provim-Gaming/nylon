@@ -2,7 +2,6 @@ package org.provim.nylon.api;
 
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Mob;
 import org.provim.nylon.holders.elements.LocatorDisplay;
 
@@ -61,11 +60,6 @@ public interface AjHolderInterface {
      * Returns the animator for this model.
      */
     Animator getAnimator();
-
-    /**
-     * Returns the parent entity.
-     */
-    Entity getParent();
 
     /**
      * Returns a list of all Polymer {@link VirtualElement} used in this holder.

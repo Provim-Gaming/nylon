@@ -35,11 +35,8 @@ import org.provim.nylon.util.Utils;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder {
-
+public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder<T> {
     protected final Vector2f size;
-    protected final T parent;
-
     protected final Bone[] bones;
     protected final Map<String, LocatorDisplay> locators;
     protected final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
@@ -48,10 +45,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     protected final VariantComponent variant;
 
     protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
-        super(updateElementsAsync);
-
+        super(parent, updateElementsAsync);
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
-        this.parent = parent;
 
         this.animation = new AnimationComponent(model, parent.getServer(), updateElementsAsync);
         this.variant = new VariantComponent(model, parent.getServer());
@@ -272,11 +267,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     @Override
     public int getLeashedId() {
         return this.parent.getId();
-    }
-
-    @Override
-    public T getParent() {
-        return this.parent;
     }
 
     @Override

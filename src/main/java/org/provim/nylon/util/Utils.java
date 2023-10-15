@@ -1,6 +1,8 @@
 package org.provim.nylon.util;
 
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
+import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import net.minecraft.network.protocol.Packet;
@@ -11,10 +13,16 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Pose;
 import org.joml.Vector2f;
+import org.provim.nylon.mixins.accessors.ElementHolderAccessor;
 
 import java.util.List;
 
 public class Utils {
+    public static List<VirtualElement> getElementsUnsafe(ElementHolder holder) {
+        // Gets the element list directly rather than wrapping it in an unmodifiable list to reduce object allocations.
+        return ((ElementHolderAccessor) holder).getElements();
+    }
+
     public static float getRideOffset(Entity entity) {
         return entity.getBbHeight() + entity.getMyRidingOffset(entity);
     }

@@ -4,8 +4,10 @@ import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.Util;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.provim.nylon.api.AjHolderInterface;
+import org.provim.nylon.util.Utils;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -13,15 +15,17 @@ import java.util.concurrent.Executor;
 /**
  * Base class for all AJ holders that handles Polymer's ElementHolder specific logic.
  */
-public abstract class AjElementHolder extends ElementHolder implements AjHolderInterface {
+public abstract class AjElementHolder<T extends Entity> extends ElementHolder implements AjHolderInterface {
     private static final Executor EXECUTOR = Util.backgroundExecutor();
+    protected final T parent;
     private final boolean updateElementsAsync;
     private boolean isLoaded;
     private int tickCount;
 
-    public AjElementHolder(boolean updateElementsAsync) {
+    public AjElementHolder(T parent, boolean updateElementsAsync) {
+        this.parent = parent;
+        this.tickCount = parent.tickCount - 1;
         this.updateElementsAsync = updateElementsAsync;
-        this.tickCount = -1;
     }
 
     abstract protected void onEntityDataLoaded();
@@ -40,26 +44,33 @@ public abstract class AjElementHolder extends ElementHolder implements AjHolderI
 
     @Override
     public final void tick() {
-        if (this.tickCount++ % 2 != 0) {
+        if (this.getAttachment() == null) {
             return;
         }
 
-        int parentTickCount = this.getParent().tickCount;
-        if (parentTickCount < this.tickCount) {
+        int parentTickCount = this.parent.tickCount;
+        if (parentTickCount < ++this.tickCount) {
             // If the parent entity is behind, they likely haven't been ticked - in which case we don't need to update our elements.
             this.tickCount = parentTickCount;
             return;
         }
 
-        super.tick();
+        this.onTick();
+
+        this.updatePosition();
+
+        if (this.updateElementsAsync) {
+            EXECUTOR.execute(this::updateElementsInternal);
+        } else {
+            this.updateElementsInternal();
+        }
     }
 
-    @Override
-    protected final void onTick() {
-        if (this.updateElementsAsync) {
-            EXECUTOR.execute(this::updateElements);
-        } else {
-            this.updateElements();
+    private void updateElementsInternal() {
+        this.updateElements();
+
+        for (VirtualElement element : Utils.getElementsUnsafe(this)) {
+            element.tick();
         }
     }
 

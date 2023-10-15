@@ -23,14 +23,16 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Override
-    public void playAnimation(String name, int speed, int priority, Runnable onFinished) {
-        AjAnimation anim = this.model.animations().get(name);
+    public void playAnimation(String name, int priority, Runnable onFinished) {
         Animation animation = this.animationMap.get(name);
 
-        if (anim != null && animation == null) {
-            animation = new Animation(name, anim, speed, priority);
-            this.addAnimationInternal(name, animation);
-        } else if (animation != null && animation.state == Animation.State.PAUSED) {
+        if (animation == null) {
+            AjAnimation anim = this.model.animations().get(name);
+            if (anim != null) {
+                animation = new Animation(name, anim, priority);
+                this.addAnimationInternal(name, animation);
+            }
+        } else if (animation.state == Animation.State.PAUSED) {
             animation.state = Animation.State.PLAYING;
         }
 
@@ -124,7 +126,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
         @NotNull
         private final AjAnimation animation;
         private final String name;
-        private final int speed;
         private final int priority;
 
         private AjFrame currentFrame;
@@ -133,10 +134,9 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private State state;
         private Runnable onFinishedCallback;
 
-        public Animation(String name, AjAnimation animation, int speed, int priority) {
+        public Animation(String name, AjAnimation animation, int priority) {
             this.name = name;
             this.animation = animation;
-            this.speed = speed;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
             this.updateFrame(animation.duration() - 1 + animation.startDelay());
@@ -151,8 +151,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         private void tick(MinecraftServer server) {
-            if (this.frameCounter + this.speed >= 0 && this.shouldAnimate()) {
-                this.updateFrame(this.frameCounter - this.speed);
+            if (this.frameCounter >= 0 && this.shouldAnimate()) {
+                this.updateFrame(this.frameCounter - 1);
 
                 if (this.frameCounter < 0) {
                     this.onFinish(server);
@@ -162,7 +162,9 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
         private void updateFrame(int frame) {
             this.frameCounter = frame;
-            this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - Math.max(frame, 0)];
+            if (frame >= 0) {
+                this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - frame];
+            }
         }
 
         private void onFinish(MinecraftServer server) {

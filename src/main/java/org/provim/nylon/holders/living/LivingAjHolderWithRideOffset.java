@@ -26,10 +26,6 @@ public class LivingAjHolderWithRideOffset extends LivingAjHolder {
     private static final Vector2f ZERO = new Vector2f(0, 0);
     private final InteractionElement rideInteraction;
 
-    public LivingAjHolderWithRideOffset(LivingEntity parent, AjModel model) {
-        this(parent, model, false);
-    }
-
     public LivingAjHolderWithRideOffset(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
         super(parent, model, updateElementsAsync);
 

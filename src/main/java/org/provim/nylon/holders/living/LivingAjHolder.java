@@ -37,10 +37,6 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     private float deathAngle;
     private float scale;
 
-    public LivingAjHolder(LivingEntity parent, AjModel model) {
-        this(parent, model, false);
-    }
-
     public LivingAjHolder(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
         super(parent, model, updateElementsAsync);
         this.scaledSize = new Vector2f(this.size);
