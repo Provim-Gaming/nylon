@@ -29,15 +29,17 @@ public class ClientboundSetPassengersPacketMixin {
     private void nylon$modifyRidePacket(Entity entity, CallbackInfo ci) {
         if (entity instanceof AjEntity ajEntity) {
             AjHolderInterface holder = ajEntity.getHolder();
-            this.vehicle = holder.getVehicleId();
+            if (holder != null) {
+                this.vehicle = holder.getVehicleId();
 
-            int displayVehicle = holder.getDisplayVehicleId();
-            if (this.vehicle == displayVehicle) {
-                int[] displays = holder.getDisplayIds();
-                int oldLength = this.passengers.length;
+                int displayVehicle = holder.getDisplayVehicleId();
+                if (this.vehicle == displayVehicle) {
+                    int[] displays = holder.getDisplayIds();
+                    int oldLength = this.passengers.length;
 
-                this.passengers = Arrays.copyOf(this.passengers, oldLength + displays.length);
-                System.arraycopy(displays, 0, this.passengers, oldLength, displays.length);
+                    this.passengers = Arrays.copyOf(this.passengers, oldLength + displays.length);
+                    System.arraycopy(displays, 0, this.passengers, oldLength, displays.length);
+                }
             }
         }
     }
