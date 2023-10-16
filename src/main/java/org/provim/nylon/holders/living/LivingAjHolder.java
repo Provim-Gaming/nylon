@@ -23,6 +23,7 @@ import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.elements.Bone;
 import org.provim.nylon.holders.elements.CollisionElement;
 import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.holders.elements.LocatorDisplay;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
@@ -174,6 +175,10 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(this.scaledSize.x, this.scaledSize.y)));
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
+        }
+
+        for (LocatorDisplay locator : this.locators) {
+            locator.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 

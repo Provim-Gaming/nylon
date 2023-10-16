@@ -9,7 +9,6 @@ import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -38,11 +37,12 @@ import java.util.Map;
 public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder<T> {
     protected final Vector2f size;
     protected final Bone[] bones;
-    protected final Map<String, LocatorDisplay> locators;
-    protected final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
+    protected final LocatorDisplay[] locators;
+    protected final Map<String, LocatorDisplay> locatorMap;
 
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
+    private int activeLocatorCount;
 
     protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
         super(parent, updateElementsAsync);
@@ -55,12 +55,18 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();
         this.setupElements(model, bones, locators);
 
-        this.locators = Object2ObjectMaps.unmodifiable(locators);
-        this.activeLocators = new ObjectLinkedOpenHashSet<>(locators.values());
+        this.locatorMap = Object2ObjectMaps.unmodifiable(locators);
+        this.locators = new LocatorDisplay[locators.size()];
+        this.activeLocatorCount = locators.size();
+
+        int index = 0;
+        for (LocatorDisplay locator : locators.values()) {
+            this.locators[index++] = locator;
+        }
 
         this.bones = new Bone[bones.size()];
-        for (int i = 0; i < bones.size(); i++) {
-            this.bones[i] = bones.get(i);
+        for (index = 0; index < bones.size(); index++) {
+            this.bones[index] = bones.get(index);
         }
     }
 
@@ -129,23 +135,21 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     }
 
     public void activateLocator(LocatorDisplay locator, boolean update) {
-        if (this.activeLocators.add(locator)) {
-            if (update) {
-                this.addElement(locator.element());
-                this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
-            } else {
-                this.addElementWithoutUpdates(locator.element());
-            }
+        this.activeLocatorCount++;
+        if (update) {
+            this.addElement(locator.element());
+            this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
+        } else {
+            this.addElementWithoutUpdates(locator.element());
         }
     }
 
     public void deactivateLocator(LocatorDisplay locator, boolean update) {
-        if (this.activeLocators.remove(locator)) {
-            if (update) {
-                this.removeElement(locator.element());
-            } else {
-                this.removeElementWithoutUpdates(locator.element());
-            }
+        this.activeLocatorCount--;
+        if (update) {
+            this.removeElement(locator.element());
+        } else {
+            this.removeElementWithoutUpdates(locator.element());
         }
     }
 
@@ -154,7 +158,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             this.applyPose(bone.getDefaultPose(), bone);
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.locators) {
             this.applyPose(locator.getDefaultPose(), locator);
         }
     }
@@ -164,10 +168,12 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             this.updateElement(bone);
         }
 
-        if (this.activeLocators.size() > 0) {
-            for (LocatorDisplay locator : this.activeLocators) {
-                this.updateElement(locator);
-                locator.updateTransformationConsumer();
+        if (this.activeLocatorCount > 0) {
+            for (LocatorDisplay locator : this.locators) {
+                if (locator.isActive()) {
+                    this.updateElement(locator);
+                    locator.updateTransformationConsumer();
+                }
             }
         }
 
@@ -217,7 +223,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             bone.element().setGlowing(isGlowing);
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.locators) {
             locator.element().setGlowing(isGlowing);
         }
     }
@@ -235,20 +241,24 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     @Override
     @Nullable
     public LocatorDisplay getLocator(String name) {
-        return this.locators.get(name);
+        return this.locatorMap.get(name);
     }
 
     @Override
     public int[] getDisplayIds() {
-        int[] displays = new int[this.bones.length + this.activeLocators.size()];
+        int[] displays = new int[this.bones.length + this.activeLocatorCount];
 
         int index = 0;
         for (Bone bone : this.bones) {
             displays[index++] = bone.element().getEntityId();
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
-            displays[index++] = locator.element().getEntityId();
+        if (this.activeLocatorCount > 0) {
+            for (LocatorDisplay locator : this.locators) {
+                if (locator.isActive()) {
+                    displays[index++] = locator.element().getEntityId();
+                }
+            }
         }
 
         return displays;
