@@ -18,7 +18,7 @@ import org.provim.nylon.mixins.accessors.ElementHolderAccessor;
 import java.util.List;
 
 public class Utils {
-    public static List<VirtualElement> getElementsUnsafe(ElementHolder holder) {
+    public static List<VirtualElement> getElementsUnchecked(ElementHolder holder) {
         // Gets the element list directly rather than wrapping it in an unmodifiable list to reduce object allocations.
         return ((ElementHolderAccessor) holder).getElements();
     }

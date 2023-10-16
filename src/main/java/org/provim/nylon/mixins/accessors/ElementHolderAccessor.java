@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 import java.util.List;
 
-@Mixin(ElementHolder.class)
+@Mixin(value = ElementHolder.class, remap = false)
 public interface ElementHolderAccessor {
     @Accessor
     List<VirtualElement> getElements();

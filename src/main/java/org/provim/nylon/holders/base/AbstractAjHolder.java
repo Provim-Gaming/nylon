@@ -48,8 +48,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         super(parent, updateElementsAsync);
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
 
-        this.animation = new AnimationComponent(model, parent.getServer(), updateElementsAsync);
-        this.variant = new VariantComponent(model, parent.getServer());
+        this.animation = new AnimationComponent(model, this.server, updateElementsAsync);
+        this.variant = new VariantComponent(model, this.server);
 
         Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();

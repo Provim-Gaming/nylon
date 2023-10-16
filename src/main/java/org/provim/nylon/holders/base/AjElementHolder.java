@@ -3,6 +3,8 @@ package org.provim.nylon.holders.base;
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.Util;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -18,12 +20,14 @@ import java.util.concurrent.Executor;
 public abstract class AjElementHolder<T extends Entity> extends ElementHolder implements AjHolderInterface {
     private static final Executor EXECUTOR = Util.backgroundExecutor();
     protected final T parent;
+    protected final MinecraftServer server;
     private final boolean updateElementsAsync;
     private boolean isLoaded;
     private int tickCount;
 
     public AjElementHolder(T parent, boolean updateElementsAsync) {
         this.parent = parent;
+        this.server = parent.getServer();
         this.tickCount = parent.tickCount - 1;
         this.updateElementsAsync = updateElementsAsync;
     }
@@ -60,16 +64,18 @@ public abstract class AjElementHolder<T extends Entity> extends ElementHolder im
         this.updatePosition();
 
         if (this.updateElementsAsync) {
-            EXECUTOR.execute(this::updateElementsInternal);
+            EXECUTOR.execute(() -> {
+                this.updateElements();
+                this.server.tell(new TickTask(this.server.getTickCount(), this::tickElements));
+            });
         } else {
-            this.updateElementsInternal();
+            this.updateElements();
+            this.tickElements();
         }
     }
 
-    private void updateElementsInternal() {
-        this.updateElements();
-
-        for (VirtualElement element : Utils.getElementsUnsafe(this)) {
+    private void tickElements() {
+        for (VirtualElement element : Utils.getElementsUnchecked(this)) {
             element.tick();
         }
     }
