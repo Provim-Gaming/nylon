@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
+    protected static final Quaternionf ROT_180 = Axis.YP.rotationDegrees(180.f);
     protected final Vector2f size;
     protected final Bone[] bones;
     protected final LocatorDisplay[] locators;
@@ -188,9 +189,8 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Vector3f scale = pose.scale();
         Vector3f translation = pose.translation();
-        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
 
-        // Update data tracker values
         display.setTranslation(translation);
         display.setRightRotation(rightRotation);
         display.setScale(scale);

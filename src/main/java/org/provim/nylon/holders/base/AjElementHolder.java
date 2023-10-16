@@ -1,8 +1,13 @@
 package org.provim.nylon.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.Util;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.TickTask;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
@@ -14,6 +19,7 @@ import org.provim.nylon.util.Utils;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Base class for all AJ holders that handles Polymer's ElementHolder specific logic.
@@ -40,6 +46,8 @@ public abstract class AjElementHolder<T extends Entity & AjEntity> extends Eleme
     abstract protected void onEntityDataLoaded();
 
     abstract protected void updateElements();
+
+    abstract protected void addDirectPassengers(IntList passengers);
 
     @Override
     public final boolean startWatching(ServerGamePacketListenerImpl player) {
@@ -82,6 +90,18 @@ public abstract class AjElementHolder<T extends Entity & AjEntity> extends Eleme
     private void tickElements() {
         for (VirtualElement element : Utils.getElementsUnchecked(this)) {
             element.tick();
+        }
+    }
+
+    @Override
+    protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
+        super.startWatchingExtraPackets(player, consumer);
+
+        IntList passengers = new IntArrayList();
+        this.addDirectPassengers(passengers);
+
+        if (passengers.size() > 0) {
+            consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
         }
     }
 

@@ -1,9 +1,7 @@
 package org.provim.nylon.holders.living;
 
 import com.mojang.math.Axis;
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -84,30 +82,36 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Quaternionf bodyRotation = new Quaternionf();
-        if (this.parent.deathTime > 0) {
-            bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
-        }
-
+        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
+        Vector3f translation = pose.translation();
         Vector3f scale = pose.scale();
-        Vector3f translation = pose.translation().rotate(bodyRotation);
+
+        boolean isHead = display.isHead();
+        boolean isDead = this.parent.deathTime > 0;
+        if (isHead || isDead) {
+            Quaternionf bodyRotation = new Quaternionf();
+            if (isDead) {
+                bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
+                translation.rotate(bodyRotation);
+            }
+
+            if (isHead) {
+                bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
+                bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
+            }
+
+            display.setLeftRotation(bodyRotation);
+        }
+
         if (this.scale != 1.0f) {
-            translation.mul(this.scale);
             scale.mul(this.scale);
+            translation.mul(this.scale);
         }
-        translation.add(0, -this.scaledSize.y + 0.01f, 0);
+        translation.sub(0, this.scaledSize.y - 0.01f, 0);
 
-        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
-        if (display.isHead()) {
-            bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
-            bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
-        }
-
-        // Update data tracker values
+        display.setScale(scale);
         display.setTranslation(translation);
         display.setRightRotation(rightRotation);
-        display.setScale(scale);
-        display.setLeftRotation(bodyRotation);
         display.element().setYaw(this.parent.yBodyRot);
 
         display.startInterpolation();
@@ -125,13 +129,10 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
             consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         }
 
-        IntList passengers = new IntArrayList();
-        this.addDirectPassengers(passengers);
-
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
     }
 
+    @Override
     protected void addDirectPassengers(IntList passengers) {
         passengers.add(this.hitboxInteraction.getEntityId());
         passengers.add(this.collisionElement.getEntityId());
