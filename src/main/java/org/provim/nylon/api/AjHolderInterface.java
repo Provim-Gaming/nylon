@@ -3,7 +3,6 @@ package org.provim.nylon.api;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.Mob;
-import org.provim.nylon.holders.elements.LocatorDisplay;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public interface AjHolderInterface {
      * <p>
      * This also includes inactive locators that are currently not being displayed.
      */
-    LocatorDisplay getLocator(String name);
+    Locator getLocator(String name);
 
     /**
      * Returns an array of entity ids used for displaying the model.

@@ -30,6 +30,10 @@ public abstract class AjElementHolder<T extends Entity> extends ElementHolder im
         this.server = parent.getServer();
         this.tickCount = parent.tickCount - 1;
         this.updateElementsAsync = updateElementsAsync;
+
+        if (this.server == null) {
+            throw new IllegalStateException("You can only create AjElementHolders for serverside entities!");
+        }
     }
 
     abstract protected void onEntityDataLoaded();
@@ -87,5 +91,9 @@ public abstract class AjElementHolder<T extends Entity> extends ElementHolder im
     @Override
     public List<VirtualElement> getVirtualElements() {
         return this.getElements();
+    }
+
+    public MinecraftServer getServer() {
+        return this.server;
     }
 }

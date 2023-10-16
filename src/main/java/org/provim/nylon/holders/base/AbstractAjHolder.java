@@ -134,23 +134,17 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         return null;
     }
 
-    public void activateLocator(LocatorDisplay locator, boolean update) {
+    public void activateLocator(LocatorDisplay locator, boolean isServerOnly) {
         this.activeLocatorCount++;
-        if (update) {
+        if (!isServerOnly) {
             this.addElement(locator.element());
             this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
-        } else {
-            this.addElementWithoutUpdates(locator.element());
         }
     }
 
-    public void deactivateLocator(LocatorDisplay locator, boolean update) {
+    public void deactivateLocator(LocatorDisplay locator) {
         this.activeLocatorCount--;
-        if (update) {
-            this.removeElement(locator.element());
-        } else {
-            this.removeElementWithoutUpdates(locator.element());
-        }
+        this.removeElement(locator.element());
     }
 
     protected void onEntityDataLoaded() {
