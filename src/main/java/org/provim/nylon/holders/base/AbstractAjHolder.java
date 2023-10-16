@@ -5,6 +5,7 @@ import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
+import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
@@ -34,7 +36,7 @@ import org.provim.nylon.util.Utils;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder<T> {
+public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
     protected final Vector2f size;
     protected final Bone[] bones;
     protected final LocatorDisplay[] locators;
@@ -98,8 +100,9 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         ItemDisplayElement element = new ItemDisplayElement();
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
-        element.setInterpolationDuration(2);
         element.setInvisible(true);
+        element.setInterpolationDuration(2);
+        element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
 
         ItemStack itemStack = new ItemStack(rigItem);
         CompoundTag tag = itemStack.getOrCreateTag();
@@ -127,6 +130,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             if (locator != null) {
                 locator.setInvisible(true);
                 locator.setInterpolationDuration(2);
+                locator.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
                 return locator;
             }
         }

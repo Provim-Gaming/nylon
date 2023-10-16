@@ -19,6 +19,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.elements.Bone;
 import org.provim.nylon.holders.elements.CollisionElement;
@@ -31,14 +32,14 @@ import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 
-public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
+public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractAjHolder<T> {
     private final InteractionElement hitboxInteraction;
     private final CollisionElement collisionElement;
     private final Vector2f scaledSize;
     private float deathAngle;
     private float scale;
 
-    public LivingAjHolder(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
+    public LivingAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
         super(parent, model, updateElementsAsync);
         this.scaledSize = new Vector2f(this.size);
 
@@ -83,7 +84,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
+        Quaternionf bodyRotation = new Quaternionf();
         if (this.parent.deathTime > 0) {
             bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
         }
@@ -107,6 +108,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         display.setRightRotation(rightRotation);
         display.setScale(scale);
         display.setLeftRotation(bodyRotation);
+        display.element().setYaw(this.parent.yBodyRot);
 
         display.startInterpolation();
     }

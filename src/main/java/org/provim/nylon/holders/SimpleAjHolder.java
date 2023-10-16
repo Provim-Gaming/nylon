@@ -5,13 +5,14 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.model.AjModel;
 
 import java.util.function.Consumer;
 
-public class SimpleAjHolder extends AbstractAjHolder<Entity> {
-    public SimpleAjHolder(Entity parent, AjModel model, boolean updateElementsAsync) {
+public class SimpleAjHolder<T extends Entity & AjEntity> extends AbstractAjHolder<T> {
+    public SimpleAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
         super(parent, model, updateElementsAsync);
     }
 

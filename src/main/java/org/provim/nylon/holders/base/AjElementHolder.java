@@ -8,6 +8,7 @@ import net.minecraft.server.TickTask;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjHolderInterface;
 import org.provim.nylon.util.Utils;
 
@@ -17,7 +18,7 @@ import java.util.concurrent.Executor;
 /**
  * Base class for all AJ holders that handles Polymer's ElementHolder specific logic.
  */
-public abstract class AjElementHolder<T extends Entity> extends ElementHolder implements AjHolderInterface {
+public abstract class AjElementHolder<T extends Entity & AjEntity> extends ElementHolder implements AjHolderInterface {
     private static final Executor EXECUTOR = Util.backgroundExecutor();
     protected final T parent;
     protected final MinecraftServer server;
