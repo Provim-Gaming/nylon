@@ -35,6 +35,7 @@ public class ClientboundSetPassengersPacketMixin {
             if (this.vehicle == displayVehicle) {
                 int[] displays = holder.getDisplayIds();
                 int oldLength = this.passengers.length;
+
                 this.passengers = Arrays.copyOf(this.passengers, oldLength + displays.length);
                 System.arraycopy(displays, 0, this.passengers, oldLength, displays.length);
             }

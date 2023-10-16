@@ -80,11 +80,14 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
-        for (String name : toRemove) {
-            this.removeAnimationInternal(name);
+        if (toRemove.size() > 0) {
+            this.server.execute(() -> {
+                for (String name : toRemove) {
+                    this.removeAnimationInternal(name);
+                }
+            });
         }
     }
-
 
     @Nullable
     public AjPose firstPose(DisplayWrapper<?> display) {

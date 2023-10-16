@@ -64,7 +64,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
-            this.sendScaleUpdate();
+            this.server.execute(this::sendScaleUpdate);
         }
 
         super.updateElements();
