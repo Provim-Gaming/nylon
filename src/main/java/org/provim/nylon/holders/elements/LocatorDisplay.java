@@ -57,7 +57,7 @@ public class LocatorDisplay extends DisplayWrapper<DisplayElement> implements Lo
             Matrix4f matrix = new Matrix4f();
             matrix.translate(this.getTranslation());
             matrix.rotate(this.getRightRotation().mul(this.getLeftRotation()));
-            this.holder.getServer().execute(() -> this.transformationUpdateConsumer.accept(matrix));
+            this.transformationUpdateConsumer.accept(matrix);
         }
     }
 }

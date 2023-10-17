@@ -7,8 +7,8 @@ import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.model.AjModel;
 
 public class SimpleAjHolder<T extends Entity & AjEntity> extends AbstractAjHolder<T> {
-    public SimpleAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public SimpleAjHolder(T parent, AjModel model) {
+        super(parent, model);
     }
 
     @Override

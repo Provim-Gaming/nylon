@@ -2,7 +2,6 @@ package org.provim.nylon.component;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
@@ -10,16 +9,14 @@ import org.provim.nylon.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.*;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
-    private final List<Animation> animationList;
+    private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
+    private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
 
-    public AnimationComponent(AjModel model, MinecraftServer server, boolean async) {
-        super(model, server);
-        this.animationList = async ? new CopyOnWriteArrayList<>() : new ObjectArrayList<>();
+    public AnimationComponent(AjModel model) {
+        super(model);
     }
 
     @Override
@@ -71,21 +68,19 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     public void tickAnimations() {
-        ObjectArrayList<String> toRemove = new ObjectArrayList<>();
+        this.toRemove.clear();
         for (Animation animation : this.animationList) {
             if (animation.hasFinished()) {
-                toRemove.add(animation.name);
+                this.toRemove.add(animation.name);
             } else {
-                animation.tick(this.server);
+                animation.tick();
             }
         }
 
-        if (toRemove.size() > 0) {
-            this.server.execute(() -> {
-                for (String name : toRemove) {
-                    this.removeAnimationInternal(name);
-                }
-            });
+        if (this.toRemove.size() > 0) {
+            for (String name : this.toRemove) {
+                this.removeAnimationInternal(name);
+            }
         }
     }
 
@@ -153,12 +148,12 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.onFinishedCallback = onFinishedCallback;
         }
 
-        private void tick(MinecraftServer server) {
+        private void tick() {
             if (this.frameCounter >= 0 && this.shouldAnimate()) {
                 this.updateFrame(this.frameCounter - 1);
 
                 if (this.frameCounter < 0) {
-                    this.onFinish(server);
+                    this.onFinish();
                 }
             }
         }
@@ -170,7 +165,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
-        private void onFinish(MinecraftServer server) {
+        private void onFinish() {
             switch (this.animation.loopMode()) {
                 case once -> {
                     // todo: reset to "first frame"
@@ -193,7 +188,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
 
             if (this.onFinishedCallback != null) {
-                server.execute(this.onFinishedCallback);
+                this.onFinishedCallback.run();
             }
         }
 

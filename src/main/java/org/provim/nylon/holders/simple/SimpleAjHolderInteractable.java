@@ -20,8 +20,8 @@ import java.util.function.Consumer;
 public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends AbstractAjHolder<T> {
     private final InteractionElement hitboxInteraction;
 
-    public SimpleAjHolderInteractable(T parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public SimpleAjHolderInteractable(T parent, AjModel model) {
+        super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
         this.addElement(this.hitboxInteraction);

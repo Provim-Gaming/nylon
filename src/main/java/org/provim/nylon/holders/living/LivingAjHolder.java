@@ -37,8 +37,8 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     private float deathAngle;
     private float scale;
 
-    public LivingAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public LivingAjHolder(T parent, AjModel model) {
+        super(parent, model);
         this.scaledSize = new Vector2f(this.size);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
@@ -55,7 +55,7 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
-    public void updateElements() {
+    protected void onTick() {
         if (this.parent.deathTime > 0) {
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
         }
@@ -63,10 +63,10 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         float scale = this.parent.getScale();
         if (scale != this.scale) {
             this.updateScale(scale);
-            this.server.execute(this::sendScaleUpdate);
+            this.sendScaleUpdate();
         }
 
-        super.updateElements();
+        super.onTick();
     }
 
     @Override

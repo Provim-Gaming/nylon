@@ -7,7 +7,6 @@ import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.nbt.CompoundTag;
@@ -41,29 +40,29 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     protected final Vector2f size;
     protected final Bone[] bones;
     protected final LocatorDisplay[] locators;
-    protected final Map<String, LocatorDisplay> locatorMap;
+    protected final Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap;
 
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
     private int activeLocatorCount;
 
-    protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, updateElementsAsync);
+    protected AbstractAjHolder(T parent, AjModel model) {
+        super(parent);
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
 
-        this.animation = new AnimationComponent(model, this.server, updateElementsAsync);
-        this.variant = new VariantComponent(model, this.server);
+        this.animation = new AnimationComponent(model);
+        this.variant = new VariantComponent(model);
 
-        Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();
-        this.setupElements(model, bones, locators);
+        this.setupElements(model, bones, locatorMap);
 
-        this.locatorMap = Object2ObjectMaps.unmodifiable(locators);
-        this.locators = new LocatorDisplay[locators.size()];
-        this.activeLocatorCount = locators.size();
+        this.locatorMap = locatorMap;
+        this.locators = new LocatorDisplay[locatorMap.size()];
+        this.activeLocatorCount = locatorMap.size();
 
         int index = 0;
-        for (LocatorDisplay locator : locators.values()) {
+        for (LocatorDisplay locator : locatorMap.values()) {
             this.locators[index++] = locator;
         }
 
@@ -162,7 +161,8 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         }
     }
 
-    protected void updateElements() {
+    @Override
+    protected void onTick() {
         for (Bone bone : this.bones) {
             this.updateElement(bone);
         }

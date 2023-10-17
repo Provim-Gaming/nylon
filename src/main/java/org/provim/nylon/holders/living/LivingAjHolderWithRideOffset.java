@@ -27,8 +27,8 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
     private static final Vector2f ZERO = new Vector2f(0, 0);
     private final InteractionElement rideInteraction;
 
-    public LivingAjHolderWithRideOffset(T parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public LivingAjHolderWithRideOffset(T parent, AjModel model) {
+        super(parent, model);
 
         this.rideInteraction = new InteractionElement();
         this.rideInteraction.setInvisible(true);
