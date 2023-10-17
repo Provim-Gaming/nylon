@@ -69,7 +69,9 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     public void tickAnimations() {
         this.toRemove.clear();
-        for (Animation animation : this.animationList) {
+
+        for (int i = 0; i < this.animationList.size(); i++) {
+            Animation animation = this.animationList.get(i);
             if (animation.hasFinished()) {
                 this.toRemove.add(animation.name);
             } else {
@@ -77,10 +79,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
-        if (this.toRemove.size() > 0) {
-            for (String name : this.toRemove) {
-                this.removeAnimationInternal(name);
-            }
+        for (int i = 0; i < this.toRemove.size(); i++) {
+            this.removeAnimationInternal(this.toRemove.get(i));
         }
     }
 
@@ -88,11 +88,12 @@ public class AnimationComponent extends ComponentBase implements Animator {
     public AjPose firstPose(DisplayWrapper<?> display) {
         AjPose pose = null;
 
-        for (Animation anim : this.animationList) {
-            if (anim.inResetState()) {
+        for (int i = 0; i < this.animationList.size(); i++) {
+            Animation animation = this.animationList.get(i);
+            if (animation.inResetState()) {
                 pose = display.getDefaultPose();
-            } else if (anim.shouldAnimate()) {
-                AjPose animationPose = this.findAnimationPose(display, anim);
+            } else if (animation.shouldAnimate()) {
+                AjPose animationPose = this.findAnimationPose(display, animation);
                 if (animationPose != null) {
                     return animationPose;
                 }
@@ -106,7 +107,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private AjPose findAnimationPose(DisplayWrapper<?> display, Animation anim) {
         AjNode node = display.node();
         AjAnimation animation = anim.animation;
-
         if (!animation.isAffected(node.name())) {
             return null;
         }
