@@ -9,6 +9,7 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Vector2f;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.util.Utils;
 
@@ -22,16 +23,12 @@ import java.util.function.Consumer;
  * It works by adding an extra zero bounding boxed {@link InteractionElement} to the parent entity,
  * which is used as the vehicle. This will add a very minor overhead on the client.
  */
-public class LivingAjHolderWithRideOffset extends LivingAjHolder {
+public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> extends LivingAjHolder<T> {
     private static final Vector2f ZERO = new Vector2f(0, 0);
     private final InteractionElement rideInteraction;
 
-    public LivingAjHolderWithRideOffset(LivingEntity parent, AjModel model) {
-        this(parent, model, false);
-    }
-
-    public LivingAjHolderWithRideOffset(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public LivingAjHolderWithRideOffset(T parent, AjModel model) {
+        super(parent, model);
 
         this.rideInteraction = new InteractionElement();
         this.rideInteraction.setInvisible(true);

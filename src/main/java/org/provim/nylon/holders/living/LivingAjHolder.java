@@ -1,9 +1,7 @@
 package org.provim.nylon.holders.living;
 
 import com.mojang.math.Axis;
-import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -19,10 +17,12 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.elements.Bone;
 import org.provim.nylon.holders.elements.CollisionElement;
 import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.holders.elements.LocatorDisplay;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
@@ -30,19 +30,15 @@ import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 
-public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
+public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractAjHolder<T> {
     private final InteractionElement hitboxInteraction;
     private final CollisionElement collisionElement;
     private final Vector2f scaledSize;
     private float deathAngle;
     private float scale;
 
-    public LivingAjHolder(LivingEntity parent, AjModel model) {
-        this(parent, model, false);
-    }
-
-    public LivingAjHolder(LivingEntity parent, AjModel model, boolean updateElementsAsync) {
-        super(parent, model, updateElementsAsync);
+    public LivingAjHolder(T parent, AjModel model) {
+        super(parent, model);
         this.scaledSize = new Vector2f(this.size);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
@@ -59,7 +55,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
     }
 
     @Override
-    public void updateElements() {
+    protected void onTick() {
         if (this.parent.deathTime > 0) {
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
         }
@@ -70,7 +66,7 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             this.sendScaleUpdate();
         }
 
-        super.updateElements();
+        super.onTick();
     }
 
     @Override
@@ -86,30 +82,37 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Quaternionf bodyRotation = Axis.YP.rotationDegrees(-Mth.rotLerp(1.f, this.parent.yBodyRotO, this.parent.yBodyRot));
-        if (this.parent.deathTime > 0) {
-            bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
-        }
-
+        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
+        Vector3f translation = pose.translation();
         Vector3f scale = pose.scale();
-        Vector3f translation = pose.translation().rotate(bodyRotation);
+
+        boolean isHead = display.isHead();
+        boolean isDead = this.parent.deathTime > 0;
+        if (isHead || isDead) {
+            Quaternionf bodyRotation = new Quaternionf();
+            if (isDead) {
+                bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
+                translation.rotate(bodyRotation);
+            }
+
+            if (isHead) {
+                bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
+                bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
+            }
+
+            display.setLeftRotation(bodyRotation);
+        }
+
         if (this.scale != 1.0f) {
-            translation.mul(this.scale);
             scale.mul(this.scale);
+            translation.mul(this.scale);
         }
-        translation.add(0, -this.scaledSize.y + 0.01f, 0);
+        translation.sub(0, this.scaledSize.y - 0.01f, 0);
 
-        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
-        if (display.isHead()) {
-            bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
-            bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
-        }
-
-        // Update data tracker values
+        display.setScale(scale);
         display.setTranslation(translation);
         display.setRightRotation(rightRotation);
-        display.setScale(scale);
-        display.setLeftRotation(bodyRotation);
+        display.element().setYaw(this.parent.yBodyRot);
 
         display.startInterpolation();
     }
@@ -126,13 +129,10 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
             consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         }
 
-        IntList passengers = new IntArrayList();
-        this.addDirectPassengers(passengers);
-
-        consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
     }
 
+    @Override
     protected void addDirectPassengers(IntList passengers) {
         passengers.add(this.hitboxInteraction.getEntityId());
         passengers.add(this.collisionElement.getEntityId());
@@ -178,6 +178,10 @@ public class LivingAjHolder extends AbstractAjHolder<LivingEntity> {
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(this.scaledSize.x, this.scaledSize.y)));
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
+        }
+
+        for (LocatorDisplay locator : this.locators) {
+            locator.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 

@@ -17,14 +17,19 @@ import java.util.UUID;
 
 public class AjLoader {
     private static final Gson GSON = new GsonBuilder()
+            // Animated java models
             .registerTypeAdapter(AjPose.class, new AjPose.Deserializer())
             .registerTypeAdapter(AjFrame.class, new AjFrame.Deserializer())
             .registerTypeAdapter(AjRig.class, new AjRig.Deserializer())
 
-            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            // Reference equality
+            .registerTypeAdapter(String.class, new ReferenceStringDeserializer())
+            .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
+
+            // Custom deserializers
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
-            .registerTypeAdapter(UUID.class, new UuidDeserializer())
+            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .create();
 

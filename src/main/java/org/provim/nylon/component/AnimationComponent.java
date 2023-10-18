@@ -2,7 +2,6 @@ package org.provim.nylon.component;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import net.minecraft.server.MinecraftServer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
@@ -10,27 +9,27 @@ import org.provim.nylon.holders.elements.DisplayWrapper;
 import org.provim.nylon.model.*;
 
 import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
-    private final List<Animation> animationList;
+    private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
+    private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
 
-    public AnimationComponent(AjModel model, MinecraftServer server, boolean async) {
-        super(model, server);
-        this.animationList = async ? new CopyOnWriteArrayList<>() : new ObjectArrayList<>();
+    public AnimationComponent(AjModel model) {
+        super(model);
     }
 
     @Override
-    public void playAnimation(String name, int speed, int priority, Runnable onFinished) {
-        AjAnimation anim = this.model.animations().get(name);
+    public void playAnimation(String name, int priority, Runnable onFinished) {
         Animation animation = this.animationMap.get(name);
 
-        if (anim != null && animation == null) {
-            animation = new Animation(name, anim, speed, priority);
-            this.addAnimationInternal(name, animation);
-        } else if (animation != null && animation.state == Animation.State.PAUSED) {
+        if (animation == null) {
+            AjAnimation anim = this.model.animations().get(name);
+            if (anim != null) {
+                animation = new Animation(name, anim, priority);
+                this.addAnimationInternal(name, animation);
+            }
+        } else if (animation.state == Animation.State.PAUSED) {
             animation.state = Animation.State.PLAYING;
         }
 
@@ -69,30 +68,32 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     public void tickAnimations() {
-        ObjectArrayList<String> toRemove = new ObjectArrayList<>();
-        for (Animation animation : this.animationList) {
+        this.toRemove.clear();
+
+        for (int i = 0; i < this.animationList.size(); i++) {
+            Animation animation = this.animationList.get(i);
             if (animation.hasFinished()) {
-                toRemove.add(animation.name);
+                this.toRemove.add(animation.name);
             } else {
-                animation.tick(this.server);
+                animation.tick();
             }
         }
 
-        for (String name : toRemove) {
-            this.removeAnimationInternal(name);
+        for (int i = 0; i < this.toRemove.size(); i++) {
+            this.removeAnimationInternal(this.toRemove.get(i));
         }
     }
-
 
     @Nullable
     public AjPose firstPose(DisplayWrapper<?> display) {
         AjPose pose = null;
 
-        for (Animation anim : this.animationList) {
-            if (anim.inResetState()) {
+        for (int i = 0; i < this.animationList.size(); i++) {
+            Animation animation = this.animationList.get(i);
+            if (animation.inResetState()) {
                 pose = display.getDefaultPose();
-            } else if (anim.shouldAnimate()) {
-                AjPose animationPose = this.findAnimationPose(display, anim);
+            } else if (animation.shouldAnimate()) {
+                AjPose animationPose = this.findAnimationPose(display, animation);
                 if (animationPose != null) {
                     return animationPose;
                 }
@@ -106,7 +107,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private AjPose findAnimationPose(DisplayWrapper<?> display, Animation anim) {
         AjNode node = display.node();
         AjAnimation animation = anim.animation;
-
         if (!animation.isAffected(node.name())) {
             return null;
         }
@@ -124,7 +124,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
         @NotNull
         private final AjAnimation animation;
         private final String name;
-        private final int speed;
         private final int priority;
 
         private AjFrame currentFrame;
@@ -133,10 +132,9 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private State state;
         private Runnable onFinishedCallback;
 
-        public Animation(String name, AjAnimation animation, int speed, int priority) {
+        public Animation(String name, AjAnimation animation, int priority) {
             this.name = name;
             this.animation = animation;
-            this.speed = speed;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
             this.updateFrame(animation.duration() - 1 + animation.startDelay());
@@ -150,22 +148,24 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.onFinishedCallback = onFinishedCallback;
         }
 
-        private void tick(MinecraftServer server) {
-            if (this.frameCounter + this.speed >= 0 && this.shouldAnimate()) {
-                this.updateFrame(this.frameCounter - this.speed);
+        private void tick() {
+            if (this.frameCounter >= 0 && this.shouldAnimate()) {
+                this.updateFrame(this.frameCounter - 1);
 
                 if (this.frameCounter < 0) {
-                    this.onFinish(server);
+                    this.onFinish();
                 }
             }
         }
 
         private void updateFrame(int frame) {
             this.frameCounter = frame;
-            this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - Math.max(frame, 0)];
+            if (frame >= 0) {
+                this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - frame];
+            }
         }
 
-        private void onFinish(MinecraftServer server) {
+        private void onFinish() {
             switch (this.animation.loopMode()) {
                 case once -> {
                     // todo: reset to "first frame"
@@ -188,7 +188,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
 
             if (this.onFinishedCallback != null) {
-                server.execute(this.onFinishedCallback);
+                this.onFinishedCallback.run();
             }
         }
 

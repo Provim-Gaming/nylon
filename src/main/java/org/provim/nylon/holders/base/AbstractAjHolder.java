@@ -5,11 +5,10 @@ import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
+import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import it.unimi.dsi.fastutil.objects.Object2ObjectMaps;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -21,6 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
@@ -35,37 +35,40 @@ import org.provim.nylon.util.Utils;
 import java.util.List;
 import java.util.Map;
 
-public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder {
-
+public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
+    protected static final Quaternionf ROT_180 = Axis.YP.rotationDegrees(180.f);
     protected final Vector2f size;
-    protected final T parent;
-
     protected final Bone[] bones;
-    protected final Map<String, LocatorDisplay> locators;
-    protected final ObjectLinkedOpenHashSet<LocatorDisplay> activeLocators;
+    protected final LocatorDisplay[] locators;
+    protected final Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap;
 
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
+    private int activeLocatorCount;
 
-    protected AbstractAjHolder(T parent, AjModel model, boolean updateElementsAsync) {
-        super(updateElementsAsync);
-
+    protected AbstractAjHolder(T parent, AjModel model) {
+        super(parent);
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
-        this.parent = parent;
 
-        this.animation = new AnimationComponent(model, parent.getServer(), updateElementsAsync);
-        this.variant = new VariantComponent(model, parent.getServer());
+        this.animation = new AnimationComponent(model);
+        this.variant = new VariantComponent(model);
 
-        Object2ObjectOpenHashMap<String, LocatorDisplay> locators = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap = new Object2ObjectOpenHashMap<>();
         ObjectArrayList<Bone> bones = new ObjectArrayList<>();
-        this.setupElements(model, bones, locators);
+        this.setupElements(model, bones, locatorMap);
 
-        this.locators = Object2ObjectMaps.unmodifiable(locators);
-        this.activeLocators = new ObjectLinkedOpenHashSet<>(locators.values());
+        this.locatorMap = locatorMap;
+        this.locators = new LocatorDisplay[locatorMap.size()];
+        this.activeLocatorCount = locatorMap.size();
+
+        int index = 0;
+        for (LocatorDisplay locator : locatorMap.values()) {
+            this.locators[index++] = locator;
+        }
 
         this.bones = new Bone[bones.size()];
-        for (int i = 0; i < bones.size(); i++) {
-            this.bones[i] = bones.get(i);
+        for (index = 0; index < bones.size(); index++) {
+            this.bones[index] = bones.get(index);
         }
     }
 
@@ -97,8 +100,9 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         ItemDisplayElement element = new ItemDisplayElement();
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
-        element.setInterpolationDuration(2);
         element.setInvisible(true);
+        element.setInterpolationDuration(2);
+        element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
 
         ItemStack itemStack = new ItemStack(rigItem);
         CompoundTag tag = itemStack.getOrCreateTag();
@@ -126,6 +130,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             if (locator != null) {
                 locator.setInvisible(true);
                 locator.setInterpolationDuration(2);
+                locator.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
                 return locator;
             }
         }
@@ -133,25 +138,17 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
         return null;
     }
 
-    public void activateLocator(LocatorDisplay locator, boolean update) {
-        if (this.activeLocators.add(locator)) {
-            if (update) {
-                this.addElement(locator.element());
-                this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
-            } else {
-                this.addElementWithoutUpdates(locator.element());
-            }
+    public void activateLocator(LocatorDisplay locator, boolean isServerOnly) {
+        this.activeLocatorCount++;
+        if (!isServerOnly) {
+            this.addElement(locator.element());
+            this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
         }
     }
 
-    public void deactivateLocator(LocatorDisplay locator, boolean update) {
-        if (this.activeLocators.remove(locator)) {
-            if (update) {
-                this.removeElement(locator.element());
-            } else {
-                this.removeElementWithoutUpdates(locator.element());
-            }
-        }
+    public void deactivateLocator(LocatorDisplay locator) {
+        this.activeLocatorCount--;
+        this.removeElement(locator.element());
     }
 
     protected void onEntityDataLoaded() {
@@ -159,20 +156,23 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             this.applyPose(bone.getDefaultPose(), bone);
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.locators) {
             this.applyPose(locator.getDefaultPose(), locator);
         }
     }
 
-    protected void updateElements() {
+    @Override
+    protected void onTick() {
         for (Bone bone : this.bones) {
             this.updateElement(bone);
         }
 
-        if (this.activeLocators.size() > 0) {
-            for (LocatorDisplay locator : this.activeLocators) {
-                this.updateElement(locator);
-                locator.updateTransformationConsumer();
+        if (this.activeLocatorCount > 0) {
+            for (LocatorDisplay locator : this.locators) {
+                if (locator.isActive()) {
+                    this.updateElement(locator);
+                    locator.updateTransformationConsumer();
+                }
             }
         }
 
@@ -189,9 +189,8 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Vector3f scale = pose.scale();
         Vector3f translation = pose.translation();
-        Quaternionf rightRotation = pose.rotation().mul(Axis.YP.rotationDegrees(180.f)).normalize();
+        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
 
-        // Update data tracker values
         display.setTranslation(translation);
         display.setRightRotation(rightRotation);
         display.setScale(scale);
@@ -222,7 +221,7 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
             bone.element().setGlowing(isGlowing);
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
+        for (LocatorDisplay locator : this.locators) {
             locator.element().setGlowing(isGlowing);
         }
     }
@@ -240,20 +239,24 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     @Override
     @Nullable
     public LocatorDisplay getLocator(String name) {
-        return this.locators.get(name);
+        return this.locatorMap.get(name);
     }
 
     @Override
     public int[] getDisplayIds() {
-        int[] displays = new int[this.bones.length + this.activeLocators.size()];
+        int[] displays = new int[this.bones.length + this.activeLocatorCount];
 
         int index = 0;
         for (Bone bone : this.bones) {
             displays[index++] = bone.element().getEntityId();
         }
 
-        for (LocatorDisplay locator : this.activeLocators) {
-            displays[index++] = locator.element().getEntityId();
+        if (this.activeLocatorCount > 0) {
+            for (LocatorDisplay locator : this.locators) {
+                if (locator.isActive()) {
+                    displays[index++] = locator.element().getEntityId();
+                }
+            }
         }
 
         return displays;
@@ -272,11 +275,6 @@ public abstract class AbstractAjHolder<T extends Entity> extends AjElementHolder
     @Override
     public int getLeashedId() {
         return this.parent.getId();
-    }
-
-    @Override
-    public T getParent() {
-        return this.parent;
     }
 
     @Override

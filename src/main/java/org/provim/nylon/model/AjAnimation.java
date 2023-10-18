@@ -1,7 +1,7 @@
 package org.provim.nylon.model;
 
 import com.google.gson.annotations.SerializedName;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 public record AjAnimation(
         AjFrame[] frames,
@@ -10,7 +10,7 @@ public record AjAnimation(
 
         @SerializedName("duration") int duration,
         @SerializedName("loop_mode") LoopMode loopMode,
-        @SerializedName("affected_bones") ObjectOpenHashSet<String> affectedBones,
+        @SerializedName("affected_bones") ReferenceOpenHashSet<String> affectedBones,
         @SerializedName("affected_bones_is_a_whitelist") boolean affectedBonesIsAWhitelist
 ) {
 

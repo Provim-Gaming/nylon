@@ -13,6 +13,17 @@ import java.util.List;
 public interface AjEntity extends PolymerEntity {
     AjHolderInterface getHolder();
 
+    default float getShadowRadius() {
+        if (this instanceof Entity entity) {
+            return entity.getBbWidth() * 0.65f;
+        }
+        return 0;
+    }
+
+    default int getTeleportDuration() {
+        return 4;
+    }
+
     @Override
     default EntityType<?> getPolymerEntityType(ServerPlayer player) {
         return EntityType.BLOCK_DISPLAY;
@@ -20,15 +31,13 @@ public interface AjEntity extends PolymerEntity {
 
     @Override
     default void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
-        Entity parent = this.getHolder().getParent();
+        if (this instanceof Entity entity) {
+            data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.WIDTH, entity.getBbWidth()));
+            data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.HEIGHT, entity.getBbHeight()));
+        }
 
-        // Adds entity shadows
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.SHADOW_RADIUS, parent.getBbWidth() * 0.65f));
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.WIDTH, parent.getBbWidth()));
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.HEIGHT, parent.getBbHeight()));
-
-        // Adds movement and rotation interpolation
-        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.TELEPORTATION_DURATION, 3));
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.SHADOW_RADIUS, this.getShadowRadius()));
+        data.add(SynchedEntityData.DataValue.create(DisplayTrackedData.TELEPORTATION_DURATION, Math.max(0, this.getTeleportDuration())));
 
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));

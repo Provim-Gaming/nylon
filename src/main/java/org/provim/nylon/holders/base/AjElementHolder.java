@@ -1,32 +1,41 @@
 package org.provim.nylon.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
-import net.minecraft.Util;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjHolderInterface;
 
 import java.util.List;
-import java.util.concurrent.Executor;
+import java.util.function.Consumer;
 
 /**
  * Base class for all AJ holders that handles Polymer's ElementHolder specific logic.
  */
-public abstract class AjElementHolder extends ElementHolder implements AjHolderInterface {
-    private static final Executor EXECUTOR = Util.backgroundExecutor();
-    private final boolean updateElementsAsync;
+public abstract class AjElementHolder<T extends Entity & AjEntity> extends ElementHolder implements AjHolderInterface {
+    protected final T parent;
     private boolean isLoaded;
     private int tickCount;
 
-    public AjElementHolder(boolean updateElementsAsync) {
-        this.updateElementsAsync = updateElementsAsync;
-        this.tickCount = -1;
+    public AjElementHolder(T parent) {
+        this.parent = parent;
+        this.tickCount = parent.tickCount - 1;
+
+        if (this.parent.level().isClientSide) {
+            throw new IllegalStateException("You can only create AjElementHolders for serverside entities!");
+        }
     }
 
     abstract protected void onEntityDataLoaded();
 
-    abstract protected void updateElements();
+    abstract protected void addDirectPassengers(IntList passengers);
 
     @Override
     public final boolean startWatching(ServerGamePacketListenerImpl player) {
@@ -40,13 +49,9 @@ public abstract class AjElementHolder extends ElementHolder implements AjHolderI
 
     @Override
     public final void tick() {
-        if (this.tickCount++ % 2 != 0) {
-            return;
-        }
-
-        int parentTickCount = this.getParent().tickCount;
-        if (parentTickCount < this.tickCount) {
-            // If the parent entity is behind, they likely haven't been ticked - in which case we don't need to update our elements.
+        int parentTickCount = this.parent.tickCount;
+        if (parentTickCount < ++this.tickCount) {
+            // If the parent entity is behind, they likely haven't been ticked - in which case we can skip this tick too.
             this.tickCount = parentTickCount;
             return;
         }
@@ -55,11 +60,14 @@ public abstract class AjElementHolder extends ElementHolder implements AjHolderI
     }
 
     @Override
-    protected final void onTick() {
-        if (this.updateElementsAsync) {
-            EXECUTOR.execute(this::updateElements);
-        } else {
-            this.updateElements();
+    protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
+        super.startWatchingExtraPackets(player, consumer);
+
+        IntList passengers = new IntArrayList();
+        this.addDirectPassengers(passengers);
+
+        if (passengers.size() > 0) {
+            consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
         }
     }
 
