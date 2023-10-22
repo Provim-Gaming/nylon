@@ -36,18 +36,18 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
     }
 
     @Override
+    protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
+        passengers.add(this.rideInteraction.getEntityId());
+    }
+
+    @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
         for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))) {
             consumer.accept(packet);
         }
-    }
-
-    @Override
-    protected void addDirectPassengers(IntList passengers) {
-        super.addDirectPassengers(passengers);
-        passengers.add(this.rideInteraction.getEntityId());
     }
 
     @Override

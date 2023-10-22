@@ -10,7 +10,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.provim.nylon.NylonConfig;
 import org.provim.nylon.model.*;
+import org.provim.nylon.model.AjFrame;
 
 import java.io.*;
 import java.util.UUID;
@@ -24,7 +26,7 @@ public class AjLoader {
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
-            .registerTypeAdapter(UUID.class, new UuidDeserializer())
+            .registerTypeAdapter(UUID.class, new CachingUuidDeserializer())
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .create();
 
@@ -49,7 +51,8 @@ public class AjLoader {
     private static AjModel load(String path, InputStream input) throws JsonParseException {
         try (Reader reader = new InputStreamReader(input)) {
             AjModel model = GSON.fromJson(reader, AjModel.class);
-            AjLoader.replaceData(model);
+            if (NylonConfig.REPLACE_CUSTOM_MODEL_DATA)
+                AjLoader.replaceData(model);
             return model;
         } catch (Throwable throwable) {
             throw new JsonParseException("Failed to parse model: " + path, throwable);

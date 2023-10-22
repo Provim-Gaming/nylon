@@ -9,10 +9,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.lang.reflect.Type;
 import java.util.UUID;
 
-/**
- * The purpose of this deserializer is to reuse matching UUIDs, so that we can use reference equality.
- */
-public class UuidDeserializer implements JsonDeserializer<UUID> {
+public class CachingUuidDeserializer implements JsonDeserializer<UUID> {
     private static final Object2ObjectOpenHashMap<String, UUID> UUID_CACHE = new Object2ObjectOpenHashMap<>();
 
     @Override

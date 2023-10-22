@@ -1,21 +1,27 @@
 package org.provim.nylon.holders.base;
 
 import com.mojang.math.Axis;
-import eu.pb4.polymer.virtualentity.api.elements.BlockDisplayElement;
+import eu.pb4.polymer.virtualentity.api.ElementHolder;
+import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.elements.TextDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
@@ -24,73 +30,65 @@ import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
-import org.provim.nylon.holders.elements.Bone;
-import org.provim.nylon.holders.elements.DisplayWrapper;
-import org.provim.nylon.holders.elements.LocatorDisplay;
+import org.provim.nylon.holders.wrapper.Bone;
+import org.provim.nylon.holders.wrapper.DisplayWrapper;
+import org.provim.nylon.holders.wrapper.Locator;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
+import org.provim.nylon.model.AjVariant;
 import org.provim.nylon.util.Utils;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Collection;
+import java.util.UUID;
+import java.util.function.Consumer;
 
-public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
+public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends ElementHolder {
     protected static final Quaternionf ROT_180 = Axis.YP.rotationDegrees(180.f);
-    protected final Vector2f size;
-    protected final Bone[] bones;
-    protected final LocatorDisplay[] locators;
-    protected final Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap;
 
+    protected final T parent;
+    private boolean isLoaded;
+
+    protected final Vector2f size;
+    protected final Collection<Bone> bones;
+    protected final Collection<Locator> locators;
+
+    protected final ObjectSet<DisplayElement> additionalElements;
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
-    private int activeLocatorCount;
 
     protected AbstractAjHolder(T parent, AjModel model) {
-        super(parent);
+        this.parent = parent;
+        if (this.parent.level().isClientSide) {
+            throw new IllegalStateException("You can only create AjElementHolders for serverside entities!");
+        }
+
         this.size = new Vector2f(parent.getType().getWidth(), parent.getType().getHeight());
 
         this.animation = new AnimationComponent(model);
         this.variant = new VariantComponent(model);
 
-        Object2ObjectOpenHashMap<String, LocatorDisplay> locatorMap = new Object2ObjectOpenHashMap<>();
-        ObjectArrayList<Bone> bones = new ObjectArrayList<>();
-        this.setupElements(model, bones, locatorMap);
-
-        this.locatorMap = locatorMap;
-        this.locators = new LocatorDisplay[locatorMap.size()];
-        this.activeLocatorCount = locatorMap.size();
-
-        int index = 0;
-        for (LocatorDisplay locator : locatorMap.values()) {
-            this.locators[index++] = locator;
-        }
-
-        this.bones = new Bone[bones.size()];
-        for (index = 0; index < bones.size(); index++) {
-            this.bones[index] = bones.get(index);
-        }
+        this.bones = new ObjectArrayList<>();
+        this.additionalElements = new ObjectArraySet<>();
+        this.locators = new ObjectArrayList<>();
+        this.setupElements(model);
     }
 
-    protected void setupElements(AjModel model, List<Bone> bones, Map<String, LocatorDisplay> locators) {
+    protected void setupElements(AjModel model) {
         Item rigItem = model.projectSettings().rigItem();
         for (AjNode node : model.rig().nodeMap().values()) {
             AjPose defaultPose = model.rig().defaultPose().get(node.uuid());
+            boolean alwaysUpdate = node.name().startsWith("head");
             switch (node.type()) {
                 case bone -> {
                     ItemDisplayElement bone = this.createBone(node, rigItem);
                     if (bone != null) {
-                        bones.add(Bone.of(bone, node, defaultPose));
+                        this.bones.add(Bone.of(bone, node, defaultPose, alwaysUpdate));
                         this.addElement(bone);
                     }
                 }
-                case locator -> {
-                    DisplayElement locator = this.createLocatorDisplay(node);
-                    if (locator != null) {
-                        locators.put(node.name(), LocatorDisplay.of(locator, node, defaultPose, this));
-                        this.addElement(locator);
-                    }
-                }
+                case locator -> this.locators.add(Locator.of(node, defaultPose, alwaysUpdate));
+                default -> throw new IllegalStateException("Unexpected value: " + node.type());
             }
         }
     }
@@ -112,52 +110,9 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         return element;
     }
 
-    @Nullable
-    @SuppressWarnings("ConstantConditions")
-    protected DisplayElement createLocatorDisplay(AjNode node) {
-        if (node.entityType() != null) {
-            DisplayElement locator = switch (node.entityType().getPath()) {
-                case "item_display" -> new ItemDisplayElement();
-                case "block_display" -> new BlockDisplayElement();
-                case "text_display" -> {
-                    TextDisplayElement element = new TextDisplayElement();
-                    element.setBackground(0);
-                    yield element;
-                }
-                default -> null;
-            };
-
-            if (locator != null) {
-                locator.setInvisible(true);
-                locator.setInterpolationDuration(2);
-                locator.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
-                return locator;
-            }
-        }
-
-        return null;
-    }
-
-    public void activateLocator(LocatorDisplay locator, boolean isServerOnly) {
-        this.activeLocatorCount++;
-        if (!isServerOnly) {
-            this.addElement(locator.element());
-            this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
-        }
-    }
-
-    public void deactivateLocator(LocatorDisplay locator) {
-        this.activeLocatorCount--;
-        this.removeElement(locator.element());
-    }
-
     protected void onEntityDataLoaded() {
         for (Bone bone : this.bones) {
             this.applyPose(bone.getDefaultPose(), bone);
-        }
-
-        for (LocatorDisplay locator : this.locators) {
-            this.applyPose(locator.getDefaultPose(), locator);
         }
     }
 
@@ -167,26 +122,28 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
             this.updateElement(bone);
         }
 
-        if (this.activeLocatorCount > 0) {
-            for (LocatorDisplay locator : this.locators) {
-                if (locator.isActive()) {
-                    this.updateElement(locator);
-                    locator.updateTransformationConsumer();
-                }
-            }
+        for (Locator locator : this.locators) {
+            this.updateLocator(locator);
         }
 
-        this.animation.tickAnimations();
+        this.animation.tickAnimations().run(this, this.parent.getServer());
     }
 
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.firstPose(display);
+    protected void updateLocator(Locator locator) {
+        AjPose pose = this.animation.findPose(locator);
+        if (pose != null) {
+            locator.updateListeners(pose);
+        }
+    }
+
+    protected void updateElement(DisplayWrapper display) {
+        AjPose pose = this.animation.findPose(display);
         if (pose != null) {
             this.applyPose(pose, display);
         }
     }
 
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    public void applyPose(AjPose pose, DisplayWrapper display) {
         Vector3f scale = pose.scale();
         Vector3f translation = pose.translation();
         Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
@@ -198,7 +155,6 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         display.startInterpolation();
     }
 
-    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
         if (key.equals(EntityTrackedData.FLAGS)) {
             byte value = (byte) object;
@@ -206,6 +162,51 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
             this.updateGlowing(Utils.getSharedFlag(value, EntityTrackedData.GLOWING_FLAG_INDEX));
             this.updateInvisibility(Utils.getSharedFlag(value, EntityTrackedData.INVISIBLE_FLAG_INDEX));
         }
+    }
+
+    @Override
+    public final boolean startWatching(ServerGamePacketListenerImpl player) {
+        if (!this.isLoaded) {
+            this.isLoaded = true;
+            this.onEntityDataLoaded();
+        }
+
+        return super.startWatching(player);
+    }
+
+    protected void addDirectPassengers(IntList passengers) {
+        for (DisplayElement element: this.additionalElements) {
+            passengers.add(element.getEntityId());
+        }
+    }
+
+    public void addAdditionalElement(DisplayElement element) {
+        element.setInterpolationDuration(1);
+
+        this.addElement(element);
+        this.additionalElements.add(element);
+    }
+
+    public void removeAdditionalElement(DisplayElement element) {
+        this.additionalElements.remove(element);
+        this.removeElement(element);
+    }
+    public boolean hasAdditionalElement(DisplayElement element) { return this.additionalElements.contains(element); }
+
+    @Override
+    protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
+        super.startWatchingExtraPackets(player, consumer);
+
+        IntList passengers = new IntArrayList();
+        this.addDirectPassengers(passengers);
+
+        if (passengers.size() > 0) {
+            consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
+        }
+    }
+
+    @Override
+    protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
     }
 
     protected abstract void updateOnFire(boolean displayFire);
@@ -220,65 +221,54 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         for (Bone bone : this.bones) {
             bone.element().setGlowing(isGlowing);
         }
-
-        for (LocatorDisplay locator : this.locators) {
-            locator.element().setGlowing(isGlowing);
-        }
     }
 
-    @Override
     public void setDefaultVariant() {
         this.variant.applyDefaultVariant(this.bones);
     }
 
-    @Override
-    public void setCurrentVariant(String variant) {
+    public void setVariant(String variant) {
         this.variant.applyVariant(variant, this.bones);
     }
 
-    @Override
-    @Nullable
-    public LocatorDisplay getLocator(String name) {
-        return this.locatorMap.get(name);
+    public void setVariant(UUID variantId) {
+        this.variant.applyVariant(variantId, this.bones);
     }
 
-    @Override
-    public int[] getDisplayIds() {
-        int[] displays = new int[this.bones.length + this.activeLocatorCount];
+    public AjVariant getCurrentVariant() {
+        return this.variant.getCurrentVariant();
+    }
 
-        int index = 0;
-        for (Bone bone : this.bones) {
-            displays[index++] = bone.element().getEntityId();
-        }
-
-        if (this.activeLocatorCount > 0) {
-            for (LocatorDisplay locator : this.locators) {
-                if (locator.isActive()) {
-                    displays[index++] = locator.element().getEntityId();
-                }
-            }
-        }
-
+    public Collection<Integer> getDisplayIds() {
+        IntList displays = new IntArrayList();
+        this.bones.forEach(bone -> displays.add(bone.element().getEntityId()));
         return displays;
     }
 
-    @Override
     public int getDisplayVehicleId() {
         return this.parent.getId();
     }
 
-    @Override
     public int getVehicleId() {
         return this.parent.getId();
     }
 
-    @Override
     public int getLeashedId() {
         return this.parent.getId();
     }
 
-    @Override
     public Animator getAnimator() {
         return this.animation;
+    }
+
+    public T getParent() { return this.parent; }
+
+    public Locator getLocator(String name) {
+        for (Locator locator: this.locators) {
+            if (locator.name().equals(name)) {
+                return locator;
+            }
+        }
+        return null;
     }
 }

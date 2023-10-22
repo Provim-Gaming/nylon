@@ -8,7 +8,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
-import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -17,15 +16,14 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.provim.nylon.NylonConfig;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.holders.elements.Bone;
+import org.provim.nylon.holders.wrapper.Bone;
 import org.provim.nylon.holders.elements.CollisionElement;
-import org.provim.nylon.holders.elements.DisplayWrapper;
-import org.provim.nylon.holders.elements.LocatorDisplay;
+import org.provim.nylon.holders.wrapper.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
-import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -70,8 +68,8 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.firstPose(display);
+    protected void updateElement(DisplayWrapper display) {
+        AjPose pose = this.animation.findPose(display);
         if (pose == null) {
             // we always need a valid pose for body rotation & head rotation
             this.applyPose(display.getDefaultPose(), display);
@@ -81,17 +79,16 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    public void applyPose(AjPose pose, DisplayWrapper display) {
         Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
         Vector3f translation = pose.translation();
         Vector3f scale = pose.scale();
 
-        boolean isHead = display.isHead();
+        boolean isHead = display.requiresUpdateEveryTick();
         boolean isDead = this.parent.deathTime > 0;
         if (isHead || isDead) {
-            Quaternionf bodyRotation = new Quaternionf();
+            Quaternionf bodyRotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
             if (isDead) {
-                bodyRotation.mul(Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI));
                 translation.rotate(bodyRotation);
             }
 
@@ -126,7 +123,10 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         }
 
         if (this.parent.canBreatheUnderwater()) {
-            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
+            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, true)));
+            if (NylonConfig.SLIME_BASED_ENTITY) {
+                consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, true)));
+            }
         }
 
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
@@ -134,6 +134,7 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
 
     @Override
     protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
         passengers.add(this.hitboxInteraction.getEntityId());
         passengers.add(this.collisionElement.getEntityId());
     }
@@ -154,14 +155,6 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
-        super.onSyncedDataUpdated(key, object);
-        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
-            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
-        }
-    }
-
-    @Override
     protected void updateOnFire(boolean displayFire) {
         this.hitboxInteraction.setOnFire(displayFire);
     }
@@ -178,10 +171,6 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(this.scaledSize.x, this.scaledSize.y)));
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
-        }
-
-        for (LocatorDisplay locator : this.locators) {
-            locator.element().setDisplaySize(this.scaledSize.x * 2, -this.scaledSize.y - 1);
         }
     }
 

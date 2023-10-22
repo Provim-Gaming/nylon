@@ -4,7 +4,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.world.entity.Entity;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.api.AjHolderInterface;
+import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -28,7 +28,7 @@ public class SynchedEntityDataMixin {
     )
     private <T> void nylon$onSetEntityData(EntityDataAccessor<T> key, T value, boolean force, CallbackInfo ci) {
         if (this.entity instanceof AjEntity ajEntity) {
-            AjHolderInterface holder = ajEntity.getHolder();
+            AbstractAjHolder holder = ajEntity.getHolder();
             if (holder != null) {
                 holder.onSyncedDataUpdated(key, value);
             }

@@ -12,13 +12,14 @@ public class SimpleAjHolder<T extends Entity & AjEntity> extends AbstractAjHolde
     }
 
     @Override
-    protected void addDirectPassengers(IntList passengers) {
-        for (int display : this.getDisplayIds()) {
-            passengers.add(display);
-        }
+    protected void updateOnFire(boolean displayFire) {
     }
 
     @Override
-    protected void updateOnFire(boolean displayFire) {
+    protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
+        for (int display : this.getDisplayIds()) {
+            passengers.add(display);
+        }
     }
 }

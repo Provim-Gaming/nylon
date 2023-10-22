@@ -1,51 +1,24 @@
-package org.provim.nylon.holders.elements;
+package org.provim.nylon.holders.wrapper;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-import org.provim.nylon.model.AjAnimation;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 
-public abstract class DisplayWrapper<T extends DisplayElement> {
+public abstract class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final TrackedData trackedData = new TrackedData();
-    private final AjPose defaultPose;
-    private final AjNode node;
     private final T element;
 
-    private AjAnimation lastAnimation;
-    private AjPose lastPose;
-
     protected DisplayWrapper(T element, AjNode node, AjPose defaultPose) {
-        this.defaultPose = defaultPose;
+        super(node, defaultPose);
         this.element = element;
-        this.node = node;
-        this.lastPose = defaultPose;
     }
 
     public T element() {
         return this.element;
     }
-
-    public AjNode node() {
-        return this.node;
-    }
-
-    public AjPose getDefaultPose() {
-        return this.defaultPose;
-    }
-
-    public AjPose getLastPose(AjAnimation animation) {
-        return animation == this.lastAnimation ? this.lastPose : this.defaultPose;
-    }
-
-    public void setLastPose(AjPose lastPose, AjAnimation animation) {
-        this.lastAnimation = animation;
-        this.lastPose = lastPose;
-    }
-
-    abstract public boolean isHead();
 
     /**
      * Starts the interpolation of the display element.

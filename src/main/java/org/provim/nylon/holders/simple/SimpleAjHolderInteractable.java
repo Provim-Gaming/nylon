@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.holders.wrapper.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
@@ -28,6 +28,12 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
+    protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
+        passengers.add(this.hitboxInteraction.getEntityId());
+    }
+
+    @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
@@ -39,8 +45,8 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.firstPose(display);
+    protected void updateElement(DisplayWrapper display) {
+        AjPose pose = this.animation.findPose(display);
         if (pose == null) {
             this.applyPose(display.getDefaultPose(), display);
         } else {
@@ -49,7 +55,7 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    public void applyPose(AjPose pose, DisplayWrapper display) {
         Vector3f scale = pose.scale();
         Vector3f translation = pose.translation().sub(0, this.size.y - 0.01f, 0);
 
@@ -59,11 +65,6 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
         display.element().setPitch(this.parent.getXRot());
 
         display.startInterpolation();
-    }
-
-    @Override
-    protected void addDirectPassengers(IntList passengers) {
-        passengers.add(this.hitboxInteraction.getEntityId());
     }
 
     @Override

@@ -5,8 +5,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
-import org.provim.nylon.holders.elements.DisplayWrapper;
+import org.provim.nylon.holders.wrapper.AbstractWrapper;
 import org.provim.nylon.model.*;
+import org.provim.nylon.model.AjFrame;
 
 import java.util.Collections;
 
@@ -14,6 +15,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
     private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
     private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
+
+    private AnimationTickResult animationTickResult = AnimationTickResult.empty();
 
     public AnimationComponent(AjModel model) {
         super(model);
@@ -67,25 +70,36 @@ public class AnimationComponent extends ComponentBase implements Animator {
         this.animationList.remove(anim);
     }
 
-    public void tickAnimations() {
+    public AnimationTickResult tickAnimations() {
         this.toRemove.clear();
 
-        for (int i = 0; i < this.animationList.size(); i++) {
-            Animation animation = this.animationList.get(i);
+        for (Animation animation : this.animationList) {
             if (animation.hasFinished()) {
+                animation.willRemove();
                 this.toRemove.add(animation.name);
             } else {
                 animation.tick();
+
+                if (animation.currentFrame != null) {
+                    if (animation.currentFrame.variant() != null)
+                        this.animationTickResult.wantedVariant = animation.currentFrame.variant();
+                    if (animation.currentFrame.soundEffect() != null)
+                        this.animationTickResult.wantedSound = animation.currentFrame.soundEffect();
+                    if (animation.currentFrame.command() != null)
+                        this.animationTickResult.wantedCommand = animation.currentFrame.command();
+                }
             }
         }
 
-        for (int i = 0; i < this.toRemove.size(); i++) {
-            this.removeAnimationInternal(this.toRemove.get(i));
+        for (String s : this.toRemove) {
+            this.removeAnimationInternal(s);
         }
+
+        return this.animationTickResult;
     }
 
     @Nullable
-    public AjPose firstPose(DisplayWrapper<?> display) {
+    public AjPose findPose(AbstractWrapper display) {
         AjPose pose = null;
 
         for (int i = 0; i < this.animationList.size(); i++) {
@@ -104,7 +118,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Nullable
-    private AjPose findAnimationPose(DisplayWrapper<?> display, Animation anim) {
+    private AjPose findAnimationPose(AbstractWrapper display, Animation anim) {
         AjNode node = display.node();
         AjAnimation animation = anim.animation;
         if (!animation.isAffected(node.name())) {
@@ -148,13 +162,19 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.onFinishedCallback = onFinishedCallback;
         }
 
+        public void willRemove() {
+            if (this.onFinishedCallback != null) {
+                this.onFinishedCallback.run();
+            }
+        }
+
         private void tick() {
             if (this.frameCounter >= 0 && this.shouldAnimate()) {
                 this.updateFrame(this.frameCounter - 1);
+            }
 
-                if (this.frameCounter < 0) {
-                    this.onFinish();
-                }
+            if (this.frameCounter < 0) {
+                this.onFinish();
             }
         }
 
@@ -168,27 +188,19 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private void onFinish() {
             switch (this.animation.loopMode()) {
                 case once -> {
-                    // todo: reset to "first frame"
-                    // play the animation once, and then reset to the first frame.
                     if (this.state == State.FINISHED_RESET_DEFAULT) {
                         this.state = State.FINISHED;
                     } else {
                         this.state = State.FINISHED_RESET_DEFAULT;
-                        this.updateFrame(1);
                     }
                 }
                 case hold -> {
-                    // play the animation once, and then hold on the last frame.
                     this.state = State.FINISHED;
                 }
                 case loop -> {
                     this.updateFrame(this.animation.duration() - 1 + this.animation.loopDelay());
                     this.looped = true;
                 }
-            }
-
-            if (this.onFinishedCallback != null) {
-                this.onFinishedCallback.run();
             }
         }
 
