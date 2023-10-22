@@ -99,7 +99,7 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends Elem
         element.setDisplaySize(this.size.x * 2, -this.size.y - 1);
         element.setModelTransformation(ItemDisplayContext.FIXED);
         element.setInvisible(true);
-        element.setInterpolationDuration(2);
+        element.setInterpolationDuration(1);
         element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
 
         ItemStack itemStack = new ItemStack(rigItem);
