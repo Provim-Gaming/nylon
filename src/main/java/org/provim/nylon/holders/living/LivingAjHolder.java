@@ -8,6 +8,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
+import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
@@ -16,7 +17,6 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
-import org.provim.nylon.NylonConfig;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrapper.Bone;
@@ -24,6 +24,7 @@ import org.provim.nylon.holders.elements.CollisionElement;
 import org.provim.nylon.holders.wrapper.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
+import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -123,13 +124,18 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         }
 
         if (this.parent.canBreatheUnderwater()) {
-            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, true)));
-            if (NylonConfig.SLIME_BASED_ENTITY) {
-                consumer.accept(new ClientboundUpdateMobEffectPacket(this.parent.getId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, true)));
-            }
+            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
         }
 
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
+    }
+
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
+        super.onSyncedDataUpdated(key, object);
+        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
+            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
+        }
     }
 
     @Override

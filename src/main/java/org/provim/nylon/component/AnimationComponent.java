@@ -16,7 +16,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
     private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
 
-    private AnimationTickResult animationTickResult = AnimationTickResult.empty();
+    private final AnimationTickResult animationTickResult = AnimationTickResult.empty();
 
     public AnimationComponent(AjModel model) {
         super(model);
@@ -73,7 +73,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
     public AnimationTickResult tickAnimations() {
         this.toRemove.clear();
 
-        for (Animation animation : this.animationList) {
+        for (int i = 0; i < this.animationList.size(); i++) {
+            Animation animation = this.animationList.get(i);
             if (animation.hasFinished()) {
                 animation.willRemove();
                 this.toRemove.add(animation.name);
@@ -91,8 +92,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
-        for (String s : this.toRemove) {
-            this.removeAnimationInternal(s);
+        for (int i = 0; i < this.toRemove.size(); i++) {
+            this.removeAnimationInternal(this.toRemove.get(i));
         }
 
         return this.animationTickResult;

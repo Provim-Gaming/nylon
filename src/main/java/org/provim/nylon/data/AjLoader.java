@@ -10,7 +10,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
-import org.provim.nylon.NylonConfig;
 import org.provim.nylon.model.*;
 import org.provim.nylon.model.AjFrame;
 
@@ -37,21 +36,39 @@ public class AjLoader {
             throw new IllegalArgumentException("Model doesn't exist: " + path);
         }
 
-        return AjLoader.load(path, input);
+        return AjLoader.load(path, input, true);
+    }
+
+    public static AjModel requireNoReplace(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
+        String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
+        InputStream input = AjLoader.class.getResourceAsStream(path);
+        if (input == null) {
+            throw new IllegalArgumentException("Model doesn't exist: " + path);
+        }
+
+        return AjLoader.load(path, input, false);
     }
 
     public static AjModel require(String path) throws IllegalArgumentException, JsonParseException {
         try (InputStream input = new FileInputStream(path)) {
-            return AjLoader.load(path, input);
+            return AjLoader.load(path, input, true);
         } catch (IOException exception) {
             throw new IllegalArgumentException("Model doesn't exist: " + path);
         }
     }
 
-    private static AjModel load(String path, InputStream input) throws JsonParseException {
+    public static AjModel requireNoReplace(String path) throws IllegalArgumentException, JsonParseException {
+        try (InputStream input = new FileInputStream(path)) {
+            return AjLoader.load(path, input, false);
+        } catch (IOException exception) {
+            throw new IllegalArgumentException("Model doesn't exist: " + path);
+        }
+    }
+
+    private static AjModel load(String path, InputStream input, boolean replaceData) throws JsonParseException {
         try (Reader reader = new InputStreamReader(input)) {
             AjModel model = GSON.fromJson(reader, AjModel.class);
-            if (NylonConfig.REPLACE_CUSTOM_MODEL_DATA)
+            if (replaceData)
                 AjLoader.replaceData(model);
             return model;
         } catch (Throwable throwable) {

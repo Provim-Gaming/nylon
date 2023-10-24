@@ -1,4 +1,4 @@
-package org.provim.nylon.util;
+package org.provim.nylon.extra;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import net.minecraft.util.Mth;
@@ -9,7 +9,7 @@ import org.joml.Vector3f;
 import org.provim.nylon.holders.wrapper.Locator;
 
 /**
- * Listener for locators, updates a single DisplayElement
+ * Listener for locators, updates a single DisplayElement and sets yaw of the DisplayElement to the provided entity's one
  */
 public class EntityRotatedElementUpdateListener extends ElementUpdateListener implements Locator.LocatorListener {
     private final Entity parent;
