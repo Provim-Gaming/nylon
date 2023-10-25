@@ -15,7 +15,7 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose) {
-        return new Bone(element, node, defaultPose, false);
+        return new Bone(element, node, defaultPose, node.name().startsWith("head"));
     }
 
     protected Bone(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
