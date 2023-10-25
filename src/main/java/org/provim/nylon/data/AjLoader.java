@@ -7,76 +7,75 @@ import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.model.*;
-import org.provim.nylon.model.AjFrame;
 
 import java.io.*;
 import java.util.UUID;
 
 public class AjLoader {
     private static final Gson GSON = new GsonBuilder()
+            // Animated java models
             .registerTypeAdapter(AjPose.class, new AjPose.Deserializer())
-            .registerTypeAdapter(AjFrame.class, new AjFrame.Deserializer())
             .registerTypeAdapter(AjRig.class, new AjRig.Deserializer())
+            .registerTypeAdapter(AjFrame.class, new AjFrame.Deserializer())
+            .registerTypeAdapter(AjFrame.Command.class, new AjFrame.Command.Deserializer())
 
-            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
+            // Reference equality
+            .registerTypeAdapter(String.class, new ReferenceStringDeserializer())
+            .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
+
+            // Custom deserializers
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
-            .registerTypeAdapter(UUID.class, new CachingUuidDeserializer())
+            .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
+            .registerTypeAdapter(SoundEvent.class, new RegistryDeserializer<>(BuiltInRegistries.SOUND_EVENT))
             .create();
 
     public static AjModel require(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
-        String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
-        InputStream input = AjLoader.class.getResourceAsStream(path);
-        if (input == null) {
-            throw new IllegalArgumentException("Model doesn't exist: " + path);
-        }
-
-        return AjLoader.load(path, input, true);
-    }
-
-    public static AjModel requireNoReplace(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
-        String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
-        InputStream input = AjLoader.class.getResourceAsStream(path);
-        if (input == null) {
-            throw new IllegalArgumentException("Model doesn't exist: " + path);
-        }
-
-        return AjLoader.load(path, input, false);
+        return AjLoader.require(id, true);
     }
 
     public static AjModel require(String path) throws IllegalArgumentException, JsonParseException {
+        return AjLoader.require(path, true);
+    }
+
+    public static AjModel require(ResourceLocation id, boolean replaceModelData) throws IllegalArgumentException, JsonParseException {
+        String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
+        InputStream input = AjLoader.class.getResourceAsStream(path);
+        if (input == null) {
+            throw new IllegalArgumentException("Model doesn't exist: " + path);
+        }
+
+        return AjLoader.load(path, input, replaceModelData);
+    }
+
+    public static AjModel require(String path, boolean replaceModelData) throws IllegalArgumentException, JsonParseException {
         try (InputStream input = new FileInputStream(path)) {
-            return AjLoader.load(path, input, true);
+            return AjLoader.load(path, input, replaceModelData);
         } catch (IOException exception) {
             throw new IllegalArgumentException("Model doesn't exist: " + path);
         }
     }
 
-    public static AjModel requireNoReplace(String path) throws IllegalArgumentException, JsonParseException {
-        try (InputStream input = new FileInputStream(path)) {
-            return AjLoader.load(path, input, false);
-        } catch (IOException exception) {
-            throw new IllegalArgumentException("Model doesn't exist: " + path);
-        }
-    }
-
-    private static AjModel load(String path, InputStream input, boolean replaceData) throws JsonParseException {
+    private static AjModel load(String path, InputStream input, boolean replaceModelData) throws JsonParseException {
         try (Reader reader = new InputStreamReader(input)) {
             AjModel model = GSON.fromJson(reader, AjModel.class);
-            if (replaceData)
-                AjLoader.replaceData(model);
+            if (replaceModelData) {
+                AjLoader.replaceModelData(model);
+            }
+
             return model;
         } catch (Throwable throwable) {
             throw new JsonParseException("Failed to parse model: " + path, throwable);
         }
     }
 
-    private static void replaceData(AjModel model) {
+    private static void replaceModelData(AjModel model) {
         Item rigItem = model.projectSettings().rigItem();
 
         // Node model data

@@ -5,9 +5,9 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
-import org.provim.nylon.holders.wrapper.AbstractWrapper;
+import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.wrappers.AbstractWrapper;
 import org.provim.nylon.model.*;
-import org.provim.nylon.model.AjFrame;
 
 import java.util.Collections;
 
@@ -16,10 +16,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
     private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
 
-    private final AnimationTickResult animationTickResult = AnimationTickResult.empty();
-
-    public AnimationComponent(AjModel model) {
-        super(model);
+    public AnimationComponent(AjModel model, AbstractAjHolder<?> holder) {
+        super(model, holder);
     }
 
     @Override
@@ -29,7 +27,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
         if (animation == null) {
             AjAnimation anim = this.model.animations().get(name);
             if (anim != null) {
-                animation = new Animation(name, anim, priority);
+                animation = new Animation(name, anim, this.holder, priority);
                 this.addAnimationInternal(name, animation);
             }
         } else if (animation.state == Animation.State.PAUSED) {
@@ -70,45 +68,34 @@ public class AnimationComponent extends ComponentBase implements Animator {
         this.animationList.remove(anim);
     }
 
-    public AnimationTickResult tickAnimations() {
+    public void tickAnimations() {
         this.toRemove.clear();
 
-        for (int i = 0; i < this.animationList.size(); i++) {
+        for (int i = this.animationList.size() - 1; i >= 0; i--) {
             Animation animation = this.animationList.get(i);
             if (animation.hasFinished()) {
-                animation.willRemove();
+                animation.onFinished();
                 this.toRemove.add(animation.name);
             } else {
                 animation.tick();
-
-                if (animation.currentFrame != null) {
-                    if (animation.currentFrame.variant() != null)
-                        this.animationTickResult.wantedVariant = animation.currentFrame.variant();
-                    if (animation.currentFrame.soundEffect() != null)
-                        this.animationTickResult.wantedSound = animation.currentFrame.soundEffect();
-                    if (animation.currentFrame.command() != null)
-                        this.animationTickResult.wantedCommand = animation.currentFrame.command();
-                }
             }
         }
 
         for (int i = 0; i < this.toRemove.size(); i++) {
             this.removeAnimationInternal(this.toRemove.get(i));
         }
-
-        return this.animationTickResult;
     }
 
     @Nullable
-    public AjPose findPose(AbstractWrapper display) {
+    public AjPose findPose(AbstractWrapper wrapper) {
         AjPose pose = null;
 
         for (int i = 0; i < this.animationList.size(); i++) {
             Animation animation = this.animationList.get(i);
             if (animation.inResetState()) {
-                pose = display.getDefaultPose();
+                pose = wrapper.getDefaultPose();
             } else if (animation.shouldAnimate()) {
-                AjPose animationPose = this.findAnimationPose(display, animation);
+                AjPose animationPose = this.findAnimationPose(wrapper, animation);
                 if (animationPose != null) {
                     return animationPose;
                 }
@@ -119,36 +106,39 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Nullable
-    private AjPose findAnimationPose(AbstractWrapper display, Animation anim) {
-        AjNode node = display.node();
+    private AjPose findAnimationPose(AbstractWrapper wrapper, Animation anim) {
+        AjNode node = wrapper.node();
         AjAnimation animation = anim.animation;
-        if (!animation.isAffected(node.name())) {
+        AjFrame frame = anim.currentFrame;
+        if (frame == null || !animation.isAffected(node.name())) {
             return null;
         }
 
-        AjPose pose = anim.currentFrame.poses().get(node.uuid());
+        AjPose pose = frame.poses().get(node.uuid());
         if (pose != null) {
-            display.setLastPose(pose, animation);
+            wrapper.setLastPose(pose, animation);
             return pose;
         }
 
-        return display.getLastPose(animation);
+        return wrapper.getLastPose(animation);
     }
 
     private static class Animation implements Comparable<Animation> {
         @NotNull
         private final AjAnimation animation;
+        private final AbstractAjHolder<?> holder;
         private final String name;
         private final int priority;
 
         private AjFrame currentFrame;
-        private int frameCounter;
+        private int frameCounter = -1;
         private boolean looped;
         private State state;
         private Runnable onFinishedCallback;
 
-        public Animation(String name, AjAnimation animation, int priority) {
+        private Animation(String name, AjAnimation animation, AbstractAjHolder<?> holder, int priority) {
             this.name = name;
+            this.holder = holder;
             this.animation = animation;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
@@ -163,7 +153,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.onFinishedCallback = onFinishedCallback;
         }
 
-        public void willRemove() {
+        public void onFinished() {
             if (this.onFinishedCallback != null) {
                 this.onFinishedCallback.run();
             }
@@ -180,9 +170,17 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         private void updateFrame(int frame) {
-            this.frameCounter = frame;
-            if (frame >= 0) {
-                this.currentFrame = this.animation.frames()[(this.animation.duration() - 1) - frame];
+            if (frame != this.frameCounter) {
+                this.frameCounter = frame;
+
+                AjFrame[] frames = this.animation.frames();
+                if (frame >= 0 && frame < frames.length) {
+                    this.currentFrame = frames[(frames.length - 1) - frame];
+
+                    if (this.currentFrame.requiresUpdates()) {
+                        this.currentFrame.run(this.holder);
+                    }
+                }
             }
         }
 

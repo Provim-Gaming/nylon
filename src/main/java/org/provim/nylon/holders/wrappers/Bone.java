@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.wrapper;
+package org.provim.nylon.holders.wrappers;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
@@ -7,7 +7,6 @@ import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 
 public class Bone extends DisplayWrapper<ItemDisplayElement> {
-    private final boolean isHead;
     private final ItemStack item;
     private boolean invisible;
 
@@ -20,14 +19,8 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     protected Bone(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
-        super(element, node, defaultPose);
-        this.isHead = isHead;
+        super(element, node, defaultPose, isHead);
         this.item = element.getItem();
-    }
-
-    @Override
-    public boolean requiresUpdateEveryTick() {
-        return this.isHead;
     }
 
     public void setInvisible(boolean invisible) {

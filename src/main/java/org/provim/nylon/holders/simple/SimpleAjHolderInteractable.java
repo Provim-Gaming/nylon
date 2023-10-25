@@ -10,7 +10,7 @@ import net.minecraft.world.entity.Entity;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.holders.wrapper.DisplayWrapper;
+import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
@@ -28,16 +28,10 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
-    protected void addDirectPassengers(IntList passengers) {
-        super.addDirectPassengers(passengers);
-        passengers.add(this.hitboxInteraction.getEntityId());
-    }
-
-    @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.size)) {
+        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
             consumer.accept(packet);
         }
 
@@ -45,19 +39,19 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
-    protected void updateElement(DisplayWrapper display) {
+    protected void updateElement(DisplayWrapper<?> display) {
         AjPose pose = this.animation.findPose(display);
         if (pose == null) {
-            this.applyPose(display.getDefaultPose(), display);
+            this.applyDefaultPose(display);
         } else {
             this.applyPose(pose, display);
         }
     }
 
     @Override
-    public void applyPose(AjPose pose, DisplayWrapper display) {
+    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Vector3f scale = pose.scale();
-        Vector3f translation = pose.translation().sub(0, this.size.y - 0.01f, 0);
+        Vector3f translation = pose.translation().sub(0, this.dimensions.height - 0.01f, 0);
 
         display.setScale(scale);
         display.setTranslation(translation);
@@ -68,6 +62,12 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     }
 
     @Override
+    protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
+        passengers.add(this.hitboxInteraction.getEntityId());
+    }
+
+    @Override
     public int getDisplayVehicleId() {
         return this.hitboxInteraction.getEntityId();
     }
@@ -75,9 +75,5 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     @Override
     public int getVehicleId() {
         return this.hitboxInteraction.getEntityId();
-    }
-
-    @Override
-    protected void updateOnFire(boolean displayFire) {
     }
 }

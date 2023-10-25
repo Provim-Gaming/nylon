@@ -7,8 +7,8 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
-import org.joml.Vector2f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.util.Utils;
@@ -24,7 +24,7 @@ import java.util.function.Consumer;
  * which is used as the vehicle. This will add a very minor overhead on the client.
  */
 public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> extends LivingAjHolder<T> {
-    private static final Vector2f ZERO = new Vector2f(0, 0);
+    private static final EntityDimensions ZERO = EntityDimensions.fixed(0, 0);
     private final InteractionElement rideInteraction;
 
     public LivingAjHolderWithRideOffset(T parent, AjModel model) {
@@ -33,12 +33,6 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
         this.rideInteraction = new InteractionElement();
         this.rideInteraction.setInvisible(true);
         this.addElement(this.rideInteraction);
-    }
-
-    @Override
-    protected void addDirectPassengers(IntList passengers) {
-        super.addDirectPassengers(passengers);
-        passengers.add(this.rideInteraction.getEntityId());
     }
 
     @Override
@@ -51,8 +45,14 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
     }
 
     @Override
-    protected void sendScaleUpdate() {
-        super.sendScaleUpdate();
+    protected void addDirectPassengers(IntList passengers) {
+        super.addDirectPassengers(passengers);
+        passengers.add(this.rideInteraction.getEntityId());
+    }
+
+    @Override
+    public void onDimensionsUpdated(EntityDimensions dimensions) {
+        super.onDimensionsUpdated(dimensions);
         this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))));
     }
 

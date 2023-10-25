@@ -1,28 +1,23 @@
 package org.provim.nylon.extra;
 
-import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.provim.nylon.holders.wrapper.Locator;
+import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
+import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.wrappers.Locator;
+import org.provim.nylon.model.AjPose;
 
 /**
- * Listener for locators, updates a single DisplayElement
+ * Listener for locators, updates a single GenericEntityElement
  */
 public class ElementUpdateListener implements Locator.LocatorListener {
-    protected final DisplayElement element;
+    protected final GenericEntityElement element;
 
-    public static ElementUpdateListener of(DisplayElement element) {
-        return new ElementUpdateListener(element);
-    }
-
-    public ElementUpdateListener(DisplayElement element) {
+    public ElementUpdateListener(GenericEntityElement element) {
         this.element = element;
     }
 
     @Override
-    public void update(Vector3f position, Quaternionf rotation) {
-        this.element.setTranslation(position);
-        this.element.setRightRotation(rotation);
-        this.element.startInterpolation();
+    public void update(AbstractAjHolder<?> holder, AjPose pose) {
+        this.element.setOffset(new Vec3(pose.translation()));
     }
 }

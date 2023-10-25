@@ -1,78 +1,60 @@
 package org.provim.nylon.component;
 
 import org.jetbrains.annotations.Nullable;
-import org.provim.nylon.holders.wrapper.Bone;
+import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjVariant;
 
-import java.util.Collection;
 import java.util.UUID;
 
 public class VariantComponent extends ComponentBase {
-    public AjVariant getCurrentVariant() {
-        return currentVariant;
-    }
-
     @Nullable
     private AjVariant currentVariant = null;
 
-    public VariantComponent(AjModel model) {
-        super(model);
+    public VariantComponent(AjModel model, AbstractAjHolder<?> holder) {
+        super(model, holder);
     }
 
-    public void applyDefaultVariant(Collection<Bone> bones) {
+    public void applyDefaultVariant() {
         if (this.currentVariant != null) {
-            for (Bone bone : bones) {
+            this.currentVariant = null;
+            for (Bone bone : this.holder.getBones()) {
                 bone.updateItem(bone.node().customModelData());
             }
-            this.currentVariant = null;
         }
     }
 
-    public void applyVariant(String variantName, Collection<Bone> bones) {
+    public void applyVariant(String variantName) {
         if (this.currentVariant != null && this.currentVariant.name().equals(variantName)) {
             return;
         }
 
-        this.currentVariant = this.getVariant(variantName);
-        this.applyCurrent(bones);
+        for (AjVariant variant : this.model.variants().values()) {
+            if (variant.name().equals(variantName)) {
+                this.currentVariant = variant;
+                this.applyVariantToBones(this.currentVariant);
+                return;
+            }
+        }
     }
 
-    public void applyVariant(UUID variant, Collection<Bone> bones) {
-        if (this.currentVariant != null && this.currentVariant.uuid().equals(variant)) {
+    public void applyVariant(UUID variantUuid) {
+        AjVariant variant = this.model.variants().get(variantUuid);
+        if (variant == null || variant == this.currentVariant) {
             return;
         }
 
-        this.currentVariant = this.getVariant(variant);
-        if (this.currentVariant == null) {
-            // "bug" in AnimatedJava - default variant doesn't have a uuid..!
-            this.applyDefaultVariant(bones);
-        } else {
-            this.applyCurrent(bones);
-        }
+        this.currentVariant = variant;
+        this.applyVariantToBones(variant);
     }
 
-    private void applyCurrent(Collection<Bone> bones) {
-        if (this.currentVariant != null) {
-            for (Bone bone : bones) {
-                AjVariant.ModelInfo modelInfo = this.currentVariant.models().get(bone.node().uuid());
-                if (modelInfo != null && this.currentVariant.isAffected(bone.node().name())) {
-                    bone.updateItem(modelInfo.customModelData());
-                }
+    private void applyVariantToBones(AjVariant variant) {
+        for (Bone bone : this.holder.getBones()) {
+            AjVariant.ModelInfo modelInfo = variant.models().get(bone.node().uuid());
+            if (modelInfo != null && variant.isAffected(bone.node().name())) {
+                bone.updateItem(modelInfo.customModelData());
             }
         }
-    }
-
-    AjVariant getVariant(UUID uuid) {
-        return this.model.variants().get(uuid);
-    }
-
-    AjVariant getVariant(String name) {
-        for (AjVariant variant : this.model.variants().values()) {
-            if (variant.name().equals(name)) {
-                return variant;
-            }
-        }
-        return null;
     }
 }

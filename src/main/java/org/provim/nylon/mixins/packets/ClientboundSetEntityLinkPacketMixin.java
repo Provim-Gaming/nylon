@@ -4,7 +4,7 @@ import net.minecraft.network.protocol.game.ClientboundSetEntityLinkPacket;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.api.AjHolderInterface;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
@@ -23,7 +23,7 @@ public class ClientboundSetEntityLinkPacketMixin {
     @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V", at = @At("RETURN"))
     private void nylon$modifyLeashPacket(Entity leashed, @Nullable Entity leashHolder, CallbackInfo ci) {
         if (leashed instanceof AjEntity ajEntity) {
-            AbstractAjHolder holder = ajEntity.getHolder();
+            AjHolderInterface holder = ajEntity.getHolder();
             if (holder != null) {
                 this.sourceId = holder.getLeashedId();
             }

@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.wrapper;
+package org.provim.nylon.holders.wrappers;
 
 import org.provim.nylon.model.AjAnimation;
 import org.provim.nylon.model.AjNode;
@@ -21,7 +21,9 @@ public abstract class AbstractWrapper {
         return this.node;
     }
 
-    public String name() { return this.node.name(); }
+    public String name() {
+        return this.node.name();
+    }
 
     public AjPose getDefaultPose() {
         return this.defaultPose;
@@ -35,6 +37,4 @@ public abstract class AbstractWrapper {
         this.lastAnimation = animation;
         this.lastPose = lastPose;
     }
-
-    abstract public boolean requiresUpdateEveryTick(); // awkward naming..?
 }

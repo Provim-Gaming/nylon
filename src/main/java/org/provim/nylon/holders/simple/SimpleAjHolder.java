@@ -12,10 +12,6 @@ public class SimpleAjHolder<T extends Entity & AjEntity> extends AbstractAjHolde
     }
 
     @Override
-    protected void updateOnFire(boolean displayFire) {
-    }
-
-    @Override
     protected void addDirectPassengers(IntList passengers) {
         super.addDirectPassengers(passengers);
         for (int display : this.getDisplayIds()) {

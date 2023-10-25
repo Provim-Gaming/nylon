@@ -7,12 +7,11 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import org.provim.nylon.holders.base.AbstractAjHolder;
 
 import java.util.List;
 
 public interface AjEntity extends PolymerEntity {
-    AbstractAjHolder<?> getHolder();
+    AjHolderInterface getHolder();
 
     default float getShadowRadius() {
         if (this instanceof Entity entity) {
