@@ -85,8 +85,8 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
             }
 
             if (isHead) {
-                rotation.mul(Axis.YP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
-                rotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
+                rotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
+                rotation.mul(Axis.XP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
             }
             bodyRotation = rotation;
         }
