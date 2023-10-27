@@ -67,14 +67,16 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
-        Vector3f translation = pose.translation();
-        Vector3f scale = pose.scale();
+        Vector3f translation = new Vector3f(pose.translation());
+        Vector3f scale = new Vector3f(pose.scale());
 
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;
+
+        Quaternionf bodyRotation = null;
+
         if (isHead || isDead) {
-            Quaternionf bodyRotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
+            bodyRotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
             if (isDead) {
                 translation.rotate(bodyRotation);
             }
@@ -83,8 +85,6 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
                 bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
                 bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
             }
-
-            display.setLeftRotation(bodyRotation);
         }
 
         if (this.scale != 1.0f) {
@@ -95,7 +95,8 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
 
         display.setScale(scale);
         display.setTranslation(translation);
-        display.setRightRotation(rightRotation);
+        display.setRightRotation(new Quaternionf(pose.rightRotation()));
+        display.setLeftRotation(new Quaternionf(pose.leftRotation()).mul(bodyRotation).mul(ROT_180));
         display.element().setYaw(this.parent.yBodyRot);
 
         display.startInterpolation();

@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
@@ -172,13 +173,12 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Vector3f scale = pose.scale();
-        Vector3f translation = pose.translation();
-        Quaternionf rightRotation = pose.rotation().mul(ROT_180).normalize();
+        Vector3fc scale = pose.scale();
 
-        display.setTranslation(translation);
-        display.setRightRotation(rightRotation);
-        display.setScale(scale);
+        display.setTranslation(new Vector3f(pose.translation()));
+        display.setRightRotation(new Quaternionf(pose.rightRotation()));
+        display.setLeftRotation(new Quaternionf(pose.leftRotation()).mul(ROT_180));
+        display.setScale(new Vector3f(scale));
 
         display.startInterpolation();
     }

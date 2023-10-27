@@ -26,7 +26,7 @@ public class ElementUpdateListener implements Locator.LocatorListener {
     public void update(AbstractAjHolder<?> holder, AjPose pose) {
         if (this.element.isSendingPositionUpdates()) {
             Entity parent = holder.getParent();
-            Vector3f offset = pose.translation();
+            Vector3f offset = pose.translation().get(new Vector3f());
             float yRot = parent.getYRot();
 
             this.rotateOffset(offset, yRot);

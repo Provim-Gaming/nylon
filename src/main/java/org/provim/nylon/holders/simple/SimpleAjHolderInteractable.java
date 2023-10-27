@@ -50,8 +50,8 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Vector3f scale = pose.scale();
-        Vector3f translation = pose.translation().sub(0, this.dimensions.height - 0.01f, 0);
+        Vector3f scale = new Vector3f(pose.scale());
+        Vector3f translation = new Vector3f(pose.translation()).sub(0, this.dimensions.height - 0.01f, 0);
 
         display.setScale(scale);
         display.setTranslation(translation);
