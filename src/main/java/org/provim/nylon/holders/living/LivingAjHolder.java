@@ -16,6 +16,7 @@ import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
@@ -30,6 +31,8 @@ import org.provim.nylon.util.Utils;
 import java.util.function.Consumer;
 
 public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractAjHolder<T> {
+    private static Quaternionfc ZERO_ROT = new Quaternionf();
+
     private final InteractionElement hitboxInteraction;
     private final CollisionElement collisionElement;
     private float deathAngle;
@@ -73,18 +76,19 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;
 
-        Quaternionf bodyRotation = null;
+        Quaternionfc bodyRotation = ZERO_ROT;
 
         if (isHead || isDead) {
-            bodyRotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
+            Quaternionf rotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
             if (isDead) {
-                translation.rotate(bodyRotation);
+                translation.rotate(rotation);
             }
 
             if (isHead) {
-                bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
-                bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
+                rotation.mul(Axis.YP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
+                rotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
             }
+            bodyRotation = rotation;
         }
 
         if (this.scale != 1.0f) {
