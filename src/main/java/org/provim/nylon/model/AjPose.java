@@ -1,8 +1,8 @@
 package org.provim.nylon.model;
 
 import com.google.gson.*;
+import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
-import org.apache.commons.lang3.tuple.Triple;
 import org.joml.*;
 
 import java.lang.reflect.Type;
@@ -10,13 +10,47 @@ import java.util.UUID;
 
 public record AjPose(
         UUID uuid,
-        Matrix4fc matrix,
-
-        Vector3fc translation,
-        Quaternionfc leftRotation,
-        Quaternionfc rightRotation,
-        Vector3fc scale
+        Vector3f translation,
+        Vector3f scale,
+        Quaternionf leftRotation,
+        Quaternionf rightRotation
 ) {
+    public Vector3fc readOnlyTranslation() {
+        return this.translation;
+    }
+
+    public Vector3fc readOnlyScale() {
+        return this.scale;
+    }
+
+    public Quaternionfc readOnlyLeftRotation() {
+        return this.leftRotation;
+    }
+
+    public Quaternionfc readOnlyRightRotation() {
+        return this.rightRotation;
+    }
+
+    @Override
+    public Vector3f translation() {
+        return new Vector3f(this.translation);
+    }
+
+    @Override
+    public Vector3f scale() {
+        return new Vector3f(this.scale);
+    }
+
+    @Override
+    public Quaternionf leftRotation() {
+        return new Quaternionf(this.leftRotation);
+    }
+
+    @Override
+    public Quaternionf rightRotation() {
+        return new Quaternionf(this.rightRotation);
+    }
+
     public static class Deserializer implements JsonDeserializer<AjPose> {
         @Override
         public AjPose deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
@@ -26,15 +60,14 @@ public record AjPose(
             Matrix4f matrix = context.deserialize(object.get("matrix"), Matrix4f.class);
 
             float f = 1.0F / matrix.m33();
-            Triple<Quaternionf, Vector3f, Quaternionf> triple;
-            triple = MatrixUtil.svdDecompose(new Matrix3f().set(matrix).scale(f));
+            var triple = MatrixUtil.svdDecompose(new Matrix3f().set(matrix).scale(f));
 
-            Vector3f scale = triple.getMiddle();
             Vector3f translation = matrix.getTranslation(new Vector3f());
-            Quaternionf leftRotation = triple.getLeft();
+            Vector3f scale = triple.getMiddle();
+            Quaternionf leftRotation = triple.getLeft().mul(Axis.YP.rotationDegrees(180.f));
             Quaternionf rightRotation = triple.getRight();
 
-            return new AjPose(uuid, matrix, translation, leftRotation, rightRotation, scale);
+            return new AjPose(uuid, translation, scale, leftRotation, rightRotation);
         }
     }
 }

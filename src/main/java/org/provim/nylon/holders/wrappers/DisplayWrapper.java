@@ -3,7 +3,9 @@ package org.provim.nylon.holders.wrappers;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import org.joml.Quaternionf;
+import org.joml.Quaternionfc;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
 
@@ -41,44 +43,44 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
         }
     }
 
-    public void setScale(Vector3f scale) {
+    public void setScale(Vector3fc scale) {
         if (this.trackedData.updateScale(scale)) {
-            this.element.getDataTracker().set(DisplayTrackedData.SCALE, scale, true);
+            this.element.getDataTracker().set(DisplayTrackedData.SCALE, this.trackedData.scale, true);
         }
     }
 
-    public void setTranslation(Vector3f translation) {
+    public void setTranslation(Vector3fc translation) {
         if (this.trackedData.updateTranslation(translation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.TRANSLATION, translation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.TRANSLATION, this.trackedData.translation, true);
         }
     }
 
-    public void setRightRotation(Quaternionf rightRotation) {
+    public void setRightRotation(Quaternionfc rightRotation) {
         if (this.trackedData.updateRightRotation(rightRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.RIGHT_ROTATION, rightRotation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.RIGHT_ROTATION, this.trackedData.rightRotation, true);
         }
     }
 
-    public void setLeftRotation(Quaternionf leftRotation) {
+    public void setLeftRotation(Quaternionfc leftRotation) {
         if (this.trackedData.updateLeftRotation(leftRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.LEFT_ROTATION, leftRotation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.LEFT_ROTATION, this.trackedData.leftRotation, true);
         }
     }
 
     public Vector3f getScale() {
-        return this.trackedData.getScale();
+        return this.trackedData.scale;
     }
 
     public Vector3f getTranslation() {
-        return this.trackedData.getTranslation();
+        return this.trackedData.translation;
     }
 
     public Quaternionf getRightRotation() {
-        return this.trackedData.getRightRotation();
+        return this.trackedData.rightRotation;
     }
 
     public Quaternionf getLeftRotation() {
-        return this.trackedData.getLeftRotation();
+        return this.trackedData.leftRotation;
     }
 
     public static class TrackedData {
@@ -96,7 +98,7 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
             this.dirty = dirty;
         }
 
-        public boolean updateScale(Vector3f scale) {
+        public boolean updateScale(Vector3fc scale) {
             if (!this.scale.equals(scale)) {
                 this.scale.set(scale);
                 this.dirty = true;
@@ -105,7 +107,7 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
             return false;
         }
 
-        public boolean updateTranslation(Vector3f translation) {
+        public boolean updateTranslation(Vector3fc translation) {
             if (!this.translation.equals(translation)) {
                 this.translation.set(translation);
                 this.dirty = true;
@@ -114,7 +116,7 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
             return false;
         }
 
-        public boolean updateRightRotation(Quaternionf rightRotation) {
+        public boolean updateRightRotation(Quaternionfc rightRotation) {
             if (!this.rightRotation.equals(rightRotation)) {
                 this.rightRotation.set(rightRotation);
                 this.dirty = true;
@@ -123,29 +125,13 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
             return false;
         }
 
-        public boolean updateLeftRotation(Quaternionf leftRotation) {
+        public boolean updateLeftRotation(Quaternionfc leftRotation) {
             if (!this.leftRotation.equals(leftRotation)) {
                 this.leftRotation.set(leftRotation);
                 this.dirty = true;
                 return true;
             }
             return false;
-        }
-
-        public Vector3f getScale() {
-            return this.scale;
-        }
-
-        public Vector3f getTranslation() {
-            return this.translation;
-        }
-
-        public Quaternionf getRightRotation() {
-            return this.rightRotation;
-        }
-
-        public Quaternionf getLeftRotation() {
-            return this.leftRotation;
         }
     }
 }

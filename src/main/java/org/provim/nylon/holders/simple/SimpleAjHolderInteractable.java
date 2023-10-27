@@ -7,7 +7,6 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
-import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
@@ -50,11 +49,8 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Vector3f scale = new Vector3f(pose.scale());
-        Vector3f translation = new Vector3f(pose.translation()).sub(0, this.dimensions.height - 0.01f, 0);
-
-        display.setScale(scale);
-        display.setTranslation(translation);
+        display.setScale(pose.readOnlyScale());
+        display.setTranslation(pose.translation().sub(0, this.dimensions.height - 0.01f, 0));
         display.element().setYaw(this.parent.getYRot());
         display.element().setPitch(this.parent.getXRot());
 

@@ -1,6 +1,5 @@
 package org.provim.nylon.holders.base;
 
-import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
@@ -18,9 +17,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
@@ -38,7 +34,6 @@ import java.util.Map;
 import java.util.UUID;
 
 public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
-    protected static final Quaternionf ROT_180 = Axis.YP.rotationDegrees(180.f);
     protected final Bone[] bones;
     protected final Locator[] locators;
     protected final Object2ObjectOpenHashMap<String, Locator> locatorMap;
@@ -173,12 +168,10 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Vector3fc scale = pose.scale();
-
-        display.setTranslation(new Vector3f(pose.translation()));
-        display.setRightRotation(new Quaternionf(pose.rightRotation()));
-        display.setLeftRotation(new Quaternionf(pose.leftRotation()).mul(ROT_180));
-        display.setScale(new Vector3f(scale));
+        display.setTranslation(pose.readOnlyTranslation());
+        display.setRightRotation(pose.readOnlyRightRotation());
+        display.setLeftRotation(pose.readOnlyLeftRotation());
+        display.setScale(pose.readOnlyScale());
 
         display.startInterpolation();
     }
