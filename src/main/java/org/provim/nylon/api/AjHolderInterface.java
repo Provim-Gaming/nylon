@@ -54,6 +54,11 @@ public interface AjHolderInterface {
     int getLeashedId();
 
     /**
+     * Returns the entity id that should be used for handling entity events clientside.
+     */
+    int getEntityEventId();
+
+    /**
      * Resets the model variant back to default.
      */
     void setDefaultVariant();

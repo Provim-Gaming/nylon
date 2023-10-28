@@ -258,6 +258,11 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     @Override
+    public int getEntityEventId() {
+        return this.parent.getId();
+    }
+
+    @Override
     public Animator getAnimator() {
         return this.animation;
     }

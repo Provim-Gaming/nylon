@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "accessors.LivingEntityAccessor",
+    "packets.ClientboundEntityEventPacketMixin",
     "packets.ClientboundSetEntityLinkPacketMixin",
     "packets.ClientboundSetPassengersPacketMixin",
     "tracking.EntityMixin",

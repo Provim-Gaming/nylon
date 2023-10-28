@@ -72,8 +72,9 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
         boolean isDead = this.parent.deathTime > 0;
 
         if (isHead || isDead) {
-            Quaternionf bodyRotation = Axis.ZP.rotation(-this.deathAngle * Mth.HALF_PI);
+            Quaternionf bodyRotation = new Quaternionf();
             if (isDead) {
+                bodyRotation.rotationZ(-this.deathAngle * Mth.HALF_PI);
                 translation.rotate(bodyRotation);
             }
 
@@ -135,6 +136,11 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
 
     @Override
     public int getLeashedId() {
+        return this.collisionElement.getEntityId();
+    }
+
+    @Override
+    public int getEntityEventId() {
         return this.collisionElement.getEntityId();
     }
 
