@@ -24,7 +24,7 @@ public class ClientboundEntityEventPacketMixin {
         if (entity instanceof AjEntity ajEntity) {
             AjHolderInterface holder = ajEntity.getHolder();
             if (holder != null) {
-                this.entityId = holder.getLeashedId();
+                this.entityId = holder.getEntityEventId();
             }
         }
     }
