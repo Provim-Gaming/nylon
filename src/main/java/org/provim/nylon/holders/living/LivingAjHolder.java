@@ -135,6 +135,11 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
+    public int getCritParticleId() {
+        return this.hitboxInteraction.getEntityId();
+    }
+
+    @Override
     public int getLeashedId() {
         return this.collisionElement.getEntityId();
     }

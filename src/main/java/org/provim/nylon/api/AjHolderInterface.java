@@ -3,6 +3,7 @@ package org.provim.nylon.api;
 import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import org.provim.nylon.holders.wrappers.Locator;
 
@@ -55,8 +56,18 @@ public interface AjHolderInterface {
 
     /**
      * Returns the entity id that should be used for handling entity events clientside.
+     * <p>
+     * Entity events are responsible certain entity particles, added by the client.
+     * If for example the entity id is not from a {@link LivingEntity} on the client, death particles will not work.
      */
     int getEntityEventId();
+
+    /**
+     * Returns the entity id that should be used for handling critical hit particles.
+     * <p>
+     * If available, it is recommended to use the id of an element of approximately the same size as the model.
+     */
+    int getCritParticleId();
 
     /**
      * Resets the model variant back to default.

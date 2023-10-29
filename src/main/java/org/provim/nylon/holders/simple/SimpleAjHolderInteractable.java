@@ -72,4 +72,9 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     public int getVehicleId() {
         return this.hitboxInteraction.getEntityId();
     }
+
+    @Override
+    public int getCritParticleId() {
+        return this.hitboxInteraction.getEntityId();
+    }
 }

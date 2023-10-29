@@ -3,14 +3,17 @@ package org.provim.nylon.util;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
+import eu.pb4.polymer.virtualentity.impl.VirtualEntityImplUtils;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundAnimatePacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
+import org.provim.nylon.mixins.accessors.ClientboundAnimatePacketAccessor;
 
 import java.util.List;
 
@@ -25,6 +28,14 @@ public class Utils {
 
     public static boolean getSharedFlag(byte value, int flag) {
         return (value & 1 << flag) != 0;
+    }
+
+    public static ClientboundAnimatePacket createAnimatePacket(int id, int action) {
+        ClientboundAnimatePacket packet = VirtualEntityImplUtils.createUnsafe(ClientboundAnimatePacket.class);
+        ClientboundAnimatePacketAccessor accessor = (ClientboundAnimatePacketAccessor) packet;
+        accessor.setId(id);
+        accessor.setAction(action);
+        return packet;
     }
 
     public static List<Packet<ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, EntityDimensions dimensions) {
