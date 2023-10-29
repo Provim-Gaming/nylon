@@ -17,11 +17,9 @@ public class EntityMixin {
 
     @Inject(method = "refreshDimensions", at = @At("RETURN"))
     private void nylon$onRefreshedDimensions(CallbackInfo ci) {
-        if (this instanceof AjEntity ajEntity) {
-            AjHolderInterface holder = ajEntity.getHolder();
-            if (holder != null) {
-                holder.onDimensionsUpdated(this.dimensions);
-            }
+        AjHolderInterface holder = AjEntity.getHolder(this);
+        if (holder != null) {
+            holder.onDimensionsUpdated(this.dimensions);
         }
     }
 }

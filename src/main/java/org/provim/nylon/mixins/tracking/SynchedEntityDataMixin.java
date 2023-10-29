@@ -27,11 +27,9 @@ public class SynchedEntityDataMixin {
             )
     )
     private <T> void nylon$onSetEntityData(EntityDataAccessor<T> key, T value, boolean force, CallbackInfo ci) {
-        if (this.entity instanceof AjEntity ajEntity) {
-            AjHolderInterface holder = ajEntity.getHolder();
-            if (holder != null) {
-                holder.onSyncedDataUpdated(key, value);
-            }
+        AjHolderInterface holder = AjEntity.getHolder(this.entity);
+        if (holder != null) {
+            holder.onSyncedDataUpdated(key, value);
         }
     }
 }

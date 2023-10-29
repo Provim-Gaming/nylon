@@ -7,6 +7,7 @@ import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -15,7 +16,7 @@ public interface AjEntity extends PolymerEntity {
 
     default float getShadowRadius() {
         if (this instanceof Entity entity) {
-            return entity.getBbWidth() * 0.65f;
+            return entity.getBbWidth() * 0.6f;
         }
         return 0;
     }
@@ -41,5 +42,10 @@ public interface AjEntity extends PolymerEntity {
 
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));
+    }
+
+    @Nullable
+    static AjHolderInterface getHolder(Object obj) {
+        return obj instanceof AjEntity ajEntity ? ajEntity.getHolder() : null;
     }
 }
