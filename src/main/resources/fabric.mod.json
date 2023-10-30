@@ -19,7 +19,7 @@
     "nylon.mixins.json"
   ],
   "depends": {
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": ">=1.20.2",
     "fabricloader": "*",
     "polymer-core": "*",
     "polymer-virtual-entity": "*",
