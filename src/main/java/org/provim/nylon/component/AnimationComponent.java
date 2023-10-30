@@ -110,7 +110,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
         AjNode node = wrapper.node();
         AjAnimation animation = anim.animation;
         AjFrame frame = anim.currentFrame;
-        if (frame == null || !animation.isAffected(node.name())) {
+        if (frame == null || !animation.isAffected(node.uuid())) {
             return null;
         }
 

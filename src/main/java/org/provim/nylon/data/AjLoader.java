@@ -25,7 +25,6 @@ public class AjLoader {
             .registerTypeAdapter(AjFrame.Command.class, new AjFrame.Command.Deserializer())
 
             // Reference equality
-            .registerTypeAdapter(String.class, new ReferenceStringDeserializer())
             .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
 
             // Custom deserializers

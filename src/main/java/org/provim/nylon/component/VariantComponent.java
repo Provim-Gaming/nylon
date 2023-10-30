@@ -51,8 +51,9 @@ public class VariantComponent extends ComponentBase {
 
     private void applyVariantToBones(AjVariant variant) {
         for (Bone bone : this.holder.getBones()) {
-            AjVariant.ModelInfo modelInfo = variant.models().get(bone.node().uuid());
-            if (modelInfo != null && variant.isAffected(bone.node().name())) {
+            UUID uuid = bone.node().uuid();
+            AjVariant.ModelInfo modelInfo = variant.models().get(uuid);
+            if (modelInfo != null && variant.isAffected(uuid)) {
                 bone.updateItem(modelInfo.customModelData());
             }
         }
