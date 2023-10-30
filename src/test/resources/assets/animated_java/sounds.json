@@ -1,0 +1,22 @@
+{
+  "golem.ambient": {
+    "sounds": [
+      "animated_java:golem/golem_ambient1",
+      "animated_java:golem/golem_ambient2",
+      "animated_java:golem/golem_ambient3"
+    ],
+    "subtitle": "subtitles.golem.ambient"
+  },
+  "golem.hurt": {
+    "sounds": [
+      "animated_java:golem/golem_hurt"
+    ],
+    "subtitle": "subtitles.golem.hurt"
+  },
+  "golem.death": {
+    "sounds": [
+      "animated_java:golem/golem_death"
+    ],
+    "subtitle": "subtitles.golem.death"
+  }
+}

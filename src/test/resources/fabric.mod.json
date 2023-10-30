@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "nylon",
-  "version": "${version}",
-  "name": "Nylon",
+  "id": "nylon-testmod",
+  "version": "1.0",
+  "name": "Nylon Testmod",
   "description": "AnimatedJava API for Fabric",
   "authors": [
     "Pinnit",
@@ -14,12 +14,12 @@
   "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "org.provim.nylontest.NylonTest"
+    ]
   },
-  "mixins": [
-    "nylon.mixins.json"
-  ],
   "depends": {
-    "minecraft": ">=${minecraft_version}",
+    "minecraft": "*",
     "fabricloader": "*",
     "polymer-core": "*",
     "polymer-virtual-entity": "*",

@@ -21,23 +21,30 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Polymer
-    modImplementation ("eu.pb4:polymer-core:${project.polymer_version}")
-    modImplementation ("eu.pb4:polymer-blocks:${project.polymer_version}")
-    modImplementation ("eu.pb4:polymer-resource-pack:${project.polymer_version}")
-    modImplementation ("eu.pb4:polymer-virtual-entity:${project.polymer_version}")
-    modImplementation ("eu.pb4:polymer-networking:${project.polymer_version}")
+    modImplementation("eu.pb4:polymer-core:${project.polymer_version}")
+    modImplementation("eu.pb4:polymer-networking:${project.polymer_version}")
+    modImplementation("eu.pb4:polymer-resource-pack:${project.polymer_version}")
+    modImplementation("eu.pb4:polymer-virtual-entity:${project.polymer_version}")
+    modRuntimeOnly("eu.pb4:polymer-autohost:${project.polymer_version}")
 }
 
 processResources {
     inputs.property "version", project.version
     inputs.property "minecraft_version", project.minecraft_version
-    inputs.property "loader_version", project.loader_version
     filteringCharset "UTF-8"
 
     filesMatching("fabric.mod.json") {
-        expand "version": project.version,
-                "minecraft_version": project.minecraft_version,
-                "loader_version": project.loader_version
+        expand "version": project.version, "minecraft_version": project.minecraft_version
+    }
+}
+
+loom {
+    runs {
+        testServer {
+            server()
+            name = "Nylon Test Server"
+            source sourceSets.test
+        }
     }
 }
 
@@ -70,10 +77,6 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
     from sourceSets.main.output
-}
-
-remapJar {
-    
 }
 
 // configure the maven publication
