@@ -12,7 +12,6 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -61,13 +60,13 @@ public class Utils {
     }
 
     public static String[] parseCommands(String commandString, @Nullable String prefix) {
-        String[] commands = StringUtils.split(commandString.trim(), "\n");
+        String[] commands = commandString.trim().split("(\r\n|\r|\n)", -1);
 
         ObjectArrayList<String> list = new ObjectArrayList<>(commands.length);
         for (String command : commands) {
             String trimmed = command.trim();
             if (!trimmed.isEmpty()) {
-                list.add(prefix != null ? prefix + command : command);
+                list.add(prefix != null ? prefix + trimmed : trimmed);
             }
         }
 
