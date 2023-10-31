@@ -3,6 +3,7 @@ package org.provim.nylon.util;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -11,10 +12,14 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
+import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
 public class Utils {
+    private static final String[] EMPTY_STRING_ARRAY = new String[0];
+
     public static float getRideOffset(Entity entity) {
         return entity.getBbHeight() + entity.getMyRidingOffset(entity);
     }
@@ -49,5 +54,23 @@ public class Utils {
                         SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, dimensions.height)
                 ))
         );
+    }
+
+    public static String[] parseCommands(String commandString) {
+        return parseCommands(commandString, null);
+    }
+
+    public static String[] parseCommands(String commandString, @Nullable String prefix) {
+        String[] commands = StringUtils.split(commandString.trim(), "\n");
+
+        ObjectArrayList<String> list = new ObjectArrayList<>(commands.length);
+        for (String command : commands) {
+            String trimmed = command.trim();
+            if (!trimmed.isEmpty()) {
+                list.add(prefix != null ? prefix + command : command);
+            }
+        }
+
+        return list.toArray(EMPTY_STRING_ARRAY);
     }
 }

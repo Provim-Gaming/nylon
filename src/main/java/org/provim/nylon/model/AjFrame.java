@@ -7,10 +7,9 @@ import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.GsonHelper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.holders.base.AjElementHolder;
+import org.provim.nylon.util.Utils;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -26,46 +25,37 @@ public record AjFrame(
 ) {
 
     public void run(AjElementHolder<?> holder) {
-        MutableObject<CommandSourceStack> mutable = new MutableObject<>();
         Commands executor = holder.getServer().getCommands();
+        CommandSourceStack source = holder.getParent().createCommandSourceStack().withPermission(2).withSuppressedOutput();
+
+        if (this.soundEffect != null) {
+            holder.getParent().playSound(this.soundEffect.event());
+        }
 
         if (this.variant != null) {
-            if (this.satisfiesCondition(this.variant.condition(), executor, this.getOrCreateCommandSource(holder, mutable))) {
+            if (this.satisfiesConditions(this.variant.conditions(), executor, source)) {
                 holder.setCurrentVariant(this.variant.uuid());
             }
         }
 
-        if (this.soundEffect != null) {
-            if (this.satisfiesCondition(this.soundEffect.condition(), executor, this.getOrCreateCommandSource(holder, mutable))) {
-                holder.getParent().playSound(this.soundEffect.event());
-            }
-        }
-
         if (this.commands != null && this.commands.commands().length > 0) {
-            var source = this.getOrCreateCommandSource(holder, mutable);
-
-            if (this.satisfiesCondition(this.commands.condition(), executor, source)) {
+            if (this.satisfiesConditions(this.commands.conditions(), executor, source)) {
                 for (String command : this.commands.commands()) {
-                    if (!command.isEmpty()) {
-                        executor.performPrefixedCommand(source, command);
-                    }
+                    executor.performPrefixedCommand(source, command);
                 }
             }
         }
     }
 
-    private boolean satisfiesCondition(@Nullable String condition, Commands executor, CommandSourceStack source) {
-        if (condition == null || condition.isEmpty()) {
-            return true;
+    private boolean satisfiesConditions(@Nullable String[] conditions, Commands executor, CommandSourceStack source) {
+        if (conditions != null) {
+            for (String condition : conditions) {
+                if (executor.performPrefixedCommand(source, condition) <= 0) {
+                    return false;
+                }
+            }
         }
-        return executor.performPrefixedCommand(source, "execute " + condition) > 0;
-    }
-
-    private CommandSourceStack getOrCreateCommandSource(AjElementHolder<?> holder, MutableObject<CommandSourceStack> mutable) {
-        if (mutable.getValue() == null) {
-            mutable.setValue(holder.getParent().createCommandSourceStack().withPermission(2).withSuppressedOutput());
-        }
-        return mutable.getValue();
+        return true;
     }
 
     public static class Deserializer implements JsonDeserializer<AjFrame> {
@@ -91,7 +81,7 @@ public record AjFrame(
                 command = context.deserialize(object.get("commands"), Command.class);
             }
 
-            SoundEffect soundEffect = null; // FIXME: not implemented in animated-java yet
+            SoundEffect soundEffect = null;
             if (object.has("sound")) {
                 soundEffect = context.deserialize(object.get("sound"), SoundEffect.class);
             }
@@ -101,37 +91,44 @@ public record AjFrame(
         }
     }
 
-    public record Variant(
-            @SerializedName("variant") UUID uuid,
-            @SerializedName("execute_condition") @Nullable String condition
+    public record SoundEffect(
+            // FIXME: not implemented in animated-java's json exporter yet
+            @SerializedName("id") SoundEvent event
     ) {
     }
 
-    public record SoundEffect(
-            @SerializedName("id") SoundEvent event,
-            @SerializedName("execute_condition") @Nullable String condition
+    public record Variant(
+            UUID uuid,
+            @Nullable String[] conditions
     ) {
+        public static class Deserializer implements JsonDeserializer<Variant> {
+            @Override
+            public Variant deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+                JsonObject object = jsonElement.getAsJsonObject();
+                UUID uuid = context.deserialize(object.get("uuid"), UUID.class);
+
+                JsonElement conditionElement = object.get("executeCondition");
+                String[] conditions = conditionElement != null ? Utils.parseCommands(conditionElement.getAsString(), "execute ") : null;
+
+                return new Variant(uuid, conditions);
+            }
+        }
     }
 
     public record Command(
             String[] commands,
-            @Nullable String condition
+            @Nullable String[] conditions
     ) {
         public static class Deserializer implements JsonDeserializer<Command> {
             @Override
             public Command deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
                 JsonObject object = jsonElement.getAsJsonObject();
+                String[] commands = Utils.parseCommands(GsonHelper.getAsString(object, "commands"));
 
-                JsonElement conditionElement = object.get("execute_condition");
-                String condition = conditionElement != null ? conditionElement.getAsString() : null;
+                JsonElement conditionElement = object.get("executeCondition");
+                String[] conditions = conditionElement != null ? Utils.parseCommands(conditionElement.getAsString(), "execute ") : null;
 
-                String commandString = GsonHelper.getAsString(object, "commands");
-                String[] commands = StringUtils.split(commandString.trim(), "\n");
-                for (int i = 0; i < commands.length; i++) {
-                    commands[i] = commands[i].trim();
-                }
-
-                return new Command(commands, condition);
+                return new Command(commands, conditions);
             }
         }
     }
