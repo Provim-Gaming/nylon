@@ -224,7 +224,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         @Override
-        public int compareTo(@NotNull AnimationComponent.Animation other) {
+        public int compareTo(@NotNull Animation other) {
             return Integer.compare(other.priority, this.priority);
         }
 

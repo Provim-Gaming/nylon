@@ -24,7 +24,7 @@ public class AnimationHelper {
 
     public static void updateHurtVariant(LivingEntity entity, AjHolderInterface holder) {
         Variant variant = holder.getVariant();
-        if (entity.hurtTime > 0 || entity.deathTime > 0 && variant.isDefault()) {
+        if (entity.hurtTime > 0 || entity.deathTime > 0) {
             variant.apply("hurt");
         } else if (variant.is("hurt")) {
             variant.applyDefault();
