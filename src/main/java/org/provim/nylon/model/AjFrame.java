@@ -34,7 +34,7 @@ public record AjFrame(
 
         if (this.variant != null) {
             if (this.satisfiesConditions(this.variant.conditions(), executor, source)) {
-                holder.setCurrentVariant(this.variant.uuid());
+                holder.getVariant().apply(this.variant.uuid());
             }
         }
 

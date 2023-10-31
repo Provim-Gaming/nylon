@@ -1,6 +1,7 @@
 package org.provim.nylon.component;
 
 import org.jetbrains.annotations.Nullable;
+import org.provim.nylon.api.Variant;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.model.AjModel;
@@ -8,15 +9,22 @@ import org.provim.nylon.model.AjVariant;
 
 import java.util.UUID;
 
-public class VariantComponent extends ComponentBase {
+public class VariantComponent extends ComponentBase implements Variant {
     @Nullable
-    private AjVariant currentVariant = null;
+    private AjVariant currentVariant;
 
     public VariantComponent(AjModel model, AbstractAjHolder<?> holder) {
         super(model, holder);
     }
 
-    public void applyDefaultVariant() {
+    @Nullable
+    @Override
+    public AjVariant current() {
+        return this.currentVariant;
+    }
+
+    @Override
+    public void applyDefault() {
         if (this.currentVariant != null) {
             this.currentVariant = null;
             for (Bone bone : this.holder.getBones()) {
@@ -25,21 +33,21 @@ public class VariantComponent extends ComponentBase {
         }
     }
 
-    public void applyVariant(String variantName) {
-        if (this.currentVariant != null && this.currentVariant.name().equals(variantName)) {
+    @Override
+    public void apply(String variantName) {
+        if (this.is(variantName)) {
             return;
         }
 
-        for (AjVariant variant : this.model.variants().values()) {
-            if (variant.name().equals(variantName)) {
-                this.currentVariant = variant;
-                this.applyVariantToBones(this.currentVariant);
-                return;
-            }
+        AjVariant variant = this.findByName(variantName);
+        if (variant != null) {
+            this.currentVariant = variant;
+            this.applyVariantToBones(variant);
         }
     }
 
-    public void applyVariant(UUID variantUuid) {
+    @Override
+    public void apply(UUID variantUuid) {
         AjVariant variant = this.model.variants().get(variantUuid);
         if (variant == null || variant == this.currentVariant) {
             return;
@@ -47,6 +55,16 @@ public class VariantComponent extends ComponentBase {
 
         this.currentVariant = variant;
         this.applyVariantToBones(variant);
+    }
+
+    @Nullable
+    private AjVariant findByName(String variantName) {
+        for (AjVariant variant : this.model.variants().values()) {
+            if (variant.name().equals(variantName)) {
+                return variant;
+            }
+        }
+        return null;
     }
 
     private void applyVariantToBones(AjVariant variant) {

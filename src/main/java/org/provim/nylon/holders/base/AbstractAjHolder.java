@@ -18,7 +18,6 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.api.Animator;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
 import org.provim.nylon.holders.wrappers.Bone;
@@ -31,7 +30,6 @@ import org.provim.nylon.util.Utils;
 
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjElementHolder<T> {
     protected final Bone[] bones;
@@ -207,21 +205,6 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     @Override
-    public void setDefaultVariant() {
-        this.variant.applyDefaultVariant();
-    }
-
-    @Override
-    public void setCurrentVariant(String variant) {
-        this.variant.applyVariant(variant);
-    }
-
-    @Override
-    public void setCurrentVariant(UUID variant) {
-        this.variant.applyVariant(variant);
-    }
-
-    @Override
     public Locator getLocator(String name) {
         return this.locatorMap.get(name);
     }
@@ -268,7 +251,12 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     @Override
-    public Animator getAnimator() {
+    public VariantComponent getVariant() {
+        return this.variant;
+    }
+
+    @Override
+    public AnimationComponent getAnimator() {
         return this.animation;
     }
 

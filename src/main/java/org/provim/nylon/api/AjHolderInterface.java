@@ -8,7 +8,6 @@ import net.minecraft.world.entity.Mob;
 import org.provim.nylon.holders.wrappers.Locator;
 
 import java.util.List;
-import java.util.UUID;
 
 @SuppressWarnings("unused")
 public interface AjHolderInterface {
@@ -70,19 +69,9 @@ public interface AjHolderInterface {
     int getCritParticleId();
 
     /**
-     * Resets the model variant back to default.
+     * Returns the variant controller for this holder.
      */
-    void setDefaultVariant();
-
-    /**
-     * Applies the given variant to the model of the entity.
-     */
-    void setCurrentVariant(String variant);
-
-    /**
-     * Applies the given variant to the model of the entity.
-     */
-    void setCurrentVariant(UUID variant);
+    Variant getVariant();
 
     /**
      * Returns the animator for this model.

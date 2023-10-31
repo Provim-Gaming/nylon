@@ -7,9 +7,13 @@ import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.AbstractWrapper;
-import org.provim.nylon.model.*;
+import org.provim.nylon.model.AjAnimation;
+import org.provim.nylon.model.AjFrame;
+import org.provim.nylon.model.AjModel;
+import org.provim.nylon.model.AjPose;
 
 import java.util.Collections;
+import java.util.UUID;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
@@ -107,14 +111,14 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     @Nullable
     private AjPose findAnimationPose(AbstractWrapper wrapper, Animation anim) {
-        AjNode node = wrapper.node();
         AjAnimation animation = anim.animation;
         AjFrame frame = anim.currentFrame;
-        if (frame == null || !animation.isAffected(node.uuid())) {
+        UUID uuid = wrapper.node().uuid();
+        if (frame == null || !animation.isAffected(uuid)) {
             return null;
         }
 
-        AjPose pose = frame.poses().get(node.uuid());
+        AjPose pose = frame.poses().get(uuid);
         if (pose != null) {
             wrapper.setLastPose(pose, animation);
             return pose;
