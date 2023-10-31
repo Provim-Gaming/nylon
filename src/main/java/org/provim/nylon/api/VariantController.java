@@ -5,33 +5,33 @@ import org.provim.nylon.model.AjVariant;
 
 import java.util.UUID;
 
-public interface Variant {
+public interface VariantController {
     /**
      * Returns the current variant of the entity.
      */
-    @Nullable AjVariant current();
+    @Nullable AjVariant getCurrentVariant();
 
     /**
      * Applies the default variant to the model of the entity.
      */
-    void applyDefault();
+    void setDefaultVariant();
 
     /**
      * Applies the given variant to the model of the entity.
      */
-    void apply(String variantName);
+    void setVariant(String variantName);
 
     /**
      * Applies the given variant to the model of the entity.
      */
-    void apply(UUID variantUuid);
+    void setVariant(UUID variantUuid);
 
-    default boolean is(String variantName) {
-        AjVariant current = this.current();
+    default boolean isSameVariant(String variantName) {
+        AjVariant current = this.getCurrentVariant();
         return current != null && current.name().equals(variantName);
     }
 
-    default boolean isDefault() {
-        return this.current() == null;
+    default boolean isDefaultVariant() {
+        return this.getCurrentVariant() == null;
     }
 }

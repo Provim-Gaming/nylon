@@ -80,7 +80,7 @@ public interface AjHolderInterface {
     /**
      * Returns the variant controller for this holder.
      */
-    Variant getVariant();
+    VariantController getVariantController();
 
     /**
      * Returns the animator for this model.

@@ -1,7 +1,7 @@
 package org.provim.nylon.component;
 
 import org.jetbrains.annotations.Nullable;
-import org.provim.nylon.api.Variant;
+import org.provim.nylon.api.VariantController;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.model.AjModel;
@@ -9,7 +9,7 @@ import org.provim.nylon.model.AjVariant;
 
 import java.util.UUID;
 
-public class VariantComponent extends ComponentBase implements Variant {
+public class VariantComponent extends ComponentBase implements VariantController {
     @Nullable
     private AjVariant currentVariant;
 
@@ -19,12 +19,12 @@ public class VariantComponent extends ComponentBase implements Variant {
 
     @Nullable
     @Override
-    public AjVariant current() {
+    public AjVariant getCurrentVariant() {
         return this.currentVariant;
     }
 
     @Override
-    public void applyDefault() {
+    public void setDefaultVariant() {
         if (this.currentVariant != null) {
             this.currentVariant = null;
             for (Bone bone : this.holder.getBones()) {
@@ -34,8 +34,8 @@ public class VariantComponent extends ComponentBase implements Variant {
     }
 
     @Override
-    public void apply(String variantName) {
-        if (this.is(variantName)) {
+    public void setVariant(String variantName) {
+        if (this.isSameVariant(variantName)) {
             return;
         }
 
@@ -47,7 +47,7 @@ public class VariantComponent extends ComponentBase implements Variant {
     }
 
     @Override
-    public void apply(UUID variantUuid) {
+    public void setVariant(UUID variantUuid) {
         AjVariant variant = this.model.variants().get(variantUuid);
         if (variant == null || variant == this.currentVariant) {
             return;

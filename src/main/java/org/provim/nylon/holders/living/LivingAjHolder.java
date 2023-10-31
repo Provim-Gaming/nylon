@@ -58,8 +58,7 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     protected void updateElement(DisplayWrapper<?> display) {
         AjPose pose = this.animation.findPose(display);
         if (pose == null) {
-            // we always need a valid pose for body rotation & head rotation
-            this.applyDefaultPose(display);
+            this.applyPose(display.getDefaultPose(), display);
         } else {
             this.applyPose(pose, display);
         }

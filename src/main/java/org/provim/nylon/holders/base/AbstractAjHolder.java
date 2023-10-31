@@ -253,7 +253,7 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     @Override
-    public VariantComponent getVariant() {
+    public VariantComponent getVariantController() {
         return this.variant;
     }
 

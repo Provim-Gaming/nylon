@@ -3,7 +3,7 @@ package org.provim.nylontest.util;
 import net.minecraft.world.entity.LivingEntity;
 import org.provim.nylon.api.AjHolderInterface;
 import org.provim.nylon.api.Animator;
-import org.provim.nylon.api.Variant;
+import org.provim.nylon.api.VariantController;
 
 public class AnimationHelper {
 
@@ -23,11 +23,11 @@ public class AnimationHelper {
     }
 
     public static void updateHurtVariant(LivingEntity entity, AjHolderInterface holder) {
-        Variant variant = holder.getVariant();
+        VariantController controller = holder.getVariantController();
         if (entity.hurtTime > 0 || entity.deathTime > 0) {
-            variant.apply("hurt");
-        } else if (variant.is("hurt")) {
-            variant.applyDefault();
+            controller.setVariant("hurt");
+        } else if (controller.isSameVariant("hurt")) {
+            controller.setDefaultVariant();
         }
     }
 }
