@@ -1,13 +1,11 @@
 package org.provim.nylon.api;
 
-import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
+import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import org.provim.nylon.holders.wrappers.Locator;
-
-import java.util.List;
 
 @SuppressWarnings("unused")
 public interface AjHolderInterface {
@@ -25,11 +23,6 @@ public interface AjHolderInterface {
      * Holder implementations can use this to update their element data.
      */
     void onDimensionsUpdated(EntityDimensions dimensions);
-
-    /**
-     * Returns the locator with the given name.
-     */
-    Locator getLocator(String name);
 
     /**
      * Returns an array of entity ids used for displaying the model.
@@ -69,6 +62,22 @@ public interface AjHolderInterface {
     int getCritParticleId();
 
     /**
+     * Adds an additional display element to the holder.
+     * This is needed to tell the holder to mount the display as a passenger on the display vehicle.
+     */
+    boolean addAdditionalDisplay(DisplayElement element);
+
+    /**
+     * Removes an additional display element from the holder.
+     */
+    boolean removeAdditionalDisplay(DisplayElement element);
+
+    /**
+     * Returns the locator with the given name.
+     */
+    Locator getLocator(String name);
+
+    /**
      * Returns the variant controller for this holder.
      */
     Variant getVariant();
@@ -77,9 +86,4 @@ public interface AjHolderInterface {
      * Returns the animator for this model.
      */
     Animator getAnimator();
-
-    /**
-     * Returns a list of all Polymer {@link VirtualElement} used in this holder.
-     */
-    List<VirtualElement> getVirtualElements();
 }

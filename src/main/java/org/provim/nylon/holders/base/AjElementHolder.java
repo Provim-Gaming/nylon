@@ -2,7 +2,6 @@ package org.provim.nylon.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.ElementHolder;
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
-import eu.pb4.polymer.virtualentity.api.elements.VirtualElement;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
@@ -14,7 +13,6 @@ import net.minecraft.world.phys.Vec3;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjHolderInterface;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -81,11 +79,6 @@ public abstract class AjElementHolder<T extends Entity & AjEntity> extends Eleme
 
     @Override
     protected void notifyElementsOfPositionUpdate(Vec3 newPos, Vec3 delta) {
-    }
-
-    @Override
-    public List<VirtualElement> getVirtualElements() {
-        return this.getElements();
     }
 
     public T getParent() {

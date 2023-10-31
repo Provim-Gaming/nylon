@@ -103,6 +103,7 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         return element;
     }
 
+    @Override
     public boolean addAdditionalDisplay(DisplayElement element) {
         if (this.additionalDisplays.add(element)) {
             this.addElement(element);
@@ -112,6 +113,7 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         return false;
     }
 
+    @Override
     public boolean removeAdditionalDisplay(DisplayElement element) {
         if (this.additionalDisplays.remove(element)) {
             this.removeElement(element);
@@ -266,9 +268,5 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
 
     public Locator[] getLocators() {
         return this.locators;
-    }
-
-    public ObjectOpenHashSet<DisplayElement> getAdditionalDisplays() {
-        return this.additionalDisplays;
     }
 }
