@@ -45,25 +45,25 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
 
     public void setScale(Vector3fc scale) {
         if (this.trackedData.updateScale(scale)) {
-            this.element.getDataTracker().set(DisplayTrackedData.SCALE, this.trackedData.scale, true);
+            this.element.getDataTracker().set(DisplayTrackedData.SCALE, this.getScale(), true);
         }
     }
 
     public void setTranslation(Vector3fc translation) {
         if (this.trackedData.updateTranslation(translation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.TRANSLATION, this.trackedData.translation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.TRANSLATION, this.getTranslation(), true);
         }
     }
 
     public void setRightRotation(Quaternionfc rightRotation) {
         if (this.trackedData.updateRightRotation(rightRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.RIGHT_ROTATION, this.trackedData.rightRotation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.RIGHT_ROTATION, this.getRightRotation(), true);
         }
     }
 
     public void setLeftRotation(Quaternionfc leftRotation) {
         if (this.trackedData.updateLeftRotation(leftRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.LEFT_ROTATION, this.trackedData.leftRotation, true);
+            this.element.getDataTracker().set(DisplayTrackedData.LEFT_ROTATION, this.getLeftRotation(), true);
         }
     }
 

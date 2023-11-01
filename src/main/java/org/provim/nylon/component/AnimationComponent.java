@@ -129,20 +129,20 @@ public class AnimationComponent extends ComponentBase implements Animator {
         if (pose != null) {
             wrapper.setLastPose(pose, animation);
             return pose;
-        } else if (animation != wrapper.getLastAnimation()) {
-            // Backtrack to find an earlier pose of the new animation. This ensures that the poses are updated immediately.
-            // This should preferably be avoided as much as possible, as it is a bit expensive.
-            return this.findEarlierPose(wrapper, animation, anim.frameCounter, uuid);
         }
 
-        return wrapper.getLastPose();
-    }
+        if (animation == wrapper.getLastAnimation()) {
+            return wrapper.getLastPose();
+        }
 
-    @Nullable
-    private AjPose findEarlierPose(AbstractWrapper wrapper, AjAnimation animation, int frameCounter, UUID uuid) {
-        AjFrame[] frames = animation.frames();
-        for (int index = (frames.length - 1) - Math.max(frameCounter, 0); index >= 0; index--) {
-            AjPose pose = frames[index].poses().get(uuid);
+        // Since the animation just switched, the last known pose is no longer valid.
+        // To ensure that this node still gets updated properly, we must backtrack the new animation to find a valid pose.
+        // This should preferably be avoided as much as possible, as it is a bit expensive.
+        final AjFrame[] frames = animation.frames();
+        final int startIndex = (frames.length - 1) - Math.max(anim.frameCounter - 1, 0);
+
+        for (int i = startIndex; i >= 0; i--) {
+            pose = frames[i].poses().get(uuid);
             if (pose != null) {
                 wrapper.setLastPose(pose, animation);
                 return pose;
