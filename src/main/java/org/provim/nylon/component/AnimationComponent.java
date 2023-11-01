@@ -129,9 +129,26 @@ public class AnimationComponent extends ComponentBase implements Animator {
         if (pose != null) {
             wrapper.setLastPose(pose, animation);
             return pose;
+        } else if (animation != wrapper.getLastAnimation()) {
+            // Backtrack to find an earlier pose of the new animation. This ensures that the poses are updated immediately.
+            // This should preferably be avoided as much as possible, as it is a bit expensive.
+            return this.findEarlierPose(wrapper, animation, anim.frameCounter, uuid);
         }
 
-        return wrapper.getLastPoseFor(animation);
+        return wrapper.getLastPose();
+    }
+
+    @Nullable
+    private AjPose findEarlierPose(AbstractWrapper wrapper, AjAnimation animation, int frameCounter, UUID uuid) {
+        AjFrame[] frames = animation.frames();
+        for (int index = (frames.length - 1) - Math.max(frameCounter, 0); index >= 0; index--) {
+            AjPose pose = frames[index].poses().get(uuid);
+            if (pose != null) {
+                wrapper.setLastPose(pose, animation);
+                return pose;
+            }
+        }
+        return null;
     }
 
     private static class Animation implements Comparable<Animation> {

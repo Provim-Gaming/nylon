@@ -28,12 +28,12 @@ public abstract class AbstractWrapper {
         return this.defaultPose;
     }
 
-    public AjPose getLastPose() {
-        return this.lastPose;
+    public AjAnimation getLastAnimation() {
+        return this.lastAnimation;
     }
 
-    public AjPose getLastPoseFor(AjAnimation animation) {
-        return animation == this.lastAnimation ? this.lastPose : null;
+    public AjPose getLastPose() {
+        return this.lastPose;
     }
 
     public void setLastPose(AjPose pose, AjAnimation animation) {
