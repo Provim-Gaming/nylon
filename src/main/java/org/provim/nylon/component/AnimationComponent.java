@@ -25,7 +25,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Override
-    public void playAnimation(String name, int priority, Runnable onFinished) {
+    public void playAnimation(String name, int priority, boolean restartPaused, Runnable onFinished) {
         Animation animation = this.animationMap.get(name);
 
         if (animation == null) {
@@ -35,6 +35,9 @@ public class AnimationComponent extends ComponentBase implements Animator {
                 this.addAnimationInternal(name, animation);
             }
         } else if (animation.state == Animation.State.PAUSED) {
+            if (restartPaused) {
+                animation.resetFrame(false);
+            }
             animation.state = Animation.State.PLAYING;
         }
 
@@ -106,6 +109,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
+        if (pose != null) {
+            wrapper.setLastPose(pose, null);
+        }
+
         return pose;
     }
 
@@ -124,7 +131,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             return pose;
         }
 
-        return wrapper.getLastPose(animation);
+        return wrapper.getLastPoseFor(animation);
     }
 
     private static class Animation implements Comparable<Animation> {
@@ -140,13 +147,13 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private State state;
         private Runnable onFinishedCallback;
 
-        private Animation(String name, AjAnimation animation, AbstractAjHolder<?> holder, int priority) {
+        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder<?> holder, int priority) {
             this.name = name;
             this.holder = holder;
             this.animation = animation;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
-            this.updateFrame(animation.duration() - 1 + animation.startDelay());
+            this.resetFrame(false);
         }
 
         public boolean inResetState() {
@@ -171,6 +178,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
             if (this.frameCounter < 0) {
                 this.onFinish();
             }
+        }
+
+        private void resetFrame(boolean isLooping) {
+            this.updateFrame(this.animation.duration() - 1 + (isLooping ? this.animation.loopDelay() : this.animation.startDelay()));
         }
 
         private void updateFrame(int frame) {
@@ -201,7 +212,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
                     this.state = State.FINISHED;
                 }
                 case loop -> {
-                    this.updateFrame(this.animation.duration() - 1 + this.animation.loopDelay());
+                    this.resetFrame(true);
                     this.looped = true;
                 }
             }

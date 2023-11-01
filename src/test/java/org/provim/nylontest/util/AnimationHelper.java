@@ -18,7 +18,7 @@ public class AnimationHelper {
             animator.pauseAnimation("idle");
         } else {
             animator.pauseAnimation("walk");
-            animator.playAnimation("idle", priority);
+            animator.playAnimation("idle", priority, true);
         }
     }
 

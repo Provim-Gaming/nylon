@@ -6,15 +6,14 @@ import org.provim.nylon.model.AjPose;
 
 public abstract class AbstractWrapper {
     private final AjNode node;
-
     private final AjPose defaultPose;
-
-    private AjAnimation lastAnimation;
-    private AjPose lastPose;
+    protected AjAnimation lastAnimation;
+    protected AjPose lastPose;
 
     public AbstractWrapper(AjNode node, AjPose defaultPose) {
         this.node = node;
         this.defaultPose = defaultPose;
+        this.lastPose = defaultPose;
     }
 
     public AjNode node() {
@@ -29,12 +28,16 @@ public abstract class AbstractWrapper {
         return this.defaultPose;
     }
 
-    public AjPose getLastPose(AjAnimation animation) {
+    public AjPose getLastPose() {
+        return this.lastPose;
+    }
+
+    public AjPose getLastPoseFor(AjAnimation animation) {
         return animation == this.lastAnimation ? this.lastPose : null;
     }
 
-    public void setLastPose(AjPose lastPose, AjAnimation animation) {
+    public void setLastPose(AjPose pose, AjAnimation animation) {
         this.lastAnimation = animation;
-        this.lastPose = lastPose;
+        this.lastPose = pose;
     }
 }

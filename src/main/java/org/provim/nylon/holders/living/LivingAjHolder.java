@@ -58,7 +58,7 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     protected void updateElement(DisplayWrapper<?> display) {
         AjPose pose = this.animation.findPose(display);
         if (pose == null) {
-            this.applyPose(display.getDefaultPose(), display);
+            this.applyPose(display.getLastPose(), display);
         } else {
             this.applyPose(pose, display);
         }
