@@ -35,11 +35,15 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
         this.addElement(this.rideInteraction);
     }
 
+    protected float getRideOffset() {
+        return this.parent.getBbHeight() + this.parent.getMyRidingOffset(this.parent);
+    }
+
     @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))) {
+        for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, this.getRideOffset())) {
             consumer.accept(packet);
         }
     }
@@ -53,7 +57,7 @@ public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> ext
     @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
         super.onDimensionsUpdated(dimensions);
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, Utils.getRideOffset(this.parent))));
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.rideInteraction, ZERO, this.getRideOffset())));
     }
 
     @Override

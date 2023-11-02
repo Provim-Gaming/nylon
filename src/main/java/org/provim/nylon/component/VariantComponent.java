@@ -35,7 +35,7 @@ public class VariantComponent extends ComponentBase implements VariantController
 
     @Override
     public void setVariant(String variantName) {
-        if (this.isSameVariant(variantName)) {
+        if (this.isCurrentVariant(variantName)) {
             return;
         }
 

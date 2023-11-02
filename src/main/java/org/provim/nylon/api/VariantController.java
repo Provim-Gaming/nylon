@@ -26,7 +26,7 @@ public interface VariantController {
      */
     void setVariant(UUID variantUuid);
 
-    default boolean isSameVariant(String variantName) {
+    default boolean isCurrentVariant(String variantName) {
         AjVariant current = this.getCurrentVariant();
         return current != null && current.name().equals(variantName);
     }

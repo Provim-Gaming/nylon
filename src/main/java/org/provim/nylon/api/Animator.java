@@ -9,7 +9,7 @@ public interface Animator {
      * Starts playing an animation on the model.
      */
     default void playAnimation(String name) {
-        this.playAnimation(name, 0, false, null);
+        this.playAnimation(name, 1, false, null);
     }
 
     /**
@@ -27,7 +27,7 @@ public interface Animator {
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
      */
     default void playAnimation(String name, boolean restartPaused) {
-        this.playAnimation(name, 0, restartPaused, null);
+        this.playAnimation(name, 1, restartPaused, null);
     }
 
     /**
@@ -36,7 +36,7 @@ public interface Animator {
      * @param onFinished: Callback to be executed on the last frame of the animation.
      */
     default void playAnimation(String name, @Nullable Runnable onFinished) {
-        this.playAnimation(name, 0, false, onFinished);
+        this.playAnimation(name, 1, false, onFinished);
     }
 
     /**
@@ -66,7 +66,7 @@ public interface Animator {
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
      */
     default void playAnimation(String name, boolean restartPaused, @Nullable Runnable onFinished) {
-        this.playAnimation(name, 0, restartPaused, onFinished);
+        this.playAnimation(name, 1, restartPaused, onFinished);
     }
 
     /**

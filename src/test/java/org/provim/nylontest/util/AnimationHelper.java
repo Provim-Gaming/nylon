@@ -8,7 +8,7 @@ import org.provim.nylon.api.VariantController;
 public class AnimationHelper {
 
     public static void updateWalkAnimation(LivingEntity entity, AjHolderInterface holder) {
-        updateWalkAnimation(entity, holder, 1);
+        updateWalkAnimation(entity, holder, 0);
     }
 
     public static void updateWalkAnimation(LivingEntity entity, AjHolderInterface holder, int priority) {
@@ -26,7 +26,7 @@ public class AnimationHelper {
         VariantController controller = holder.getVariantController();
         if (entity.hurtTime > 0 || entity.deathTime > 0) {
             controller.setVariant("hurt");
-        } else if (controller.isSameVariant("hurt")) {
+        } else if (controller.isCurrentVariant("hurt")) {
             controller.setDefaultVariant();
         }
     }
