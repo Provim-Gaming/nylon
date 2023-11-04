@@ -5,6 +5,9 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "accessors.LivingEntityAccessor",
+    "accessors.ServerCommonPacketListenerImplAccessor",
+    "async.ChunkMapMixin",
+    "async.MinecraftServerMixin",
     "packets.ClientboundAnimatePacketMixin",
     "packets.ClientboundEntityEventPacketMixin",
     "packets.ClientboundSetEntityLinkPacketMixin",

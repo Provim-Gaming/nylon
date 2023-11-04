@@ -22,6 +22,7 @@ import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.elements.CollisionElement;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
+import org.provim.nylon.holders.wrappers.Locator;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
@@ -46,12 +47,12 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
     }
 
     @Override
-    protected void onTick() {
+    protected void onAsyncTick() {
         if (this.parent.deathTime > 0) {
             this.deathAngle = Math.min((float) Math.sqrt((this.parent.deathTime) / 20.0F * 1.6F), 1.f);
         }
 
-        super.onTick();
+        super.onAsyncTick();
     }
 
     @Override
@@ -61,6 +62,18 @@ public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractA
             this.applyPose(display.getLastPose(), display);
         } else {
             this.applyPose(pose, display);
+        }
+    }
+
+    @Override
+    protected void updateLocator(Locator locator) {
+        if (locator.requiresUpdate()) {
+            AjPose pose = this.animation.findPose(locator);
+            if (pose == null) {
+                locator.updateListeners(this, locator.getLastPose());
+            } else {
+                locator.updateListeners(this, pose);
+            }
         }
     }
 

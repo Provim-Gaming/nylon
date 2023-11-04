@@ -19,6 +19,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
     private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
     private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
+    private final ObjectArrayList<Animation> toAdd = new ObjectArrayList<>();
 
     public AnimationComponent(AjModel model, AbstractAjHolder<?> holder) {
         super(model, holder);
@@ -32,11 +33,12 @@ public class AnimationComponent extends ComponentBase implements Animator {
             AjAnimation anim = this.model.animations().get(name);
             if (anim != null) {
                 animation = new Animation(name, anim, this.holder, priority);
-                this.addAnimationInternal(name, animation);
+                this.animationMap.put(animation.name, animation);
+                this.toAdd.add(animation);
             }
         } else if (animation.state == Animation.State.PAUSED) {
             if (restartPaused) {
-                animation.resetFrame(false);
+                animation.resetFrameCounter(false);
             }
             animation.state = Animation.State.PLAYING;
         }
@@ -56,12 +58,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     @Override
     public void stopAnimation(String name) {
-        this.removeAnimationInternal(name);
+        this.toRemove.add(name);
     }
 
-    private void addAnimationInternal(String name, Animation animation) {
-        this.animationMap.put(name, animation);
-
+    private void addToAnimationList(Animation animation) {
         if (this.animationList.size() > 0 && animation.priority > 0) {
             int index = Collections.binarySearch(this.animationList, animation);
             this.animationList.add(index < 0 ? -index - 1 : index, animation);
@@ -70,13 +70,8 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
     }
 
-    private void removeAnimationInternal(String name) {
-        Animation anim = this.animationMap.remove(name);
-        this.animationList.remove(anim);
-    }
-
     public void tickAnimations() {
-        this.toRemove.clear();
+        this.tickAdd();
 
         for (int i = this.animationList.size() - 1; i >= 0; i--) {
             Animation animation = this.animationList.get(i);
@@ -88,8 +83,25 @@ public class AnimationComponent extends ComponentBase implements Animator {
             }
         }
 
-        for (int i = 0; i < this.toRemove.size(); i++) {
-            this.removeAnimationInternal(this.toRemove.get(i));
+        this.tickRemove();
+    }
+
+    private void tickAdd() {
+        if (this.toAdd.size() > 0) {
+            for (int i = 0; i < this.toAdd.size(); i++) {
+                this.addToAnimationList(this.toAdd.get(i));
+            }
+            this.toAdd.clear();
+        }
+    }
+
+    private void tickRemove() {
+        if (this.toRemove.size() > 0) {
+            for (int i = 0; i < this.toRemove.size(); i++) {
+                Animation anim = this.animationMap.remove(this.toRemove.get(i));
+                this.animationList.remove(anim);
+            }
+            this.toRemove.clear();
         }
     }
 
@@ -170,7 +182,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.animation = animation;
             this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
-            this.resetFrame(false);
+            this.resetFrameCounter(false);
         }
 
         public boolean inResetState() {
@@ -189,31 +201,26 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
         private void tick() {
             if (this.frameCounter >= 0 && this.shouldAnimate()) {
-                this.updateFrame(this.frameCounter - 1);
-            }
-
-            if (this.frameCounter < 0) {
+                this.updateFrame();
+                this.frameCounter--;
+            } else if (this.frameCounter < 0) {
                 this.onFinish();
             }
         }
 
-        private void resetFrame(boolean isLooping) {
-            this.updateFrame(this.animation.duration() - 1 + (isLooping ? this.animation.loopDelay() : this.animation.startDelay()));
-        }
+        private void updateFrame() {
+            AjFrame[] frames = this.animation.frames();
+            if (this.frameCounter >= 0 && this.frameCounter < frames.length) {
+                this.currentFrame = frames[(frames.length - 1) - this.frameCounter];
 
-        private void updateFrame(int frame) {
-            if (frame != this.frameCounter) {
-                this.frameCounter = frame;
-
-                AjFrame[] frames = this.animation.frames();
-                if (frame >= 0 && frame < frames.length) {
-                    this.currentFrame = frames[(frames.length - 1) - frame];
-
-                    if (this.currentFrame.requiresUpdates()) {
-                        this.currentFrame.run(this.holder);
-                    }
+                if (this.currentFrame.requiresUpdates()) {
+                    this.currentFrame.run(this.holder);
                 }
             }
+        }
+
+        private void resetFrameCounter(boolean isLooping) {
+            this.frameCounter = this.animation.duration() - 1 + (isLooping ? this.animation.loopDelay() : this.animation.startDelay());
         }
 
         private void onFinish() {
@@ -229,7 +236,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
                     this.state = State.FINISHED;
                 }
                 case loop -> {
-                    this.resetFrame(true);
+                    this.resetFrameCounter(true);
                     this.looped = true;
                 }
             }

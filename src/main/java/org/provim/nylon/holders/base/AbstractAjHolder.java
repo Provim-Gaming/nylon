@@ -140,6 +140,11 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
 
     @Override
     protected void onTick() {
+        this.animation.tickAnimations();
+    }
+
+    @Override
+    protected void onAsyncTick() {
         for (Bone bone : this.bones) {
             this.updateElement(bone);
         }
@@ -147,8 +152,13 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
         for (Locator locator : this.locators) {
             this.updateLocator(locator);
         }
+    }
 
-        this.animation.tickAnimations();
+    protected void updateElement(DisplayWrapper<?> display) {
+        AjPose pose = this.animation.findPose(display);
+        if (pose != null) {
+            this.applyPose(pose, display);
+        }
     }
 
     protected void updateLocator(Locator locator) {
@@ -157,13 +167,6 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
             if (pose != null) {
                 locator.updateListeners(this, pose);
             }
-        }
-    }
-
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.findPose(display);
-        if (pose != null) {
-            this.applyPose(pose, display);
         }
     }
 
