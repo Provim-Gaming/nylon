@@ -1,7 +1,6 @@
 package org.provim.nylon.component;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.Animator;
@@ -14,12 +13,11 @@ import org.provim.nylon.model.AjPose;
 
 import java.util.Collections;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
-    private final ObjectArrayList<Animation> animationList = new ObjectArrayList<>();
-    private final ObjectArrayList<String> toRemove = new ObjectArrayList<>();
-    private final ObjectArrayList<Animation> toAdd = new ObjectArrayList<>();
+    private final CopyOnWriteArrayList<Animation> animationList = new CopyOnWriteArrayList<>();
 
     public AnimationComponent(AjModel model, AbstractAjHolder<?> holder) {
         super(model, holder);
@@ -28,23 +26,30 @@ public class AnimationComponent extends ComponentBase implements Animator {
     @Override
     public void playAnimation(String name, int priority, boolean restartPaused, Runnable onFinished) {
         Animation animation = this.animationMap.get(name);
+        if (priority < 0) {
+            priority = 0;
+        }
 
         if (animation == null) {
             AjAnimation anim = this.model.animations().get(name);
             if (anim != null) {
-                animation = new Animation(name, anim, this.holder, priority);
-                this.animationMap.put(animation.name, animation);
-                this.toAdd.add(animation);
+                this.addAnimation(new Animation(name, anim, this.holder, priority, onFinished));
             }
-        } else if (animation.state == Animation.State.PAUSED) {
-            if (restartPaused) {
-                animation.resetFrameCounter(false);
-            }
-            animation.state = Animation.State.PLAYING;
-        }
+        } else {
+            // Update values of the existing animation.
+            animation.onFinishedCallback = onFinished;
 
-        if (animation != null) {
-            animation.setOnFinishedCallback(onFinished);
+            if (animation.state == Animation.State.PAUSED) {
+                if (restartPaused) {
+                    animation.resetFrameCounter(false);
+                }
+                animation.state = Animation.State.PLAYING;
+            }
+
+            if (priority != animation.priority) {
+                animation.priority = priority;
+                Collections.sort(this.animationList);
+            }
         }
     }
 
@@ -58,10 +63,15 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     @Override
     public void stopAnimation(String name) {
-        this.toRemove.add(name);
+        Animation animation = this.animationMap.remove(name);
+        if (animation != null) {
+            this.animationList.remove(animation);
+        }
     }
 
-    private void addToAnimationList(Animation animation) {
+    private void addAnimation(Animation animation) {
+        this.animationMap.put(animation.name, animation);
+
         if (this.animationList.size() > 0 && animation.priority > 0) {
             int index = Collections.binarySearch(this.animationList, animation);
             this.animationList.add(index < 0 ? -index - 1 : index, animation);
@@ -71,37 +81,15 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     public void tickAnimations() {
-        this.tickAdd();
-
-        for (int i = this.animationList.size() - 1; i >= 0; i--) {
-            Animation animation = this.animationList.get(i);
+        for (int index = this.animationList.size() - 1; index >= 0; index--) {
+            Animation animation = this.animationList.get(index);
             if (animation.hasFinished()) {
+                this.animationMap.remove(animation.name);
+                this.animationList.remove(index);
                 animation.onFinished();
-                this.toRemove.add(animation.name);
             } else {
                 animation.tick();
             }
-        }
-
-        this.tickRemove();
-    }
-
-    private void tickAdd() {
-        if (this.toAdd.size() > 0) {
-            for (int i = 0; i < this.toAdd.size(); i++) {
-                this.addToAnimationList(this.toAdd.get(i));
-            }
-            this.toAdd.clear();
-        }
-    }
-
-    private void tickRemove() {
-        if (this.toRemove.size() > 0) {
-            for (int i = 0; i < this.toRemove.size(); i++) {
-                Animation anim = this.animationMap.remove(this.toRemove.get(i));
-                this.animationList.remove(anim);
-            }
-            this.toRemove.clear();
         }
     }
 
@@ -109,8 +97,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     public AjPose findPose(AbstractWrapper wrapper) {
         AjPose pose = null;
 
-        for (int i = 0; i < this.animationList.size(); i++) {
-            Animation animation = this.animationList.get(i);
+        for (Animation animation : this.animationList) {
             if (animation.inResetState()) {
                 pose = wrapper.getDefaultPose();
             } else if (animation.shouldAnimate()) {
@@ -168,29 +155,26 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private final AjAnimation animation;
         private final AbstractAjHolder<?> holder;
         private final String name;
-        private final int priority;
 
         private AjFrame currentFrame;
         private int frameCounter = -1;
+        private int priority;
         private boolean looped;
         private State state;
         private Runnable onFinishedCallback;
 
-        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder<?> holder, int priority) {
+        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder<?> holder, int priority, @Nullable Runnable onFinished) {
             this.name = name;
             this.holder = holder;
             this.animation = animation;
-            this.priority = Math.max(0, priority);
             this.state = State.PLAYING;
+            this.priority = priority;
+            this.onFinishedCallback = onFinished;
             this.resetFrameCounter(false);
         }
 
         public boolean inResetState() {
             return this.state == State.FINISHED_RESET_DEFAULT;
-        }
-
-        public void setOnFinishedCallback(Runnable onFinishedCallback) {
-            this.onFinishedCallback = onFinishedCallback;
         }
 
         public void onFinished() {
@@ -200,11 +184,14 @@ public class AnimationComponent extends ComponentBase implements Animator {
         }
 
         private void tick() {
-            if (this.frameCounter >= 0 && this.shouldAnimate()) {
+            if (this.frameCounter < 0) {
+                this.onFramesFinished();
+                return;
+            }
+
+            if (this.shouldAnimate()) {
                 this.updateFrame();
                 this.frameCounter--;
-            } else if (this.frameCounter < 0) {
-                this.onFinish();
             }
         }
 
@@ -223,7 +210,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.frameCounter = this.animation.duration() - 1 + (isLooping ? this.animation.loopDelay() : this.animation.startDelay());
         }
 
-        private void onFinish() {
+        private void onFramesFinished() {
             switch (this.animation.loopMode()) {
                 case once -> {
                     if (this.state == State.FINISHED_RESET_DEFAULT) {
