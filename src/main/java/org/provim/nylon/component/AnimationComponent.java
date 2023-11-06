@@ -95,15 +95,18 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
     @Nullable
     public AjPose findPose(AbstractWrapper wrapper) {
+        UUID uuid = wrapper.node().uuid();
         AjPose pose = null;
 
         for (Animation animation : this.animationList) {
-            if (animation.inResetState()) {
-                pose = wrapper.getDefaultPose();
-            } else if (animation.shouldAnimate()) {
-                AjPose animationPose = this.findAnimationPose(wrapper, animation);
-                if (animationPose != null) {
-                    return animationPose;
+            if (this.canAnimationAffect(animation, uuid)) {
+                if (animation.inResetState()) {
+                    pose = wrapper.getDefaultPose();
+                } else {
+                    pose = this.findAnimationPose(wrapper, animation, uuid);
+                    if (pose != null) {
+                        return pose;
+                    }
                 }
             }
         }
@@ -115,12 +118,16 @@ public class AnimationComponent extends ComponentBase implements Animator {
         return pose;
     }
 
+    private boolean canAnimationAffect(Animation anim, UUID uuid) {
+        final boolean canAnimate = anim.inResetState() || anim.shouldAnimate();
+        return canAnimate && anim.animation.isAffected(uuid);
+    }
+
     @Nullable
-    private AjPose findAnimationPose(AbstractWrapper wrapper, Animation anim) {
+    private AjPose findAnimationPose(AbstractWrapper wrapper, Animation anim, UUID uuid) {
         AjAnimation animation = anim.animation;
         AjFrame frame = anim.currentFrame;
-        UUID uuid = wrapper.node().uuid();
-        if (frame == null || !animation.isAffected(uuid)) {
+        if (frame == null) {
             return null;
         }
 
