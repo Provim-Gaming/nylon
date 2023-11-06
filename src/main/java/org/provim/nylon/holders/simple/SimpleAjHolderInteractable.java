@@ -49,10 +49,11 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
 
     @Override
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        display.setScale(pose.readOnlyScale());
-        display.setTranslation(pose.translation().sub(0, this.dimensions.height - 0.01f, 0));
         display.element().setYaw(this.parent.getYRot());
         display.element().setPitch(this.parent.getXRot());
+
+        display.setScale(pose.readOnlyScale());
+        display.setTranslation(pose.translation().sub(0, this.dimensions.height - 0.01f, 0));
 
         display.startInterpolation();
     }

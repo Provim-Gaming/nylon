@@ -180,10 +180,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
             this.resetFrameCounter(false);
         }
 
-        public boolean inResetState() {
-            return this.state == State.FINISHED_RESET_DEFAULT;
-        }
-
         public void onFinished() {
             if (this.onFinishedCallback != null) {
                 this.onFinishedCallback.run();
@@ -242,6 +238,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
 
         private boolean inStartDelay() {
             return this.animation.startDelay() > 0 && this.frameCounter >= this.animation.duration() - (this.looped ? 0 : this.animation.startDelay());
+        }
+
+        public boolean inResetState() {
+            return this.state == State.FINISHED_RESET_DEFAULT;
         }
 
         public boolean hasFinished() {

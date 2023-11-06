@@ -171,6 +171,9 @@ public abstract class AbstractAjHolder<T extends Entity & AjEntity> extends AjEl
     }
 
     public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+        display.element().setYaw(this.parent.getYRot());
+        display.element().setPitch(this.parent.getXRot());
+
         display.setTranslation(pose.readOnlyTranslation());
         display.setRightRotation(pose.readOnlyRightRotation());
         display.setLeftRotation(pose.readOnlyLeftRotation());

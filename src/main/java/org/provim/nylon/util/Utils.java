@@ -1,5 +1,7 @@
 package org.provim.nylon.util;
 
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
 import eu.pb4.polymer.networking.api.util.ServerDynamicPacket;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
@@ -11,6 +13,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
@@ -31,6 +34,10 @@ public class Utils {
 
     public static Connection getConnection(ServerCommonPacketListenerImpl networkHandler) {
         return ((ServerCommonPacketListenerImplAccessor) networkHandler).getConnection();
+    }
+
+    public static CommandSyntaxException buildCommandException(String message) {
+        return new SimpleCommandExceptionType(Component.literal(message)).create();
     }
 
     public static int toSlimeSize(float size) {
