@@ -16,14 +16,14 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(value = ChunkMap.class, priority = 900)
 public class ChunkMapMixin implements IChunkMap {
     @Unique
-    private final ObjectArrayList<AjElementHolder<?>> nylon$scheduledAsyncTicks = new ObjectArrayList<>();
+    private final ObjectArrayList<AjElementHolder> nylon$scheduledAsyncTicks = new ObjectArrayList<>();
     @Unique
     @Nullable
     private CompletableFuture<Void> nylon$asyncTickFuture;
 
     @Inject(method = "tick()V", at = @At("TAIL"))
     private void nylon$afterTickEntityTrackers(CallbackInfo ci) {
-        ObjectArrayList<AjElementHolder<?>> holders = this.nylon$scheduledAsyncTicks;
+        ObjectArrayList<AjElementHolder> holders = this.nylon$scheduledAsyncTicks;
         if (holders.isEmpty()) {
             this.nylon$asyncTickFuture = null;
             return;
@@ -39,7 +39,7 @@ public class ChunkMapMixin implements IChunkMap {
     }
 
     @Override
-    public void nylon$scheduleAsyncTick(AjElementHolder<?> holder) {
+    public void nylon$scheduleAsyncTick(AjElementHolder holder) {
         this.nylon$scheduledAsyncTicks.add(holder);
     }
 

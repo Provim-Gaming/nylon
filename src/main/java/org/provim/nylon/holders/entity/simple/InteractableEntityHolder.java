@@ -1,14 +1,17 @@
-package org.provim.nylon.holders.simple;
+package org.provim.nylon.holders.entity.simple;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityDimensions;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.entity.EntityHolder;
+import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
@@ -16,10 +19,10 @@ import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 
-public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends AbstractAjHolder<T> {
+public class InteractableEntityHolder<T extends Entity & AjEntity> extends EntityHolder<T> {
     private final InteractionElement hitboxInteraction;
 
-    public SimpleAjHolderInteractable(T parent, AjModel model) {
+    public InteractableEntityHolder(T parent, AjModel model) {
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
@@ -62,6 +65,16 @@ public class SimpleAjHolderInteractable<T extends Entity & AjEntity> extends Abs
     protected void addDirectPassengers(IntList passengers) {
         super.addDirectPassengers(passengers);
         passengers.add(this.hitboxInteraction.getEntityId());
+    }
+
+    @Override
+    public void onDimensionsUpdated(EntityDimensions dimensions) {
+        super.onDimensionsUpdated(dimensions);
+        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+
+        for (Bone bone : this.bones) {
+            bone.element().setDisplaySize(dimensions.width * 2, -dimensions.height - 1);
+        }
     }
 
     @Override

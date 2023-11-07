@@ -5,10 +5,13 @@ import com.google.gson.annotations.SerializedName;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
+import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.GsonHelper;
+import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
-import org.provim.nylon.holders.base.AjElementHolder;
+import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.util.Utils;
 
 import java.lang.reflect.Type;
@@ -24,23 +27,32 @@ public record AjFrame(
         boolean requiresUpdates
 ) {
 
-    public void run(AjElementHolder<?> holder) {
+    public void run(AbstractAjHolder holder) {
         Commands executor = holder.getServer().getCommands();
-        CommandSourceStack source = holder.getParent().createCommandSourceStack().withPermission(2).withSuppressedOutput();
+        CommandSourceStack source = holder.createCommandSourceStack().withPermission(2).withSuppressedOutput();
 
         if (this.soundEffect != null) {
-            holder.getParent().playSound(this.soundEffect.event());
-        }
-
-        if (this.variant != null) {
-            if (this.satisfiesConditions(this.variant.conditions(), executor, source)) {
-                holder.getVariantController().setVariant(this.variant.uuid());
+            Entity entity = source.getEntity();
+            if (entity != null) {
+                entity.playSound(this.soundEffect.event);
+            } else {
+                holder.getLevel().playSound(
+                        null, BlockPos.containing(source.getPosition()),
+                        this.soundEffect.event, SoundSource.MASTER,
+                        1.0F, 1.0F
+                );
             }
         }
 
-        if (this.commands != null && this.commands.commands().length > 0) {
-            if (this.satisfiesConditions(this.commands.conditions(), executor, source)) {
-                for (String command : this.commands.commands()) {
+        if (this.variant != null) {
+            if (this.satisfiesConditions(this.variant.conditions, executor, source)) {
+                holder.getVariantController().setVariant(this.variant.uuid);
+            }
+        }
+
+        if (this.commands != null && this.commands.commands.length > 0) {
+            if (this.satisfiesConditions(this.commands.conditions, executor, source)) {
+                for (String command : this.commands.commands) {
                     executor.performPrefixedCommand(source, command);
                 }
             }

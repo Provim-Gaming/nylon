@@ -23,7 +23,7 @@ public class Locator extends AbstractWrapper {
         return this.listeners.size() > 0;
     }
 
-    public void updateListeners(AbstractAjHolder<?> holder, AjPose pose) {
+    public void updateListeners(AbstractAjHolder holder, AjPose pose) {
         this.listeners.forEach(listener -> listener.update(holder, pose));
     }
 
@@ -44,6 +44,6 @@ public class Locator extends AbstractWrapper {
          * Called whenever a locator is updated.
          * This method can be called asynchronously.
          */
-        void update(AbstractAjHolder<?> holder, AjPose pose);
+        void update(AbstractAjHolder holder, AjPose pose);
     }
 }

@@ -19,7 +19,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
     private final CopyOnWriteArrayList<Animation> animationList = new CopyOnWriteArrayList<>();
 
-    public AnimationComponent(AjModel model, AbstractAjHolder<?> holder) {
+    public AnimationComponent(AjModel model, AbstractAjHolder holder) {
         super(model, holder);
     }
 
@@ -160,7 +160,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     private static class Animation implements Comparable<Animation> {
         @NotNull
         private final AjAnimation animation;
-        private final AbstractAjHolder<?> holder;
+        private final AbstractAjHolder holder;
         private final String name;
 
         private AjFrame currentFrame;
@@ -170,7 +170,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private State state;
         private Runnable onFinishedCallback;
 
-        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder<?> holder, int priority, @Nullable Runnable onFinished) {
+        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder holder, int priority, @Nullable Runnable onFinished) {
             this.name = name;
             this.holder = holder;
             this.animation = animation;

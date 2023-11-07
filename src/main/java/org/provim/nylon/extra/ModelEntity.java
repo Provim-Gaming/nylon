@@ -9,9 +9,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.level.Level;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.api.AjHolderInterface;
-import org.provim.nylon.holders.base.AjElementHolder;
-import org.provim.nylon.holders.simple.SimpleAjHolder;
+import org.provim.nylon.api.AjEntityHolder;
+import org.provim.nylon.holders.entity.EntityHolder;
+import org.provim.nylon.holders.entity.simple.SimpleEntityHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
@@ -19,13 +19,13 @@ import org.provim.nylon.model.AjPose;
 import java.util.List;
 
 public class ModelEntity extends Interaction implements AjEntity {
-    private final AjElementHolder<ModelEntity> holder;
+    private final EntityHolder<?> holder;
     private final AjModel model;
 
     public ModelEntity(Level level, AjModel model) {
         super(EntityType.INTERACTION, level);
         this.model = model;
-        this.holder = new SimpleAjHolder<>(this, model) {
+        this.holder = new SimpleEntityHolder<>(this, model) {
             @Override
             public void applyPose(AjPose pose, DisplayWrapper<?> display) {
                 display.element().setYaw(this.parent.getYRot());
@@ -38,7 +38,7 @@ public class ModelEntity extends Interaction implements AjEntity {
     }
 
     @Override
-    public AjHolderInterface getHolder() {
+    public AjEntityHolder getHolder() {
         return this.holder;
     }
 

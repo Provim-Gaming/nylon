@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.living;
+package org.provim.nylon.holders.entity.living;
 
 import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
@@ -18,8 +18,8 @@ import net.minecraft.world.entity.LivingEntity;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.elements.CollisionElement;
+import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
@@ -30,13 +30,13 @@ import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 
-public class LivingAjHolder<T extends LivingEntity & AjEntity> extends AbstractAjHolder<T> {
+public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends EntityHolder<T> {
     private final InteractionElement hitboxInteraction;
     private final CollisionElement collisionElement;
     private float deathAngle;
     private float scale;
 
-    public LivingAjHolder(T parent, AjModel model) {
+    public LivingEntityHolder(T parent, AjModel model) {
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);

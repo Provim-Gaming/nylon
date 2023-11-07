@@ -1,4 +1,4 @@
-package org.provim.nylon.holders.living;
+package org.provim.nylon.holders.entity.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -16,18 +16,18 @@ import org.provim.nylon.util.Utils;
 import java.util.function.Consumer;
 
 /**
- * Extension of {@link LivingAjHolder} that allows for custom passenger riding offsets.
+ * Extension of {@link LivingEntityHolder} that allows for custom passenger riding offsets.
  * <p>
  * This will use {@link Entity#getBbHeight} + {@link Entity#getMyRidingOffset} as the ride height.
  * <p>
  * It works by adding an extra zero bounding boxed {@link InteractionElement} to the parent entity,
  * which is used as the vehicle. This will add a very minor overhead on the client.
  */
-public class LivingAjHolderWithRideOffset<T extends LivingEntity & AjEntity> extends LivingAjHolder<T> {
+public class LivingEntityHolderWithRideOffset<T extends LivingEntity & AjEntity> extends LivingEntityHolder<T> {
     private static final EntityDimensions ZERO = EntityDimensions.fixed(0, 0);
     private final InteractionElement rideInteraction;
 
-    public LivingAjHolderWithRideOffset(T parent, AjModel model) {
+    public LivingEntityHolderWithRideOffset(T parent, AjModel model) {
         super(parent, model);
 
         this.rideInteraction = new InteractionElement();
