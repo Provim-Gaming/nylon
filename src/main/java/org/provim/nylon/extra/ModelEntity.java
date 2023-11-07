@@ -8,6 +8,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.level.Level;
+import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.holders.entity.EntityHolder;
@@ -27,10 +28,10 @@ public class ModelEntity extends Interaction implements AjEntity {
         this.model = model;
         this.holder = new SimpleEntityHolder<>(this, model) {
             @Override
-            public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+            public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
                 display.element().setYaw(this.parent.getYRot());
                 display.element().setPitch(this.parent.getXRot());
-                super.applyPose(pose, display);
+                super.updateElement(display, pose);
             }
         };
 

@@ -97,7 +97,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     @Override
     protected void onDataLoaded() {
         for (Bone bone : this.bones) {
-            this.applyDefaultPose(bone);
+            this.initializeDisplay(bone);
         }
     }
 
@@ -123,7 +123,14 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.findPose(display);
+        this.updateElement(display, this.animation.findPose(display));
+    }
+
+    public void initializeDisplay(DisplayWrapper<?> display) {
+        this.updateElement(display, display.getDefaultPose());
+    }
+
+    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
         if (pose != null) {
             this.applyPose(pose, display);
         }
@@ -138,15 +145,11 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         }
     }
 
-    public void applyDefaultPose(DisplayWrapper<?> display) {
-        this.applyPose(display.getDefaultPose(), display);
-    }
-
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
         display.setTranslation(pose.readOnlyTranslation());
-        display.setRightRotation(pose.readOnlyRightRotation());
-        display.setLeftRotation(pose.readOnlyLeftRotation());
         display.setScale(pose.readOnlyScale());
+        display.setLeftRotation(pose.readOnlyLeftRotation());
+        display.setRightRotation(pose.readOnlyRightRotation());
 
         display.startInterpolation();
     }

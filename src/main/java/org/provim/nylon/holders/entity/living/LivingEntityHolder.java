@@ -15,10 +15,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.holders.elements.CollisionElement;
+import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
@@ -31,10 +32,10 @@ import org.provim.nylon.util.Utils;
 import java.util.function.Consumer;
 
 public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends EntityHolder<T> {
-    private final InteractionElement hitboxInteraction;
-    private final CollisionElement collisionElement;
-    private float deathAngle;
-    private float scale;
+    protected final InteractionElement hitboxInteraction;
+    protected final CollisionElement collisionElement;
+    protected float deathAngle;
+    protected float scale;
 
     public LivingEntityHolder(T parent, AjModel model) {
         super(parent, model);
@@ -56,8 +57,8 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.findPose(display);
+    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+        display.element().setYaw(this.parent.yBodyRot);
         if (pose == null) {
             this.applyPose(display.getLastPose(), display);
         } else {
@@ -78,7 +79,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
         Vector3f translation = pose.translation();
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;
@@ -91,8 +92,8 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
             }
 
             if (isHead) {
-                bodyRotation.mul(Axis.YP.rotation((float) -Math.toRadians(Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot))));
-                bodyRotation.mul(Axis.XP.rotation((float) Math.toRadians(Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO))));
+                bodyRotation.mul(Axis.YP.rotation(Mth.DEG_TO_RAD * -Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot)));
+                bodyRotation.mul(Axis.XP.rotation(Mth.DEG_TO_RAD * Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO)));
             }
 
             display.setLeftRotation(bodyRotation.mul(pose.readOnlyLeftRotation()));
@@ -109,7 +110,6 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
 
         display.setTranslation(translation.sub(0, this.dimensions.height - 0.01f, 0));
         display.setRightRotation(pose.readOnlyRightRotation());
-        display.element().setYaw(this.parent.yBodyRot);
 
         display.startInterpolation();
     }

@@ -25,7 +25,7 @@ import java.util.function.Consumer;
  */
 public class LivingEntityHolderWithRideOffset<T extends LivingEntity & AjEntity> extends LivingEntityHolder<T> {
     private static final EntityDimensions ZERO = EntityDimensions.fixed(0, 0);
-    private final InteractionElement rideInteraction;
+    protected final InteractionElement rideInteraction;
 
     public LivingEntityHolderWithRideOffset(T parent, AjModel model) {
         super(parent, model);

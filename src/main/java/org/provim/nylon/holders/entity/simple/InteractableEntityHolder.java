@@ -9,6 +9,7 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
@@ -20,7 +21,7 @@ import org.provim.nylon.util.Utils;
 import java.util.function.Consumer;
 
 public class InteractableEntityHolder<T extends Entity & AjEntity> extends EntityHolder<T> {
-    private final InteractionElement hitboxInteraction;
+    protected final InteractionElement hitboxInteraction;
 
     public InteractableEntityHolder(T parent, AjModel model) {
         super(parent, model);
@@ -41,8 +42,9 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
-    protected void updateElement(DisplayWrapper<?> display) {
-        AjPose pose = this.animation.findPose(display);
+    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+        display.element().setYaw(this.parent.getYRot());
+        display.element().setPitch(this.parent.getXRot());
         if (pose == null) {
             this.applyPose(display.getLastPose(), display);
         } else {
@@ -51,12 +53,11 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
-    public void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        display.element().setYaw(this.parent.getYRot());
-        display.element().setPitch(this.parent.getXRot());
-
-        display.setScale(pose.readOnlyScale());
+    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
         display.setTranslation(pose.translation().sub(0, this.dimensions.height - 0.01f, 0));
+        display.setScale(pose.readOnlyScale());
+        display.setLeftRotation(pose.leftRotation());
+        display.setRightRotation(pose.rightRotation());
 
         display.startInterpolation();
     }
