@@ -56,10 +56,7 @@ public class ModelCommand {
             }
         }
 
-        if (count > 0) {
-            int finalCount = count;
-            source.sendSuccess(() -> Component.literal(String.format("Updated %d %s!", finalCount, finalCount == 1 ? "model" : "models")), false);
-        } else {
+        if (count <= 0) {
             source.sendFailure(Component.literal("No models found!"));
         }
 
@@ -102,7 +99,7 @@ public class ModelCommand {
         var builder = Commands.literal("create");
 
         // Create model commands
-        builder.then(Commands.literal("identifier")
+        builder.then(Commands.literal("id")
                 .then(Commands.argument("model", ResourceLocationArgument.id())
                         .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
                         .executes(context -> spawnModel(
@@ -154,6 +151,14 @@ public class ModelCommand {
 
         builder.then(Commands.argument(ANIMATION, StringArgumentType.word())
                 .suggests(availableAnimations())
+                .executes(context -> {
+                    String animation = StringArgumentType.getString(context, ANIMATION);
+                    return manipulateModels(
+                            context.getSource(),
+                            EntityArgument.getEntities(context, TARGETS),
+                            (entity) -> entity.getHolder().getAnimator().playAnimation(animation)
+                    );
+                })
                 .then(Commands.literal("play")
                         .executes(context -> {
                             String animation = StringArgumentType.getString(context, ANIMATION);
@@ -200,7 +205,7 @@ public class ModelCommand {
         return builder;
     }
 
-    public static SuggestionProvider<CommandSourceStack> availableAnimations() {
+    private static SuggestionProvider<CommandSourceStack> availableAnimations() {
         return (ctx, builder) -> {
             forEachModel(ctx, model -> {
                 for (String animation : model.animations().keySet()) {
@@ -211,7 +216,7 @@ public class ModelCommand {
         };
     }
 
-    public static SuggestionProvider<CommandSourceStack> availableVariants() {
+    private static SuggestionProvider<CommandSourceStack> availableVariants() {
         return (ctx, builder) -> {
             builder.suggest("default");
             forEachModel(ctx, model -> {

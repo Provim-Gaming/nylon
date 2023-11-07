@@ -12,7 +12,9 @@ import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjHolderInterface;
 import org.provim.nylon.holders.base.AjElementHolder;
 import org.provim.nylon.holders.simple.SimpleAjHolder;
+import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
+import org.provim.nylon.model.AjPose;
 
 import java.util.List;
 
@@ -23,7 +25,14 @@ public class ModelEntity extends Interaction implements AjEntity {
     public ModelEntity(Level level, AjModel model) {
         super(EntityType.INTERACTION, level);
         this.model = model;
-        this.holder = new SimpleAjHolder<>(this, model);
+        this.holder = new SimpleAjHolder<>(this, model) {
+            @Override
+            public void applyPose(AjPose pose, DisplayWrapper<?> display) {
+                display.element().setYaw(this.parent.getYRot());
+                display.element().setPitch(this.parent.getXRot());
+                super.applyPose(pose, display);
+            }
+        };
 
         EntityAttachment.ofTicking(this.holder, this);
     }

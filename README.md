@@ -21,6 +21,7 @@ dependencies {
 
 - Smooth and accurate animations, using mounted display entities with configurable rotation interpolation instead of
   armor stands to ensure smooth rotations and that all the model pieces positions are in sync.
+- Minimal impact on server performance. Nylon is highly optimized and models are updated async.
 
 
 - Support for most Animated Java features:
