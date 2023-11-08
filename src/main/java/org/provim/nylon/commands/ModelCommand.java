@@ -54,8 +54,9 @@ public class ModelCommand {
     private static int manipulateModels(CommandSourceStack source, Collection<? extends Entity> targets, Consumer<AjEntityHolder> consumer) {
         int count = 0;
         for (Entity target : targets) {
-            if (target instanceof AjEntity ajEntity) {
-                consumer.accept(ajEntity.getHolder());
+            AjEntityHolder holder = AjEntity.getHolder(target);
+            if (holder != null) {
+                consumer.accept(holder);
                 count++;
             }
         }
@@ -252,8 +253,9 @@ public class ModelCommand {
     private static void forEachModel(CommandContext<CommandSourceStack> ctx, Consumer<AjModel> consumer) throws CommandSyntaxException {
         // Make sure to only call this when we have the target context already.
         for (Entity entity : EntityArgument.getEntities(ctx, TARGETS)) {
-            if (entity instanceof AjEntity ajEntity) {
-                consumer.accept(ajEntity.getHolder().getModel());
+            AjEntityHolder holder = AjEntity.getHolder(entity);
+            if (holder != null) {
+                consumer.accept(holder.getModel());
             }
         }
     }

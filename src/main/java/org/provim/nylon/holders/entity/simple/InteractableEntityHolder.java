@@ -80,7 +80,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     protected void updateCullingBox() {
         float scale = this.getScale();
         float width = scale * (this.dimensions.width * 2);
-        float height = scale * -(this.dimensions.height + 1);
+        float height = -this.dimensions.height - 1;
 
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(width, height);
