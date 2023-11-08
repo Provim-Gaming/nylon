@@ -9,7 +9,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Vector2f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.holders.entity.EntityHolder;
@@ -38,9 +37,8 @@ public class ModelEntity extends Interaction implements AjEntity {
             }
 
             @Override
-            protected Vector2f getCullingBox() {
-                // Return a zero-sized vector to prevent culling.
-                return new Vector2f(0, 0);
+            protected void updateCullingBox() {
+                // Do nothing, we want to prevent culling.
             }
         };
 

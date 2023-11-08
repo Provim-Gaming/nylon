@@ -17,11 +17,11 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
-import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
+import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
 import org.provim.nylon.model.AjModel;
@@ -162,14 +162,20 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    protected Vector2f getCullingBox() {
-        return new Vector2f(this.dimensions.width * 2, -this.dimensions.height - 1);
+    protected void updateCullingBox() {
+        float scale = this.getScale();
+        float width = scale * (this.dimensions.width * 2);
+        float height = scale * -(this.dimensions.height + 1);
+
+        for (Bone bone : this.bones) {
+            bone.element().setDisplaySize(width, height);
+        }
     }
 
     @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
+        this.updateEntityScale(this.scale);
         super.onDimensionsUpdated(dimensions);
-        this.updateEntityScale();
 
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width, dimensions.height)));
         this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
@@ -202,11 +208,11 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
 
     @Override
     public void setScale(float scale) {
+        this.updateEntityScale(scale);
         super.setScale(scale);
-        this.updateEntityScale();
     }
 
-    protected void updateEntityScale() {
-        this.entityScale = this.parent.getScale() * this.scale;
+    protected void updateEntityScale(float scalar) {
+        this.entityScale = this.parent.getScale() * scalar;
     }
 }
