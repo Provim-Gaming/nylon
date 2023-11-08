@@ -1,6 +1,7 @@
 package org.provim.nylon.commands;
 
 import com.mojang.brigadier.Command;
+import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -40,6 +41,7 @@ public class ModelCommand {
 
         // Manipulate model commands
         builder.then(Commands.argument(TARGETS, EntityArgument.entities())
+                .then(scaleManipulator())
                 .then(variantManipulator())
                 .then(animationManipulator())
         );
@@ -116,6 +118,23 @@ public class ModelCommand {
                                 StringArgumentType.getString(context, "model")
                         ))
                 )
+        );
+
+        return builder;
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> scaleManipulator() {
+        var builder = Commands.literal("scale");
+
+        builder.then(Commands.argument("scale", FloatArgumentType.floatArg(0.01f))
+                .executes(context -> {
+                    float scale = FloatArgumentType.getFloat(context, "scale");
+                    return manipulateModels(
+                            context.getSource(),
+                            EntityArgument.getEntities(context, TARGETS),
+                            entity -> entity.getHolder().setScale(scale)
+                    );
+                })
         );
 
         return builder;

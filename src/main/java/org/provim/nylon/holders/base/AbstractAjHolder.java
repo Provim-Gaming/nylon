@@ -32,6 +32,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
 
     protected Bone[] bones;
     protected Locator[] locators;
+    protected float scale = 1F;
 
     protected AbstractAjHolder(AjModel model, ServerLevel level) {
         super(level);
@@ -146,8 +147,14 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        display.setTranslation(pose.readOnlyTranslation());
-        display.setScale(pose.readOnlyScale());
+        if (this.scale != 1F) {
+            display.setScale(pose.scale().mul(this.scale));
+            display.setTranslation(pose.translation().mul(this.scale));
+        } else {
+            display.setScale(pose.readOnlyScale());
+            display.setTranslation(pose.readOnlyTranslation());
+        }
+
         display.setLeftRotation(pose.readOnlyLeftRotation());
         display.setRightRotation(pose.readOnlyRightRotation());
 
@@ -167,6 +174,16 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     @Override
     public AnimationComponent getAnimator() {
         return this.animation;
+    }
+
+    @Override
+    public float getScale() {
+        return this.scale;
+    }
+
+    @Override
+    public void setScale(float scale) {
+        this.scale = scale;
     }
 
     public Bone[] getBones() {

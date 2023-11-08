@@ -10,9 +10,10 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.holders.entity.EntityHolder;
-import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
@@ -54,8 +55,15 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
 
     @Override
     protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        display.setTranslation(pose.translation().sub(0, this.dimensions.height - 0.01f, 0));
-        display.setScale(pose.readOnlyScale());
+        Vector3f translation = pose.translation();
+        if (this.scale != 1F) {
+            translation.mul(this.scale);
+            display.setScale(pose.scale().mul(this.scale));
+        } else {
+            display.setScale(pose.readOnlyScale());
+        }
+
+        display.setTranslation(translation.sub(0, this.dimensions.height - 0.01f, 0));
         display.setLeftRotation(pose.leftRotation());
         display.setRightRotation(pose.rightRotation());
 
@@ -69,13 +77,14 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
+    protected Vector2f getCullingBox() {
+        return new Vector2f(this.dimensions.width * 2, -this.dimensions.height - 1);
+    }
+
+    @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
         super.onDimensionsUpdated(dimensions);
         this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
-
-        for (Bone bone : this.bones) {
-            bone.element().setDisplaySize(dimensions.width * 2, -dimensions.height - 1);
-        }
     }
 
     @Override

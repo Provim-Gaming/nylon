@@ -18,4 +18,14 @@ public interface AjHolder {
      * Returns the animator for this model.
      */
     Animator getAnimator();
+
+    /**
+     * Returns the scale of the model.
+     */
+    float getScale();
+
+    /**
+     * Sets the scale of the model.
+     */
+    void setScale(float scale);
 }

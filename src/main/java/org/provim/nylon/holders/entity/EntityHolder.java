@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector2f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.holders.base.AbstractAjHolder;
@@ -31,17 +32,18 @@ import org.provim.nylon.util.Utils;
 import java.util.function.Consumer;
 
 public abstract class EntityHolder<T extends Entity & AjEntity> extends AbstractAjHolder implements AjEntityHolder {
-    protected final T parent;
     protected final ObjectOpenHashSet<DisplayElement> additionalDisplays;
+    protected final T parent;
     protected EntityDimensions dimensions;
     protected int tickCount;
 
     protected EntityHolder(T parent, AjModel model) {
         super(model, (ServerLevel) parent.level());
-        this.parent = parent;
-        this.tickCount = parent.tickCount - 1;
-        this.dimensions = parent.getType().getDimensions();
         this.additionalDisplays = new ObjectOpenHashSet<>();
+        this.parent = parent;
+
+        this.dimensions = parent.getType().getDimensions();
+        this.tickCount = parent.tickCount - 1;
     }
 
     @Override
@@ -117,9 +119,18 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
         return this.parent.createCommandSourceStack();
     }
 
+    protected Vector2f getCullingBox() {
+        return new Vector2f(this.dimensions.width * 2, this.dimensions.height + 1);
+    }
+
     @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
         this.dimensions = dimensions;
+
+        Vector2f cullingBox = this.getCullingBox();
+        for (Bone bone : this.bones) {
+            bone.element().setDisplaySize(cullingBox.x, cullingBox.y);
+        }
     }
 
     @Override

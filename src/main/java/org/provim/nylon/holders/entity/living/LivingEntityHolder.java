@@ -17,11 +17,11 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
-import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
 import org.provim.nylon.model.AjModel;
@@ -35,7 +35,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected final InteractionElement hitboxInteraction;
     protected final CollisionElement collisionElement;
     protected float deathAngle;
-    protected float scale;
+    protected float entityScale = 1F;
 
     public LivingEntityHolder(T parent, AjModel model) {
         super(parent, model);
@@ -101,9 +101,9 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
             display.setLeftRotation(pose.readOnlyLeftRotation());
         }
 
-        if (this.scale != 1.0f) {
-            translation.mul(this.scale);
-            display.setScale(pose.scale().mul(this.scale));
+        if (this.entityScale != 1F) {
+            translation.mul(this.entityScale);
+            display.setScale(pose.scale().mul(this.entityScale));
         } else {
             display.setScale(pose.readOnlyScale());
         }
@@ -162,23 +162,24 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
-        super.onSyncedDataUpdated(key, object);
-        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
-            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
-        }
+    protected Vector2f getCullingBox() {
+        return new Vector2f(this.dimensions.width * 2, -this.dimensions.height - 1);
     }
 
     @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
         super.onDimensionsUpdated(dimensions);
-        this.scale = this.parent.getScale();
+        this.updateEntityScale();
 
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width, dimensions.height)));
         this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+    }
 
-        for (Bone bone : this.bones) {
-            bone.element().setDisplaySize(dimensions.width * 2, -dimensions.height - 1);
+    @Override
+    public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
+        super.onSyncedDataUpdated(key, object);
+        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
+            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
         }
     }
 
@@ -192,5 +193,20 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected void updateInvisibility(boolean isInvisible) {
         this.hitboxInteraction.setInvisible(isInvisible);
         super.updateInvisibility(isInvisible);
+    }
+
+    @Override
+    public float getScale() {
+        return this.entityScale;
+    }
+
+    @Override
+    public void setScale(float scale) {
+        super.setScale(scale);
+        this.updateEntityScale();
+    }
+
+    protected void updateEntityScale() {
+        this.entityScale = this.parent.getScale() * this.scale;
     }
 }

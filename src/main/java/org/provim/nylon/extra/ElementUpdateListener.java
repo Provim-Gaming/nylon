@@ -35,11 +35,17 @@ public class ElementUpdateListener implements Locator.LocatorListener {
 
     private void updateEntityBasedHolder(EntityHolder<?> holder, AjPose pose) {
         Entity parent = holder.getParent();
+        float scale = holder.getScale();
         float yRot = parent.getYRot();
         float angle = yRot * Mth.DEG_TO_RAD;
-        Vector3f offset = pose.translation().rotateY(-angle);
-        Vec3 pos = holder.getPos().add(offset.x, offset.y, offset.z);
 
+        Vector3f offset = pose.translation();
+        if (scale != 1F) {
+            offset.mul(scale);
+        }
+        offset.rotateY(-angle);
+
+        Vec3 pos = holder.getPos().add(offset.x, offset.y, offset.z);
         holder.sendPacket(VirtualEntityUtils.createMovePacket(
                 this.element.getEntityId(),
                 pos,
@@ -51,9 +57,12 @@ public class ElementUpdateListener implements Locator.LocatorListener {
     }
 
     private void updateNonEntityBasedHolder(AbstractAjHolder holder, AjPose pose) {
-        Vector3fc offset = pose.readOnlyTranslation();
-        Vec3 pos = holder.getPos().add(offset.x(), offset.y(), offset.z());
+        float scale = holder.getScale();
+        Vector3fc offset = scale != 1F
+                ? pose.translation().mul(scale)
+                : pose.readOnlyTranslation();
 
+        Vec3 pos = holder.getPos().add(offset.x(), offset.y(), offset.z());
         holder.sendPacket(VirtualEntityUtils.createMovePacket(
                 this.element.getEntityId(),
                 pos,
