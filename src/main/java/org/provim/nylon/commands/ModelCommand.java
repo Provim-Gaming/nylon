@@ -19,6 +19,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.api.AjEntity;
+import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.api.VariantController;
 import org.provim.nylon.data.AjLoader;
 import org.provim.nylon.extra.ModelEntity;
@@ -49,11 +51,11 @@ public class ModelCommand {
         return builder;
     }
 
-    private static int manipulateModels(CommandSourceStack source, Collection<? extends Entity> targets, Consumer<ModelEntity> consumer) {
+    private static int manipulateModels(CommandSourceStack source, Collection<? extends Entity> targets, Consumer<AjEntityHolder> consumer) {
         int count = 0;
         for (Entity target : targets) {
-            if (target instanceof ModelEntity modelEntity) {
-                consumer.accept(modelEntity);
+            if (target instanceof AjEntity ajEntity) {
+                consumer.accept(ajEntity.getHolder());
                 count++;
             }
         }
@@ -132,7 +134,7 @@ public class ModelCommand {
                     return manipulateModels(
                             context.getSource(),
                             EntityArgument.getEntities(context, TARGETS),
-                            entity -> entity.getHolder().setScale(scale)
+                            holder -> holder.setScale(scale)
                     );
                 })
         );
@@ -150,8 +152,8 @@ public class ModelCommand {
                     return manipulateModels(
                             context.getSource(),
                             EntityArgument.getEntities(context, TARGETS),
-                            entity -> {
-                                VariantController controller = entity.getHolder().getVariantController();
+                            holder -> {
+                                VariantController controller = holder.getVariantController();
                                 if (variant.equals("default")) {
                                     controller.setDefaultVariant();
                                 } else {
@@ -175,7 +177,7 @@ public class ModelCommand {
                     return manipulateModels(
                             context.getSource(),
                             EntityArgument.getEntities(context, TARGETS),
-                            (entity) -> entity.getHolder().getAnimator().playAnimation(animation)
+                            (holder) -> holder.getAnimator().playAnimation(animation)
                     );
                 })
                 .then(Commands.literal("play")
@@ -184,7 +186,7 @@ public class ModelCommand {
                             return manipulateModels(
                                     context.getSource(),
                                     EntityArgument.getEntities(context, TARGETS),
-                                    (entity) -> entity.getHolder().getAnimator().playAnimation(animation)
+                                    (holder) -> holder.getAnimator().playAnimation(animation)
                             );
                         })
                         .then(Commands.argument("priority", IntegerArgumentType.integer())
@@ -194,7 +196,7 @@ public class ModelCommand {
                                     return manipulateModels(
                                             context.getSource(),
                                             EntityArgument.getEntities(context, TARGETS),
-                                            (entity) -> entity.getHolder().getAnimator().playAnimation(animation, priority)
+                                            (holder) -> holder.getAnimator().playAnimation(animation, priority)
                                     );
                                 })
                         )
@@ -205,7 +207,7 @@ public class ModelCommand {
                             return manipulateModels(
                                     context.getSource(),
                                     EntityArgument.getEntities(context, TARGETS),
-                                    entity -> entity.getHolder().getAnimator().pauseAnimation(animation)
+                                    holder -> holder.getAnimator().pauseAnimation(animation)
                             );
                         })
                 )
@@ -215,7 +217,7 @@ public class ModelCommand {
                             return manipulateModels(
                                     context.getSource(),
                                     EntityArgument.getEntities(context, TARGETS),
-                                    entity -> entity.getHolder().getAnimator().stopAnimation(animation)
+                                    holder -> holder.getAnimator().stopAnimation(animation)
                             );
                         })
                 )
@@ -250,8 +252,8 @@ public class ModelCommand {
     private static void forEachModel(CommandContext<CommandSourceStack> ctx, Consumer<AjModel> consumer) throws CommandSyntaxException {
         // Make sure to only call this when we have the target context already.
         for (Entity entity : EntityArgument.getEntities(ctx, TARGETS)) {
-            if (entity instanceof ModelEntity modelEntity) {
-                consumer.accept(modelEntity.getModel());
+            if (entity instanceof AjEntity ajEntity) {
+                consumer.accept(ajEntity.getHolder().getModel());
             }
         }
     }

@@ -22,11 +22,9 @@ import java.util.List;
 
 public class ModelEntity extends Interaction implements AjEntity {
     private final EntityHolder<?> holder;
-    private final AjModel model;
 
     public ModelEntity(Level level, AjModel model) {
         super(EntityType.INTERACTION, level);
-        this.model = model;
         this.holder = new SimpleEntityHolder<>(this, model) {
             @Override
             public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
@@ -52,10 +50,6 @@ public class ModelEntity extends Interaction implements AjEntity {
     @Override
     public AjEntityHolder getHolder() {
         return this.holder;
-    }
-
-    public AjModel getModel() {
-        return this.model;
     }
 
     @Override

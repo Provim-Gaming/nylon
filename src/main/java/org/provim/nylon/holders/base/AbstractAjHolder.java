@@ -162,6 +162,11 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     @Override
+    public AjModel getModel() {
+        return this.model;
+    }
+
+    @Override
     public Locator getLocator(String name) {
         return this.locatorMap.get(name);
     }
