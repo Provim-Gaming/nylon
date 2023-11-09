@@ -1,5 +1,6 @@
 package org.provim.nylon.commands;
 
+import com.google.gson.JsonParseException;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.arguments.FloatArgumentType;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -19,6 +20,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.Nylon;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.api.VariantController;
@@ -30,6 +32,7 @@ import org.provim.nylon.util.Utils;
 
 import java.util.Collection;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 public class ModelCommand {
     private static final String TARGETS = "targets";
@@ -69,34 +72,32 @@ public class ModelCommand {
     }
 
     private static int spawnModel(CommandSourceStack source, ResourceLocation id) throws CommandSyntaxException {
-        try {
-            AjModel model = AjLoader.require(id);
-            return spawnModel(source, model);
-        } catch (Throwable throwable) {
-            throw Utils.buildCommandException("Failed to load model!\n" + throwable.getMessage());
-        }
+        return spawnModel(source, () -> AjLoader.require(id), id.toString());
     }
 
     private static int spawnModel(CommandSourceStack source, String path) throws CommandSyntaxException {
-        try {
-            AjModel model = AjLoader.require(path);
-            return spawnModel(source, model);
-        } catch (Throwable throwable) {
-            throw Utils.buildCommandException("Failed to load model!\n" + throwable.getMessage());
-        }
+        return spawnModel(source, () -> AjLoader.require(path), path);
     }
 
-    private static int spawnModel(CommandSourceStack source, AjModel model) {
+    private static int spawnModel(CommandSourceStack source, Supplier<AjModel> supplier, String path) throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
         Vec3 pos = source.getPosition();
         Vec2 rot = source.getRotation();
 
-        ModelEntity entity = new ModelEntity(level, model);
-        entity.moveTo(pos.x, pos.y, pos.z, rot.y, 0F);
+        try {
+            AjModel model = supplier.get();
+            ModelEntity entity = new ModelEntity(level, model);
+            entity.moveTo(pos.x, pos.y, pos.z, rot.y, 0F);
 
-        level.addFreshEntity(entity);
+            level.addFreshEntity(entity);
+            source.sendSuccess(() -> Component.literal("Successfully spawned model!"), false);
+        } catch (JsonParseException ex) {
+            Nylon.LOGGER.error("[Nylon] {} is not a valid model file! If you think this is a bug, please report it at https://github.com/Provim-Gaming/nylon/issues", path, ex);
+            throw Utils.buildCommandException(ex.getMessage() + "\nCheck the server console for more information.");
+        } catch (Throwable throwable) {
+            throw Utils.buildCommandException("Failed to load model!\n" + throwable.getMessage());
+        }
 
-        source.sendSuccess(() -> Component.literal("Successfully spawned model!"), false);
         return Command.SINGLE_SUCCESS;
     }
 
