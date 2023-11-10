@@ -14,6 +14,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ClientboundAnimatePacket.class)
 public class ClientboundAnimatePacketMixin {
+    @Shadow
+    @Final
+    public static int CRITICAL_HIT;
+    @Shadow
+    @Final
+    public static int MAGIC_CRITICAL_HIT;
     @Mutable
     @Shadow
     @Final
@@ -21,7 +27,7 @@ public class ClientboundAnimatePacketMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;I)V", at = @At("RETURN"))
     private void nylon$modifyAnimatePacket(Entity entity, int action, CallbackInfo ci) {
-        if (action != 4 && action != 5) {
+        if (action != CRITICAL_HIT && action != MAGIC_CRITICAL_HIT) {
             return;
         }
 

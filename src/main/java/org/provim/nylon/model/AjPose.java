@@ -1,8 +1,8 @@
 package org.provim.nylon.model;
 
 import com.google.gson.*;
-import com.mojang.math.Axis;
 import com.mojang.math.MatrixUtil;
+import net.minecraft.util.Mth;
 import org.joml.*;
 
 import java.lang.reflect.Type;
@@ -52,8 +52,6 @@ public record AjPose(
     }
 
     public static class Deserializer implements JsonDeserializer<AjPose> {
-        private static final Quaternionf ROT_180 = Axis.YP.rotationDegrees(180.f);
-
         @Override
         public AjPose deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
             JsonObject object = jsonElement.getAsJsonObject();
@@ -71,7 +69,7 @@ public record AjPose(
 
             var triple = MatrixUtil.svdDecompose(matrix3f);
             Vector3f scale = triple.getMiddle();
-            Quaternionf leftRotation = triple.getLeft().mul(ROT_180);
+            Quaternionf leftRotation = triple.getLeft().rotateY(Mth.DEG_TO_RAD * 180F);
             Quaternionf rightRotation = triple.getRight();
 
             return new AjPose(uuid, translation, scale, leftRotation, rightRotation);

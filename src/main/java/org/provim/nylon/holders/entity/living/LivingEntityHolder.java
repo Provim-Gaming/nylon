@@ -1,6 +1,5 @@
 package org.provim.nylon.holders.entity.living;
 
-import com.mojang.math.Axis;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
@@ -87,13 +86,13 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         if (isHead || isDead) {
             Quaternionf bodyRotation = new Quaternionf();
             if (isDead) {
-                bodyRotation.rotationZ(-this.deathAngle * Mth.HALF_PI);
+                bodyRotation.rotateZ(-this.deathAngle * Mth.HALF_PI);
                 translation.rotate(bodyRotation);
             }
 
             if (isHead) {
-                bodyRotation.mul(Axis.YP.rotation(Mth.DEG_TO_RAD * -Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot)));
-                bodyRotation.mul(Axis.XP.rotation(Mth.DEG_TO_RAD * Mth.rotLerp(0.5f, this.parent.getXRot(), this.parent.xRotO)));
+                bodyRotation.rotateY(Mth.DEG_TO_RAD * -Mth.rotLerp(0.5f, this.parent.yHeadRotO - this.parent.yBodyRotO, this.parent.yHeadRot - this.parent.yBodyRot));
+                bodyRotation.rotateX(Mth.DEG_TO_RAD * Mth.lerp(0.5f, this.parent.xRotO, this.parent.getXRot()));
             }
 
             display.setLeftRotation(bodyRotation.mul(pose.readOnlyLeftRotation()));

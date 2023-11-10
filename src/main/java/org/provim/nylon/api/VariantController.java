@@ -5,6 +5,7 @@ import org.provim.nylon.model.AjVariant;
 
 import java.util.UUID;
 
+@SuppressWarnings("unused")
 public interface VariantController {
     /**
      * Returns the current variant of the entity.
