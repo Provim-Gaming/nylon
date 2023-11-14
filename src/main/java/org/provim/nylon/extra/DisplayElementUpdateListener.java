@@ -16,7 +16,7 @@ public class DisplayElementUpdateListener implements Locator.LocatorListener {
     }
 
     @Override
-    public void update(AbstractAjHolder<?> holder, AjPose pose) {
-        holder.applyPose(pose, this.display);
+    public void update(AbstractAjHolder holder, AjPose pose) {
+        holder.updateElement(this.display, pose);
     }
 }

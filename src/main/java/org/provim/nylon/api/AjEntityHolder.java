@@ -5,11 +5,9 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import org.provim.nylon.holders.wrappers.Locator;
 
 @SuppressWarnings("unused")
-public interface AjHolderInterface {
-
+public interface AjEntityHolder extends AjHolder {
     /**
      * Notifies the holder that the synchronized data has been updated.
      * <p>
@@ -71,19 +69,4 @@ public interface AjHolderInterface {
      * Removes an additional display element from the holder.
      */
     boolean removeAdditionalDisplay(DisplayElement element);
-
-    /**
-     * Returns the locator with the given name.
-     */
-    Locator getLocator(String name);
-
-    /**
-     * Returns the variant controller for this holder.
-     */
-    VariantController getVariantController();
-
-    /**
-     * Returns the animator for this model.
-     */
-    Animator getAnimator();
 }

@@ -1,13 +1,13 @@
-package org.provim.nylon.holders.simple;
+package org.provim.nylon.holders.entity.simple;
 
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.world.entity.Entity;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.holders.base.AbstractAjHolder;
+import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.model.AjModel;
 
-public class SimpleAjHolder<T extends Entity & AjEntity> extends AbstractAjHolder<T> {
-    public SimpleAjHolder(T parent, AjModel model) {
+public class SimpleEntityHolder<T extends Entity & AjEntity> extends EntityHolder<T> {
+    public SimpleEntityHolder(T parent, AjModel model) {
         super(parent, model);
     }
 

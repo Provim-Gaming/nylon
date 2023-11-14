@@ -13,7 +13,7 @@ public class VariantComponent extends ComponentBase implements VariantController
     @Nullable
     private AjVariant currentVariant;
 
-    public VariantComponent(AjModel model, AbstractAjHolder<?> holder) {
+    public VariantComponent(AjModel model, AbstractAjHolder holder) {
         super(model, holder);
     }
 

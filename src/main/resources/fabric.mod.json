@@ -14,6 +14,9 @@
   "license": "GPL-3.0",
   "environment": "*",
   "entrypoints": {
+    "main": [
+      "org.provim.nylon.Nylon"
+    ]
   },
   "mixins": [
     "nylon.mixins.json"
@@ -21,7 +24,9 @@
   "depends": {
     "minecraft": ">=1.20.2",
     "fabricloader": "*",
+    "fabric-api": "*",
     "polymer-core": "*",
+    "polymer-networking": "*",
     "polymer-virtual-entity": "*",
     "polymer-resource-pack": "*"
   }

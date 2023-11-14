@@ -27,8 +27,8 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.AjLoader;
-import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.holders.living.LivingAjHolder;
+import org.provim.nylon.holders.entity.EntityHolder;
+import org.provim.nylon.holders.entity.living.LivingEntityHolder;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylontest.registries.SoundRegistry;
 import org.provim.nylontest.util.AnimationHelper;
@@ -36,7 +36,7 @@ import org.provim.nylontest.util.AnimationHelper;
 public class RedstoneGolem extends Monster implements AjEntity {
     public static final ResourceLocation ID = new ResourceLocation("provim", "redstone_golem");
     public static final AjModel MODEL = AjLoader.require(ID);
-    private final AbstractAjHolder<RedstoneGolem> holder;
+    private final EntityHolder<RedstoneGolem> holder;
 
     public static AttributeSupplier.Builder createAttributes() {
         return Monster.createMonsterAttributes()
@@ -48,7 +48,7 @@ public class RedstoneGolem extends Monster implements AjEntity {
     }
 
     @Override
-    public AbstractAjHolder<RedstoneGolem> getHolder() {
+    public EntityHolder<RedstoneGolem> getHolder() {
         return this.holder;
     }
 
@@ -57,7 +57,7 @@ public class RedstoneGolem extends Monster implements AjEntity {
         this.moveControl = new MoveControl(this);
         this.jumpControl = new JumpControl(this);
 
-        this.holder = new LivingAjHolder<>(this, MODEL);
+        this.holder = new LivingEntityHolder<>(this, MODEL);
         EntityAttachment.ofTicking(this.holder, this);
     }
 
