@@ -3,13 +3,14 @@
   "id": "nylon-testmod",
   "version": "1.0",
   "name": "Nylon Testmod",
-  "description": "AnimatedJava API for Fabric",
+  "description": "Library for creating serverside content using Animated-Java for custom models and animations.",
   "authors": [
     "Pinnit",
     "Wesley1808"
   ],
   "contact": {
-    "repo": "https://github.com/Provim-Gaming/nylon"
+    "sources": "https://github.com/Provim-Gaming/nylon",
+    "issues": "https://github.com/Provim-Gaming/nylon/issues"
   },
   "license": "GPL-3.0",
   "environment": "*",
