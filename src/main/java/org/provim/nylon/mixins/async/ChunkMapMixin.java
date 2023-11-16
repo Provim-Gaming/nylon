@@ -16,7 +16,7 @@ import java.util.concurrent.CompletableFuture;
 @Mixin(value = ChunkMap.class, priority = 900)
 public class ChunkMapMixin implements IChunkMap {
     @Unique
-    private final ObjectArrayList<AjElementHolder> nylon$scheduledAsyncTicks = new ObjectArrayList<>();
+    private ObjectArrayList<AjElementHolder> nylon$scheduledAsyncTicks = new ObjectArrayList<>();
     @Unique
     @Nullable
     private CompletableFuture<Void> nylon$asyncTickFuture;
@@ -29,12 +29,11 @@ public class ChunkMapMixin implements IChunkMap {
             return;
         }
 
+        this.nylon$scheduledAsyncTicks = new ObjectArrayList<>();
         this.nylon$asyncTickFuture = CompletableFuture.runAsync(() -> {
-            for (int i = 0; i < holders.size(); i++) {
-                var holder = holders.get(i);
+            for (AjElementHolder holder : holders) {
                 holder.asyncTick();
             }
-            holders.clear();
         });
     }
 
