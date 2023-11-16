@@ -10,7 +10,8 @@
   ],
   "contact": {
     "sources": "https://github.com/Provim-Gaming/nylon",
-    "issues": "https://github.com/Provim-Gaming/nylon/issues"
+    "issues": "https://github.com/Provim-Gaming/nylon/issues",
+    "homepage": "https://modrinth.com/mod/nylon"
   },
   "license": "GPL-3.0",
   "environment": "*",
