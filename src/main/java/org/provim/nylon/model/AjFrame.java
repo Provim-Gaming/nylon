@@ -2,9 +2,9 @@ package org.provim.nylon.model;
 
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
+import com.mojang.brigadier.CommandDispatcher;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -12,7 +12,8 @@ import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.Entity;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.util.Utils;
+import org.provim.nylon.util.commands.CommandParser;
+import org.provim.nylon.util.commands.ParsedCommand;
 
 import java.lang.reflect.Type;
 import java.util.UUID;
@@ -22,13 +23,13 @@ public record AjFrame(
         Reference2ObjectOpenHashMap<UUID, AjPose> poses,
 
         @Nullable Variant variant,
-        @Nullable Command commands,
+        @Nullable Commands commands,
         @Nullable SoundEffect soundEffect,
         boolean requiresUpdates
 ) {
 
     public void run(AbstractAjHolder holder) {
-        Commands executor = holder.getServer().getCommands();
+        CommandDispatcher<CommandSourceStack> dispatcher = holder.getServer().getCommands().getDispatcher();
         CommandSourceStack source = holder.createCommandSourceStack().withPermission(2).withSuppressedOutput();
 
         if (this.soundEffect != null) {
@@ -45,24 +46,24 @@ public record AjFrame(
         }
 
         if (this.variant != null) {
-            if (this.satisfiesConditions(this.variant.conditions, executor, source)) {
+            if (satisfiesConditions(this.variant.conditions, dispatcher, source)) {
                 holder.getVariantController().setVariant(this.variant.uuid);
             }
         }
 
         if (this.commands != null && this.commands.commands.length > 0) {
-            if (this.satisfiesConditions(this.commands.conditions, executor, source)) {
-                for (String command : this.commands.commands) {
-                    executor.performPrefixedCommand(source, command);
+            if (satisfiesConditions(this.commands.conditions, dispatcher, source)) {
+                for (ParsedCommand command : this.commands.commands) {
+                    command.execute(dispatcher, source);
                 }
             }
         }
     }
 
-    private boolean satisfiesConditions(@Nullable String[] conditions, Commands executor, CommandSourceStack source) {
+    private static boolean satisfiesConditions(ParsedCommand[] conditions, CommandDispatcher<CommandSourceStack> dispatcher, CommandSourceStack source) {
         if (conditions != null) {
-            for (String condition : conditions) {
-                if (executor.performPrefixedCommand(source, condition) <= 0) {
+            for (ParsedCommand condition : conditions) {
+                if (condition.execute(dispatcher, source) <= 0) {
                     return false;
                 }
             }
@@ -88,9 +89,9 @@ public record AjFrame(
                 variant = context.deserialize(object.get("variant"), Variant.class);
             }
 
-            Command command = null;
+            Commands commands = null;
             if (object.has("commands")) {
-                command = context.deserialize(object.get("commands"), Command.class);
+                commands = context.deserialize(object.get("commands"), Commands.class);
             }
 
             SoundEffect soundEffect = null;
@@ -98,8 +99,8 @@ public record AjFrame(
                 soundEffect = context.deserialize(object.get("sound"), SoundEffect.class);
             }
 
-            boolean requiresUpdates = variant != null || soundEffect != null || (command != null && command.commands.length > 0);
-            return new AjFrame(time, nodeMap, variant, command, soundEffect, requiresUpdates);
+            boolean requiresUpdates = variant != null || soundEffect != null || (commands != null && commands.commands.length > 0);
+            return new AjFrame(time, nodeMap, variant, commands, soundEffect, requiresUpdates);
         }
     }
 
@@ -111,7 +112,7 @@ public record AjFrame(
 
     public record Variant(
             UUID uuid,
-            @Nullable String[] conditions
+            @Nullable ParsedCommand[] conditions
     ) {
         public static class Deserializer implements JsonDeserializer<Variant> {
             @Override
@@ -120,27 +121,27 @@ public record AjFrame(
                 UUID uuid = context.deserialize(object.get("uuid"), UUID.class);
 
                 JsonElement conditionElement = object.get("executeCondition");
-                String[] conditions = conditionElement != null ? Utils.parseCommands(conditionElement.getAsString(), "execute ") : null;
+                ParsedCommand[] conditions = conditionElement != null ? CommandParser.parse(conditionElement.getAsString(), "execute ") : null;
 
                 return new Variant(uuid, conditions);
             }
         }
     }
 
-    public record Command(
-            String[] commands,
-            @Nullable String[] conditions
+    public record Commands(
+            ParsedCommand[] commands,
+            @Nullable ParsedCommand[] conditions
     ) {
-        public static class Deserializer implements JsonDeserializer<Command> {
+        public static class Deserializer implements JsonDeserializer<Commands> {
             @Override
-            public Command deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
+            public Commands deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext context) throws JsonParseException {
                 JsonObject object = jsonElement.getAsJsonObject();
-                String[] commands = Utils.parseCommands(GsonHelper.getAsString(object, "commands"));
+                ParsedCommand[] commands = CommandParser.parse(GsonHelper.getAsString(object, "commands"));
 
                 JsonElement conditionElement = object.get("executeCondition");
-                String[] conditions = conditionElement != null ? Utils.parseCommands(conditionElement.getAsString(), "execute ") : null;
+                ParsedCommand[] conditions = conditionElement != null ? CommandParser.parse(conditionElement.getAsString(), "execute ") : null;
 
-                return new Command(commands, conditions);
+                return new Commands(commands, conditions);
             }
         }
     }

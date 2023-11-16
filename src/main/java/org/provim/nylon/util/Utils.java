@@ -7,7 +7,6 @@ import eu.pb4.polymer.networking.api.util.ServerDynamicPacket;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
@@ -23,13 +22,11 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
-import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.mixins.accessors.ServerCommonPacketListenerImplAccessor;
 
 import java.util.List;
 
 public class Utils {
-    public static final String[] EMPTY_STRING_ARRAY = new String[0];
     public static final ServerGamePacketListenerImpl[] EMPTY_CONNECTION_ARRAY = new ServerGamePacketListenerImpl[0];
 
     public static Connection getConnection(ServerCommonPacketListenerImpl networkHandler) {
@@ -70,24 +67,6 @@ public class Utils {
                         SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, dimensions.height)
                 ))
         );
-    }
-
-    public static String[] parseCommands(String commandString) {
-        return parseCommands(commandString, null);
-    }
-
-    public static String[] parseCommands(String commandString, @Nullable String prefix) {
-        String[] commands = commandString.trim().split("(\r\n|\r|\n)", -1);
-
-        ObjectArrayList<String> list = new ObjectArrayList<>(commands.length);
-        for (String command : commands) {
-            String trimmed = command.trim();
-            if (!trimmed.isEmpty()) {
-                list.add(prefix != null ? prefix + trimmed : trimmed);
-            }
-        }
-
-        return list.toArray(EMPTY_STRING_ARRAY);
     }
 
     /**

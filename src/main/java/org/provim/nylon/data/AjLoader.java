@@ -23,7 +23,7 @@ public class AjLoader {
             .registerTypeAdapter(AjRig.class, new AjRig.Deserializer())
             .registerTypeAdapter(AjFrame.class, new AjFrame.Deserializer())
             .registerTypeAdapter(AjFrame.Variant.class, new AjFrame.Variant.Deserializer())
-            .registerTypeAdapter(AjFrame.Command.class, new AjFrame.Command.Deserializer())
+            .registerTypeAdapter(AjFrame.Commands.class, new AjFrame.Commands.Deserializer())
 
             // Reference equality
             .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
