@@ -13,7 +13,7 @@
     "issues": "https://github.com/Provim-Gaming/nylon/issues",
     "homepage": "https://modrinth.com/mod/nylon"
   },
-  "license": "GPL-3.0",
+  "license": "LGPLv3",
   "environment": "*",
   "entrypoints": {
     "main": [

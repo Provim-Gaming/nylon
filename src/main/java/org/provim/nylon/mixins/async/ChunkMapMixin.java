@@ -29,7 +29,7 @@ public class ChunkMapMixin implements IChunkMap {
             return;
         }
 
-        this.nylon$scheduledAsyncTicks = new ObjectArrayList<>();
+        this.nylon$scheduledAsyncTicks = new ObjectArrayList<>(holders.size());
         this.nylon$asyncTickFuture = CompletableFuture.runAsync(() -> {
             for (AjElementHolder holder : holders) {
                 holder.asyncTick();
