@@ -54,6 +54,14 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Override
+    public void setAnimationFrame(String name, int frame) {
+        Animation animation = this.animationMap.get(name);
+        if (animation != null) {
+            animation.skipToFrame(frame);
+        }
+    }
+
+    @Override
     public void pauseAnimation(String name) {
         Animation animation = this.animationMap.get(name);
         if (animation != null && animation.state == Animation.State.PLAYING) {
@@ -207,6 +215,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
                     this.currentFrame.run(this.holder);
                 }
             }
+        }
+
+        private void skipToFrame(int frame) {
+            this.frameCounter = this.animation.duration() - 1 - frame;
         }
 
         private void resetFrameCounter(boolean isLooping) {

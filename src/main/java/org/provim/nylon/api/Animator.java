@@ -79,6 +79,13 @@ public interface Animator {
     void playAnimation(String name, int priority, boolean restartPaused, @Nullable Runnable onFinished);
 
     /**
+     * Sets the current frame of the animation with the given name.
+     *
+     * @param frame: The frame to set the animation to. A negative value will delay the animation from being played.
+     */
+    void setAnimationFrame(String name, int frame);
+
+    /**
      * Pauses the animation with the given name.
      */
     void pauseAnimation(String name);

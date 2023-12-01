@@ -203,6 +203,19 @@ public class ModelCommand {
                                 })
                         )
                 )
+                .then(Commands.literal("set-frame")
+                        .then(Commands.argument("frame", IntegerArgumentType.integer())
+                                .executes(context -> {
+                                    String animation = StringArgumentType.getString(context, ANIMATION);
+                                    int frame = IntegerArgumentType.getInteger(context, "frame");
+                                    return manipulateModels(
+                                            context.getSource(),
+                                            EntityArgument.getEntities(context, TARGETS),
+                                            holder -> holder.getAnimator().setAnimationFrame(animation, frame)
+                                    );
+                                })
+                        )
+                )
                 .then(Commands.literal("pause")
                         .executes(context -> {
                             String animation = StringArgumentType.getString(context, ANIMATION);
