@@ -12,6 +12,7 @@
     "packets.ClientboundEntityEventPacketMixin",
     "packets.ClientboundSetEntityLinkPacketMixin",
     "packets.ClientboundSetPassengersPacketMixin",
+    "packets.LivingEntityMixin",
     "tracking.EntityMixin",
     "tracking.SynchedEntityDataMixin"
   ],
