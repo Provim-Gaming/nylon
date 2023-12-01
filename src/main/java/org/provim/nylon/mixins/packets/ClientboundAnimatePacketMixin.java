@@ -12,14 +12,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import static net.minecraft.network.protocol.game.ClientboundAnimatePacket.CRITICAL_HIT;
+import static net.minecraft.network.protocol.game.ClientboundAnimatePacket.MAGIC_CRITICAL_HIT;
+
 @Mixin(ClientboundAnimatePacket.class)
 public class ClientboundAnimatePacketMixin {
-    @Shadow
-    @Final
-    public static int CRITICAL_HIT;
-    @Shadow
-    @Final
-    public static int MAGIC_CRITICAL_HIT;
     @Mutable
     @Shadow
     @Final
@@ -27,13 +24,14 @@ public class ClientboundAnimatePacketMixin {
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;I)V", at = @At("RETURN"))
     private void nylon$modifyAnimatePacket(Entity entity, int action, CallbackInfo ci) {
-        if (action != CRITICAL_HIT && action != MAGIC_CRITICAL_HIT) {
-            return;
-        }
-
         AjEntityHolder holder = AjEntity.getHolder(entity);
         if (holder != null) {
-            this.id = holder.getCritParticleId();
+            this.id = switch (action) {
+                // Return the entity id for handling critical hit particles.
+                case CRITICAL_HIT, MAGIC_CRITICAL_HIT -> holder.getCritParticleId();
+                // Return invalid entity id to prevent the client from incorrectly type casting.
+                default -> -1;
+            };
         }
     }
 }
