@@ -9,6 +9,7 @@ import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.provim.nylon.Nylon;
 
 public class ParsedCommand {
     private static final CommandSourceStack PARSING_SOURCE = new CommandSourceStack(
@@ -17,6 +18,7 @@ public class ParsedCommand {
     private final String command;
     @Nullable
     private ParseResults<CommandSourceStack> parsed;
+    private boolean isInvalid;
 
     protected ParsedCommand(String command) {
         this.command = command;
@@ -25,12 +27,19 @@ public class ParsedCommand {
     public int execute(CommandDispatcher<CommandSourceStack> dispatcher, CommandSourceStack source) {
         if (this.parsed == null) {
             this.parsed = dispatcher.parse(this.command, PARSING_SOURCE);
+
+            if (Commands.getParseException(this.parsed) != null) {
+                Nylon.LOGGER.error("[Nylon] Unable to parse command: {}", this.command);
+                this.isInvalid = true;
+            }
         }
 
-        try {
-            return dispatcher.execute(Commands.mapSource(this.parsed, (s) -> source));
-        } catch (Throwable ignored) {
-            return 0;
+        if (!this.isInvalid) {
+            try {
+                return dispatcher.execute(Commands.mapSource(this.parsed, (s) -> source));
+            } catch (Throwable ignored) {
+            }
         }
+        return 0;
     }
 }
