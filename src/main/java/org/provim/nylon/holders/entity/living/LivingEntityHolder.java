@@ -24,13 +24,11 @@ import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.mixins.accessors.EntityAccessor;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends EntityHolder<T> {
@@ -185,12 +183,12 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
 
     @Override
     public void onCustomNameUpdated(@Nullable Component nameComponent) {
-        this.hitboxInteraction.getDataTracker().set(EntityAccessor.getDATA_CUSTOM_NAME(), Optional.of(nameComponent));
+        this.hitboxInteraction.setCustomName(nameComponent);
     }
 
     @Override
     public void onCustomNameVisibilityUpdated(Boolean visible) {
-        this.hitboxInteraction.getDataTracker().set(EntityAccessor.getDATA_CUSTOM_NAME_VISIBLE(), visible);
+        this.hitboxInteraction.setCustomNameVisible(visible);
     }
 
     @Override
