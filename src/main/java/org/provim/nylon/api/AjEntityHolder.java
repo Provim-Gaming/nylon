@@ -32,6 +32,13 @@ public interface AjEntityHolder extends AjHolder {
     default void onCustomNameUpdated(@Nullable Component nameComponent) {}
 
     /**
+     * Notifies the holder that the visibility of the custom name of the parent entity was changed/updated.
+     * <p>
+     * Holder implementations can use this to hide or show their custom nametags.
+     */
+    default void onCustomNameVisibilityUpdated(Boolean visible) {}
+
+    /**
      * Returns an array of entity ids used for displaying the model.
      */
     int[] getDisplayIds();

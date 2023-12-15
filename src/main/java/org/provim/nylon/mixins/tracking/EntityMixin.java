@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Entity.class)
-public class EntityMixin {
+public abstract class EntityMixin {
     @Shadow
     private EntityDimensions dimensions;
 
@@ -30,6 +30,14 @@ public class EntityMixin {
         AjEntityHolder holder = AjEntity.getHolder(this);
         if (holder != null) {
             holder.onCustomNameUpdated(component);
+        }
+    }
+
+    @Inject(method = "setCustomNameVisible", at = @At("HEAD"))
+    public void setCustomNameVisible(boolean visible, CallbackInfo ci) {
+        AjEntityHolder holder = AjEntity.getHolder(this);
+        if (holder != null) {
+            holder.onCustomNameVisibilityUpdated(visible);
         }
     }
 }

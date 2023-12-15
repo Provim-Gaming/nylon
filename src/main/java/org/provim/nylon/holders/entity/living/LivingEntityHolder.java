@@ -189,6 +189,11 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
+    public void onCustomNameVisibilityUpdated(Boolean visible) {
+        this.hitboxInteraction.getDataTracker().set(EntityAccessor.getDATA_CUSTOM_NAME_VISIBLE(), visible);
+    }
+
+    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
         super.onSyncedDataUpdated(key, object);
         if (key.equals(NylonTrackedData.EFFECT_COLOR)) {

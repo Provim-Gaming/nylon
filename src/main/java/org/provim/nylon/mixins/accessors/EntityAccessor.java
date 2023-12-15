@@ -14,4 +14,9 @@ public interface EntityAccessor {
     static EntityDataAccessor<Optional<Component>> getDATA_CUSTOM_NAME() {
         throw new UnsupportedOperationException();
     }
+
+    @Accessor
+    static EntityDataAccessor<Boolean> getDATA_CUSTOM_NAME_VISIBLE() {
+        throw new UnsupportedOperationException();
+    }
 }
