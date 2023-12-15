@@ -1,7 +1,9 @@
 package org.provim.nylon.mixins.tracking;
 
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.spongepowered.asm.mixin.Mixin;
@@ -20,6 +22,14 @@ public class EntityMixin {
         AjEntityHolder holder = AjEntity.getHolder(this);
         if (holder != null) {
             holder.onDimensionsUpdated(this.dimensions);
+        }
+    }
+
+    @Inject(method = "setCustomName", at = @At("HEAD"))
+    public void setCustomName(@Nullable Component component, CallbackInfo callbackInfo) {
+        AjEntityHolder holder = AjEntity.getHolder(this);
+        if (holder != null) {
+            holder.onCustomNameUpdated(component);
         }
     }
 }

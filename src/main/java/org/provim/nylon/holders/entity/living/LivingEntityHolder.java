@@ -2,6 +2,7 @@ package org.provim.nylon.holders.entity.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
@@ -23,11 +24,13 @@ import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
+import org.provim.nylon.mixins.accessors.EntityAccessor;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends EntityHolder<T> {
@@ -178,6 +181,11 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
 
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width, dimensions.height)));
         this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+    }
+
+    @Override
+    public void onCustomNameUpdated(@Nullable Component nameComponent) {
+        this.hitboxInteraction.getDataTracker().set(EntityAccessor.getDATA_CUSTOM_NAME(), Optional.of(nameComponent));
     }
 
     @Override

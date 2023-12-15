@@ -4,6 +4,7 @@
   "package": "org.provim.nylon.mixins",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "accessors.EntityAccessor",
     "accessors.LivingEntityAccessor",
     "accessors.ServerCommonPacketListenerImplAccessor",
     "async.ChunkMapMixin",
