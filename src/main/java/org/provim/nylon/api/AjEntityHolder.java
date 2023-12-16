@@ -1,12 +1,10 @@
 package org.provim.nylon.api;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import org.jetbrains.annotations.Nullable;
 
 @SuppressWarnings("unused")
 public interface AjEntityHolder extends AjHolder {
@@ -23,20 +21,6 @@ public interface AjEntityHolder extends AjHolder {
      * Holder implementations can use this to update their element data.
      */
     void onDimensionsUpdated(EntityDimensions dimensions);
-
-    /**
-     * Notifies the holder that the name of the parent entity was changed/updated.
-     * <p>
-     * Holder implementations can use this to display a nametag using an Interaction Entity or Text Display.
-     */
-    default void onCustomNameUpdated(@Nullable Component nameComponent) {}
-
-    /**
-     * Notifies the holder that the visibility of the custom name of the parent entity was changed/updated.
-     * <p>
-     * Holder implementations can use this to hide or show their custom nametags.
-     */
-    default void onCustomNameVisibilityUpdated(Boolean visible) {}
 
     /**
      * Returns an array of entity ids used for displaying the model.

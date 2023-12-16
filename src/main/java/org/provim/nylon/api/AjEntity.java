@@ -42,6 +42,7 @@ public interface AjEntity extends PolymerEntity {
 
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));
+        data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NAME_VISIBLE, false));
     }
 
     @Nullable
