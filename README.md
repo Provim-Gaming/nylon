@@ -38,6 +38,7 @@ dependencies {
 - Out of the box support for many vanilla mob features:
     - Vanilla accurate hitboxes visible in F3+B, using interactions.
     - The ability to ride on top of the mob, without visually lagging behind.
+    - Name tags that work just like vanilla mobs, without text display entities.
     - Working invisibility, glowing, fire animation and most particles (like potion effects, crits and death).
     - Correctly rendering leashes, death animations and smooth clientside collisions with players.
     - Dynamic hitboxes and dynamic mob scale (an example use case of this is baby mobs).
