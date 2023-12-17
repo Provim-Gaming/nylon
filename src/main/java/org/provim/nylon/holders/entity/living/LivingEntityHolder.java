@@ -1,7 +1,9 @@
 package org.provim.nylon.holders.entity.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
+import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
@@ -28,6 +30,7 @@ import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonTrackedData;
 import org.provim.nylon.util.Utils;
 
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends EntityHolder<T> {
@@ -185,6 +188,15 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         super.onSyncedDataUpdated(key, object);
         if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
             this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
+        }
+
+        if (key.equals(EntityTrackedData.NAME_VISIBLE)) {
+            this.hitboxInteraction.setCustomNameVisible((boolean) object);
+        }
+
+        if (key.equals(EntityTrackedData.CUSTOM_NAME)) {
+            // noinspection unchecked
+            this.hitboxInteraction.getDataTracker().set(EntityTrackedData.CUSTOM_NAME, (Optional<Component>) object);
         }
     }
 
