@@ -14,6 +14,7 @@ import org.provim.nylon.model.AjPose;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.IntConsumer;
 
 public class AnimationComponent extends ComponentBase implements Animator {
     private final Object2ObjectOpenHashMap<String, Animation> animationMap = new Object2ObjectOpenHashMap<>();
@@ -24,7 +25,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Override
-    public void playAnimation(String name, int priority, boolean restartPaused, Runnable onFinished) {
+    public void playAnimation(String name, int priority, boolean restartPaused, IntConsumer onFrame, Runnable onFinish) {
         Animation animation = this.animationMap.get(name);
         if (priority < 0) {
             priority = 0;
@@ -33,11 +34,12 @@ public class AnimationComponent extends ComponentBase implements Animator {
         if (animation == null) {
             AjAnimation anim = this.model.animations().get(name);
             if (anim != null) {
-                this.addAnimation(new Animation(name, anim, this.holder, priority, onFinished));
+                this.addAnimation(new Animation(name, anim, this.holder, priority, onFrame, onFinish));
             }
         } else {
             // Update values of the existing animation.
-            animation.onFinishedCallback = onFinished;
+            animation.onFrameCallback = onFrame;
+            animation.onFinishCallback = onFinish;
 
             if (animation.state == Animation.State.PAUSED) {
                 if (restartPaused) {
@@ -176,21 +178,26 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private int priority;
         private boolean looped;
         private State state;
-        private Runnable onFinishedCallback;
 
-        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder holder, int priority, @Nullable Runnable onFinished) {
+        @Nullable
+        private IntConsumer onFrameCallback;
+        @Nullable
+        private Runnable onFinishCallback;
+
+        private Animation(String name, @NotNull AjAnimation animation, AbstractAjHolder holder, int priority, @Nullable IntConsumer onFrame, @Nullable Runnable onFinish) {
             this.name = name;
             this.holder = holder;
             this.animation = animation;
             this.state = State.PLAYING;
             this.priority = priority;
-            this.onFinishedCallback = onFinished;
+            this.onFrameCallback = onFrame;
+            this.onFinishCallback = onFinish;
             this.resetFrameCounter(false);
         }
 
-        public void onFinished() {
-            if (this.onFinishedCallback != null) {
-                this.onFinishedCallback.run();
+        private void onFinished() {
+            if (this.onFinishCallback != null) {
+                this.onFinishCallback.run();
             }
         }
 
@@ -209,7 +216,12 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private void updateFrame() {
             AjFrame[] frames = this.animation.frames();
             if (this.frameCounter >= 0 && this.frameCounter < frames.length) {
-                this.currentFrame = frames[(frames.length - 1) - this.frameCounter];
+                int index = (frames.length - 1) - this.frameCounter;
+                this.currentFrame = frames[index];
+
+                if (this.onFrameCallback != null) {
+                    this.onFrameCallback.accept(index);
+                }
 
                 if (this.currentFrame.requiresUpdates()) {
                     this.currentFrame.run(this.holder);

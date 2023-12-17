@@ -2,96 +2,229 @@ package org.provim.nylon.api;
 
 import org.jetbrains.annotations.Nullable;
 
+import java.util.function.IntConsumer;
+
 @SuppressWarnings("unused")
 public interface Animator {
+    int DEFAULT_PRIORITY = 1;
 
     /**
      * Starts playing an animation on the model.
+     *
+     * @param name: The name of the animation.
      */
     default void playAnimation(String name) {
-        this.playAnimation(name, 1, false, null);
+        this.playAnimation(name, DEFAULT_PRIORITY, false, null, (Runnable) null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
+     * @param name:     The name of the animation.
      * @param priority: The priority of the animation.
      */
     default void playAnimation(String name, int priority) {
-        this.playAnimation(name, priority, false, null);
+        this.playAnimation(name, priority, false, null, (Runnable) null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
+     * @param name:          The name of the animation.
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
      */
     default void playAnimation(String name, boolean restartPaused) {
-        this.playAnimation(name, 1, restartPaused, null);
+        this.playAnimation(name, DEFAULT_PRIORITY, restartPaused, null, (Runnable) null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
-     * @param onFinished: Callback to be executed on the last frame of the animation.
+     * @param name:    The name of the animation.
+     * @param onFrame: Callback that runs on each frame of the animation. The frame index is passed as argument.
      */
-    default void playAnimation(String name, @Nullable Runnable onFinished) {
-        this.playAnimation(name, 1, false, onFinished);
+    default void playAnimation(String name, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, DEFAULT_PRIORITY, false, onFrame, null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
+     * @param name:     The name of the animation.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, @Nullable Runnable onFinish) {
+        this.playAnimation(name, DEFAULT_PRIORITY, false, null, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:     The name of the animation.
+     * @param onFrame:  Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, @Nullable IntConsumer onFrame, @Nullable Runnable onFinish) {
+        this.playAnimation(name, DEFAULT_PRIORITY, false, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:     The name of the animation.
+     * @param onFrame:  Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, @Nullable Runnable onFinish, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, DEFAULT_PRIORITY, false, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:          The name of the animation.
      * @param priority:      The priority of the animation.
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
      */
     default void playAnimation(String name, int priority, boolean restartPaused) {
-        this.playAnimation(name, priority, restartPaused, null);
+        this.playAnimation(name, priority, restartPaused, null, (Runnable) null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
-     * @param priority:   The priority of the animation.
-     * @param onFinished: Callback to be executed on the last frame of the animation.
+     * @param name:     The name of the animation.
+     * @param priority: The priority of the animation.
+     * @param onFrame:  Callback that runs on each frame of the animation. The frame index is passed as argument.
      */
-    default void playAnimation(String name, int priority, @Nullable Runnable onFinished) {
-        this.playAnimation(name, priority, false, onFinished);
+    default void playAnimation(String name, int priority, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, priority, false, onFrame, null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
-     * @param onFinished:    Callback to be executed on the last frame of the animation.
+     * @param name:     The name of the animation.
+     * @param priority: The priority of the animation.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, int priority, @Nullable Runnable onFinish) {
+        this.playAnimation(name, priority, false, null, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:     The name of the animation.
+     * @param priority: The priority of the animation.
+     * @param onFrame:  Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, int priority, @Nullable IntConsumer onFrame, @Nullable Runnable onFinish) {
+        this.playAnimation(name, priority, false, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:     The name of the animation.
+     * @param priority: The priority of the animation.
+     * @param onFrame:  Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish: Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, int priority, @Nullable Runnable onFinish, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, priority, false, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:          The name of the animation.
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFrame:       Callback that runs on each frame of the animation. The frame index is passed as argument.
      */
-    default void playAnimation(String name, boolean restartPaused, @Nullable Runnable onFinished) {
-        this.playAnimation(name, 1, restartPaused, onFinished);
+    default void playAnimation(String name, boolean restartPaused, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, DEFAULT_PRIORITY, restartPaused, onFrame, null);
     }
 
     /**
      * Starts playing an animation on the model.
      *
+     * @param name:          The name of the animation.
+     * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFinish:      Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, boolean restartPaused, @Nullable Runnable onFinish) {
+        this.playAnimation(name, DEFAULT_PRIORITY, restartPaused, null, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:          The name of the animation.
+     * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFrame:       Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish:      Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, boolean restartPaused, @Nullable IntConsumer onFrame, @Nullable Runnable onFinish) {
+        this.playAnimation(name, DEFAULT_PRIORITY, restartPaused, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:          The name of the animation.
+     * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFrame:       Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish:      Callback that runs when the animation finishes.
+     */
+    default void playAnimation(String name, boolean restartPaused, @Nullable Runnable onFinish, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, DEFAULT_PRIORITY, restartPaused, onFrame, onFinish);
+    }
+
+    /**
+     * Starts playing an animation on the model.
+     *
+     * @param name:          The name of the animation.
      * @param priority:      The priority of the animation.
-     * @param onFinished:    Callback to be executed on the last frame of the animation.
      * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFrame:       Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish:      Callback that runs when the animation finishes.
      */
-    void playAnimation(String name, int priority, boolean restartPaused, @Nullable Runnable onFinished);
+    default void playAnimation(String name, int priority, boolean restartPaused, @Nullable Runnable onFinish, @Nullable IntConsumer onFrame) {
+        this.playAnimation(name, priority, restartPaused, onFrame, onFinish);
+    }
 
     /**
-     * Sets the current frame of the animation with the given name.
+     * Starts playing an animation on the model.
      *
+     * @param name:          The name of the animation.
+     * @param priority:      The priority of the animation.
+     * @param restartPaused: Whether to restart paused animations, rather than resuming them where they left off.
+     * @param onFrame:       Callback that runs on each frame of the animation. The frame index is passed as argument.
+     * @param onFinish:      Callback that runs when the animation finishes.
+     */
+    void playAnimation(String name, int priority, boolean restartPaused, @Nullable IntConsumer onFrame, @Nullable Runnable onFinish);
+
+    /**
+     * Sets the current frame of an animation.
+     *
+     * @param name:  The name of the animation.
      * @param frame: The frame to set the animation to. A negative value will delay the animation from being played.
      */
     void setAnimationFrame(String name, int frame);
 
     /**
-     * Pauses the animation with the given name.
+     * Pauses an animation on the model.
+     *
+     * @param name: The name of the animation.
      */
     void pauseAnimation(String name);
 
     /**
-     * Stops the animation with the given name.
+     * Stops an animation from playing on the model.
+     *
+     * @param name: The name of the animation.
      */
     void stopAnimation(String name);
 }
