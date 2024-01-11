@@ -31,6 +31,7 @@ import org.provim.nylon.model.AjVariant;
 import org.provim.nylon.util.Utils;
 
 import java.util.Collection;
+import java.util.HexFormat;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -47,6 +48,7 @@ public class ModelCommand {
         // Manipulate model commands
         builder.then(Commands.argument(TARGETS, EntityArgument.entities())
                 .then(scaleManipulator())
+                .then(colorManipulator())
                 .then(variantManipulator())
                 .then(animationManipulator())
         );
@@ -137,6 +139,23 @@ public class ModelCommand {
                             context.getSource(),
                             EntityArgument.getEntities(context, TARGETS),
                             holder -> holder.setScale(scale)
+                    );
+                })
+        );
+
+        return builder;
+    }
+
+    private static ArgumentBuilder<CommandSourceStack, ?> colorManipulator() {
+        var builder = Commands.literal("color");
+
+        builder.then(Commands.argument("color", StringArgumentType.word())
+                .executes(context -> {
+                    int color = convertHexCode(StringArgumentType.getString(context, "color"));
+                    return manipulateModels(
+                            context.getSource(),
+                            EntityArgument.getEntities(context, TARGETS),
+                            holder -> holder.setColor(color)
                     );
                 })
         );
@@ -271,6 +290,14 @@ public class ModelCommand {
             if (holder != null) {
                 consumer.accept(holder.getModel());
             }
+        }
+    }
+
+    private static int convertHexCode(String hexCode) throws CommandSyntaxException {
+        try {
+            return HexFormat.fromHexDigits(hexCode);
+        } catch (Throwable throwable) {
+            throw Utils.buildCommandException("Invalid color: " + throwable.getMessage());
         }
     }
 }
