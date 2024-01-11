@@ -27,7 +27,7 @@ import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
 import org.provim.nylon.model.AjModel;
 import org.provim.nylon.model.AjPose;
-import org.provim.nylon.util.NylonTrackedData;
+import org.provim.nylon.util.NylonConstants;
 import org.provim.nylon.util.Utils;
 
 import java.util.Optional;
@@ -186,8 +186,8 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
         super.onSyncedDataUpdated(key, object);
-        if (key.equals(NylonTrackedData.EFFECT_COLOR)) {
-            this.collisionElement.getDataTracker().set(NylonTrackedData.EFFECT_COLOR, (int) object);
+        if (key.equals(NylonConstants.DATA_EFFECT_COLOR)) {
+            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_COLOR, (int) object);
         }
 
         if (key.equals(EntityTrackedData.NAME_VISIBLE)) {

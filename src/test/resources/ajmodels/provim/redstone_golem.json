@@ -6,7 +6,7 @@
 			64
 		],
 		"target_minecraft_version": "1.20+",
-		"rig_item": "minecraft:red_dye",
+		"rig_item": "minecraft:leather_horse_armor",
 		"rig_item_model": "",
 		"rig_export_folder": "",
 		"texture_export_folder": "",

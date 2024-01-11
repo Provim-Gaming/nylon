@@ -4,6 +4,7 @@ import net.minecraft.world.entity.LivingEntity;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.api.Animator;
 import org.provim.nylon.api.VariantController;
+import org.provim.nylon.util.NylonConstants;
 
 public class AnimationHelper {
 
@@ -22,12 +23,11 @@ public class AnimationHelper {
         }
     }
 
-    public static void updateHurtVariant(LivingEntity entity, AjHolder holder) {
-        VariantController controller = holder.getVariantController();
+    public static void updateHurtColor(LivingEntity entity, AjHolder holder) {
         if (entity.hurtTime > 0 || entity.deathTime > 0) {
-            controller.setVariant("hurt");
-        } else if (controller.isCurrentVariant("hurt")) {
-            controller.setDefaultVariant();
+            holder.setColor(NylonConstants.DAMAGE_TINT_COLOR);
+        } else {
+            holder.clearColor();
         }
     }
 }

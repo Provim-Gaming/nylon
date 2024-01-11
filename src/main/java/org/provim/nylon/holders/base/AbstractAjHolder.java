@@ -5,8 +5,8 @@ import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.DyeableLeatherItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -33,6 +33,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     protected Bone[] bones;
     protected Locator[] locators;
     protected float scale = 1F;
+    protected int color = -1;
 
     protected AbstractAjHolder(AjModel model, ServerLevel level) {
         super(level);
@@ -88,10 +89,12 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, 3);
 
         ItemStack itemStack = new ItemStack(rigItem);
-        CompoundTag tag = itemStack.getOrCreateTag();
-        tag.putInt("CustomModelData", node.customModelData());
-        element.setItem(itemStack);
+        itemStack.getOrCreateTag().putInt("CustomModelData", node.customModelData());
+        if (rigItem instanceof DyeableLeatherItem dyeableItem) {
+            dyeableItem.setColor(itemStack, -1);
+        }
 
+        element.setItem(itemStack);
         return element;
     }
 
@@ -159,6 +162,16 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         display.setRightRotation(pose.readOnlyRightRotation());
 
         display.startInterpolation();
+    }
+
+    @Override
+    public void setColor(int color) {
+        if (color != this.color) {
+            this.color = color;
+            for (Bone bone : this.bones) {
+                bone.updateColor(color);
+            }
+        }
     }
 
     @Override

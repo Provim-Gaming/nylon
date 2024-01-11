@@ -2,6 +2,7 @@ package org.provim.nylon.holders.wrappers;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.provim.nylon.model.AjNode;
 import org.provim.nylon.model.AjPose;
@@ -36,7 +37,15 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
         }
     }
 
-    public void updateItem(int customModelData) {
+    public void updateColor(int color) {
+        this.item.getOrCreateTagElement("display").putInt("color", color);
+
+        if (!this.invisible) {
+            this.setTrackedItem(this.item);
+        }
+    }
+
+    public void updateModelData(int customModelData) {
         this.item.getOrCreateTag().putInt("CustomModelData", customModelData);
 
         if (!this.invisible) {

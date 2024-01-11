@@ -34,4 +34,18 @@ public interface AjHolder {
      * Sets the scale of this holder.
      */
     void setScale(float scale);
+
+    /**
+     * Sets the color of this holder.
+     * Only works if the item is dyeable and the model faces have tintindex 0.
+     */
+    void setColor(int color);
+
+    /**
+     * Clears the color of this holder.
+     * Only works if the item is dyeable and the model faces have tintindex 0.
+     */
+    default void clearColor() {
+        this.setColor(-1);
+    }
 }
