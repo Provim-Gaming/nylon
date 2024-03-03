@@ -1,3 +1,21 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.entity.simple;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
@@ -36,7 +54,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
         super.startWatchingExtraPackets(player, consumer);
 
         for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
-            consumer.accept(packet);
+            consumer.accept((Packet<ClientGamePacketListener>) packet);
         }
 
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
@@ -63,7 +81,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
             display.setScale(pose.readOnlyScale());
         }
 
-        display.setTranslation(translation.sub(0, this.dimensions.height - 0.01f, 0));
+        display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
         display.setLeftRotation(pose.leftRotation());
         display.setRightRotation(pose.rightRotation());
 
@@ -79,8 +97,8 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     @Override
     protected void updateCullingBox() {
         float scale = this.getScale();
-        float width = scale * (this.dimensions.width * 2);
-        float height = -this.dimensions.height - 1;
+        float width = scale * (this.dimensions.width() * 2);
+        float height = -this.dimensions.height() - 1;
 
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(width, height);

@@ -22,14 +22,13 @@ import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParseException;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.component.CustomModelData;
 
 import java.lang.reflect.Type;
 
-public record RegistryDeserializer<T>(Registry<T> registry) implements JsonDeserializer<T> {
+public class CustomModelDataDeserializer implements JsonDeserializer<CustomModelData> {
     @Override
-    public T deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return this.registry.get(new ResourceLocation(element.getAsString()));
+    public CustomModelData deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
+        return new CustomModelData(element.getAsInt());
     }
 }

@@ -1,3 +1,21 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.data;
 
 import com.google.gson.Gson;
@@ -9,6 +27,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.component.CustomModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.model.*;
@@ -29,6 +48,7 @@ public class AjLoader {
             .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
 
             // Custom deserializers
+            .registerTypeAdapter(CustomModelData.class, new CustomModelDataDeserializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
@@ -86,7 +106,7 @@ public class AjLoader {
                         node.type(),
                         node.name(),
                         node.uuid(),
-                        PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value(),
+                        new CustomModelData(PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value()),
                         node.resourceLocation(),
                         node.entityType()
                 )));
@@ -98,7 +118,7 @@ public class AjLoader {
             Object2ObjectOpenHashMap<UUID, AjVariant.ModelInfo> models = variant.models();
             for (UUID uuid : models.keySet()) {
                 models.computeIfPresent(uuid, ((id, modelInfo) -> new AjVariant.ModelInfo(
-                        PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value(),
+                        new CustomModelData(PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value()),
                         modelInfo.resourceLocation()
                 )));
             }

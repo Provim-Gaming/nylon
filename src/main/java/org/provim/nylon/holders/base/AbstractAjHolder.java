@@ -1,15 +1,34 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.base;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.DyeableLeatherItem;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.component.AnimationComponent;
@@ -86,15 +105,15 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         element.setModelTransformation(ItemDisplayContext.FIXED);
         element.setInvisible(true);
         element.setInterpolationDuration(2);
-        element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, 3);
+        element.setTeleportDuration(3);
 
-        ItemStack itemStack = new ItemStack(rigItem);
-        itemStack.getOrCreateTag().putInt("CustomModelData", node.customModelData());
-        if (rigItem instanceof DyeableLeatherItem dyeableItem) {
-            dyeableItem.setColor(itemStack, -1);
+        ItemStack stack = new ItemStack(rigItem);
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, node.customModelData());
+        if (stack.is(ItemTags.DYEABLE)) {
+            stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1, false));
         }
 
-        element.setItem(itemStack);
+        element.setItem(stack);
         return element;
     }
 
