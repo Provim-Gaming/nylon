@@ -27,7 +27,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.component.CustomModelData;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.model.*;
@@ -48,7 +47,6 @@ public class AjLoader {
             .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
 
             // Custom deserializers
-            .registerTypeAdapter(CustomModelData.class, new CustomModelDataDeserializer())
             .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
@@ -106,7 +104,7 @@ public class AjLoader {
                         node.type(),
                         node.name(),
                         node.uuid(),
-                        new CustomModelData(PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value()),
+                        PolymerResourcePackUtils.requestModel(rigItem, node.resourceLocation()).value(),
                         node.resourceLocation(),
                         node.entityType()
                 )));
@@ -118,7 +116,7 @@ public class AjLoader {
             Object2ObjectOpenHashMap<UUID, AjVariant.ModelInfo> models = variant.models();
             for (UUID uuid : models.keySet()) {
                 models.computeIfPresent(uuid, ((id, modelInfo) -> new AjVariant.ModelInfo(
-                        new CustomModelData(PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value()),
+                        PolymerResourcePackUtils.requestModel(rigItem, modelInfo.resourceLocation()).value(),
                         modelInfo.resourceLocation()
                 )));
             }

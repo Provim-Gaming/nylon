@@ -21,7 +21,6 @@ package org.provim.nylontest.util;
 import net.minecraft.world.entity.LivingEntity;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.api.Animator;
-import org.provim.nylon.api.VariantController;
 import org.provim.nylon.util.NylonConstants;
 
 public class AnimationHelper {

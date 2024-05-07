@@ -69,8 +69,8 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
         }
     }
 
-    public void updateModelData(CustomModelData customModelData) {
-        this.item.set(DataComponents.CUSTOM_MODEL_DATA, customModelData);
+    public void updateModelData(int customModelData) {
+        this.item.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(customModelData));
 
         if (!this.invisible) {
             this.setTrackedItem(this.item);

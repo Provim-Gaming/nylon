@@ -23,7 +23,6 @@ import com.google.gson.annotations.SerializedName;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.component.CustomModelData;
 
 import java.util.UUID;
 
@@ -40,7 +39,7 @@ public record AjVariant(
     }
 
     public record ModelInfo(
-            @SerializedName("custom_model_data") CustomModelData customModelData,
+            @SerializedName("custom_model_data") int customModelData,
             @SerializedName("resource_location") ResourceLocation resourceLocation
     ) {
     }

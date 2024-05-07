@@ -20,7 +20,6 @@ package org.provim.nylon.model;
 
 import com.google.gson.annotations.SerializedName;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.item.component.CustomModelData;
 
 import java.util.UUID;
 
@@ -28,7 +27,7 @@ public record AjNode(
         NodeType type,
         String name,
         UUID uuid,
-        @SerializedName("custom_model_data") CustomModelData customModelData,
+        @SerializedName("custom_model_data") int customModelData,
         @SerializedName("resource_location") ResourceLocation resourceLocation,
         @SerializedName("entity_type") ResourceLocation entityType
 ) {

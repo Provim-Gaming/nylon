@@ -21,6 +21,7 @@ package org.provim.nylon.holders.entity.living;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -48,6 +49,7 @@ import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonConstants;
 import org.provim.nylon.util.Utils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -139,6 +141,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         super.startWatchingExtraPackets(player, consumer);
 
         for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
+            // noinspection unchecked
             consumer.accept((Packet<ClientGamePacketListener>) packet);
         }
 
@@ -204,8 +207,9 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
         super.onSyncedDataUpdated(key, object);
-        if (key.equals(NylonConstants.DATA_EFFECT_COLOR)) {
-            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_COLOR, (int) object);
+        if (key.equals(NylonConstants.DATA_EFFECT_PARTICLES)) {
+            // noinspection unchecked
+            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_PARTICLES, (List<ParticleOptions>) object);
         }
 
         if (key.equals(EntityTrackedData.NAME_VISIBLE)) {

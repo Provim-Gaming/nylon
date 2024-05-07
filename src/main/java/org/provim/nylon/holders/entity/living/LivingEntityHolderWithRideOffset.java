@@ -62,6 +62,7 @@ public class LivingEntityHolderWithRideOffset<T extends LivingEntity & AjEntity>
         super.startWatchingExtraPackets(player, consumer);
 
         for (var packet : Utils.updateClientInteraction(this.rideInteraction, ZERO, this.getRideOffset())) {
+            // noinspection unchecked
             consumer.accept((Packet<ClientGamePacketListener>) packet);
         }
     }

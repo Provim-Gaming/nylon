@@ -54,6 +54,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
         super.startWatchingExtraPackets(player, consumer);
 
         for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
+            // noinspection unchecked
             consumer.accept((Packet<ClientGamePacketListener>) packet);
         }
 

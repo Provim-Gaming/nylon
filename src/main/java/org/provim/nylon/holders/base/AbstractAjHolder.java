@@ -28,6 +28,7 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjHolder;
@@ -108,7 +109,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         element.setTeleportDuration(3);
 
         ItemStack stack = new ItemStack(rigItem);
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, node.customModelData());
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(node.customModelData()));
         if (stack.is(ItemTags.DYEABLE)) {
             stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1, false));
         }

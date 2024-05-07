@@ -18,10 +18,13 @@
 
 package org.provim.nylon.util;
 
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import org.provim.nylon.mixins.accessors.LivingEntityAccessor;
 
+import java.util.List;
+
 public class NylonConstants {
-    public static final EntityDataAccessor<Integer> DATA_EFFECT_COLOR = LivingEntityAccessor.getDATA_EFFECT_COLOR_ID();
+    public static final EntityDataAccessor<List<ParticleOptions>> DATA_EFFECT_PARTICLES = LivingEntityAccessor.getDATA_EFFECT_PARTICLES();
     public static final int DAMAGE_TINT_COLOR = 0xFF7E7E;
 }
