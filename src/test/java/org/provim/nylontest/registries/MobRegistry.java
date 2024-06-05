@@ -19,7 +19,7 @@
 package org.provim.nylontest.registries;
 
 import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
-import net.fabricmc.fabric.api.object.builder.v1.entity.FabricEntityTypeBuilder;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -31,21 +31,19 @@ import org.provim.nylontest.entities.RedstoneGolem;
 public class MobRegistry {
     public static final EntityType<RedstoneGolem> REDSTONE_GOLEM = register(
             RedstoneGolem.ID,
-            FabricEntityTypeBuilder.createMob()
-                    .entityFactory(RedstoneGolem::new)
-                    .spawnGroup(MobCategory.MONSTER)
-                    .dimensions(EntityDimensions.scalable(1.8f, 2.7f))
-                    .defaultAttributes(RedstoneGolem::createAttributes)
-                    .spawnRestriction(SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules)
-                    .trackRangeChunks(8)
+            EntityType.Builder.of(RedstoneGolem::new, MobCategory.MONSTER)
+                    .sized(1.8f, 2.7f)
+                    .clientTrackingRange(8)
     );
 
-    private static <T extends Entity> EntityType<T> register(ResourceLocation id, FabricEntityTypeBuilder<T> builder) {
+    private static <T extends Entity> EntityType<T> register(ResourceLocation id, EntityType.Builder<T> builder) {
         EntityType<T> type = builder.build();
         PolymerEntityUtils.registerType(type);
         return Registry.register(BuiltInRegistries.ENTITY_TYPE, id, type);
     }
 
     public static void registerMobs() {
+        SpawnPlacements.register(REDSTONE_GOLEM, SpawnPlacementTypes.ON_GROUND, Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
+        FabricDefaultAttributeRegistry.register(REDSTONE_GOLEM, RedstoneGolem.createAttributes());
     }
 }

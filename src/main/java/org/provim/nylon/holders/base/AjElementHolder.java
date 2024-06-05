@@ -98,7 +98,7 @@ public abstract class AjElementHolder extends ElementHolder {
     }
 
     @Override
-    public void sendPacket(Packet<ClientGamePacketListener> packet) {
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet) {
         if (this.getServer().isSameThread()) {
             super.sendPacket(packet);
         } else {

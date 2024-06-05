@@ -52,7 +52,7 @@ import org.provim.nylontest.registries.SoundRegistry;
 import org.provim.nylontest.util.AnimationHelper;
 
 public class RedstoneGolem extends Monster implements AjEntity {
-    public static final ResourceLocation ID = new ResourceLocation("provim", "redstone_golem");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("provim", "redstone_golem");
     public static final AjModel MODEL = AjLoader.require(ID);
     private final EntityHolder<RedstoneGolem> holder;
 
@@ -103,7 +103,7 @@ public class RedstoneGolem extends Monster implements AjEntity {
     }
 
     @Override
-    public int getExperienceReward() {
+    public int getBaseExperienceReward() {
         return 18;
     }
 

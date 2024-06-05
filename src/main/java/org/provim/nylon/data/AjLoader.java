@@ -80,7 +80,7 @@ public class AjLoader {
         }
     }
 
-    private static AjModel load(String path, InputStream input, boolean replaceModelData) throws JsonParseException {
+    public static AjModel load(String path, InputStream input, boolean replaceModelData) throws JsonParseException {
         try (Reader reader = new InputStreamReader(input)) {
             AjModel model = GSON.fromJson(reader, AjModel.class);
             if (replaceModelData) {

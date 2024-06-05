@@ -31,7 +31,7 @@ public class SoundRegistry {
     public static final SoundEvent GOLEM_DEATH = register("golem.death", SoundEvents.IRON_GOLEM_DEATH);
 
     private static SoundEvent register(String name, SoundEvent soundEvent) {
-        ResourceLocation identifier = new ResourceLocation("animated_java", name);
+        ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath("animated_java", name);
         return Registry.register(BuiltInRegistries.SOUND_EVENT, identifier, PolymerSoundEvent.of(identifier, soundEvent));
     }
 

@@ -94,7 +94,7 @@ public class Utils {
      * Even though we always make sure to start and finish this process before player connection flushing gets resumed at the end of the game tick,
      * the normal send method will still flush the connection for every packet, causing a significant downgrade in network performance and ping.
      */
-    public static void sendPacketNoFlush(ServerCommonPacketListenerImpl networkHandler, Packet<ClientGamePacketListener> packet) {
+    public static void sendPacketNoFlush(ServerCommonPacketListenerImpl networkHandler, Packet<? extends ClientGamePacketListener> packet) {
         Packet<?> modifiedPacket = PacketPatcher.replace(networkHandler, packet);
         if (modifiedPacket instanceof ServerDynamicPacket || PacketPatcher.prevent(networkHandler, modifiedPacket)) {
             return;
