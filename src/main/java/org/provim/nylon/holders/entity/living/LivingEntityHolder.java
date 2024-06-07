@@ -63,9 +63,11 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
+        this.hitboxInteraction.setSendPositionUpdates(false);
         this.addElement(this.hitboxInteraction);
 
         this.collisionElement = CollisionElement.createWithRedirect(parent);
+        this.collisionElement.setSendPositionUpdates(false);
         this.addElement(this.collisionElement);
     }
 

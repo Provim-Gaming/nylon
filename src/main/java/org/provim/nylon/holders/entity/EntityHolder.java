@@ -75,6 +75,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
     @Override
     public boolean addAdditionalDisplay(DisplayElement element) {
         if (this.additionalDisplays.add(element)) {
+            element.setSendPositionUpdates(false);
             this.addElement(element);
             this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
             return true;

@@ -48,6 +48,7 @@ public class LivingEntityHolderWithRideOffset<T extends LivingEntity & AjEntity>
         super(parent, model);
 
         this.rideInteraction = new InteractionElement();
+        this.rideInteraction.setSendPositionUpdates(false);
         this.rideInteraction.setInvisible(true);
         this.addElement(this.rideInteraction);
     }

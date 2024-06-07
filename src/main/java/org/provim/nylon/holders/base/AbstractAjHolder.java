@@ -104,6 +104,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     protected ItemDisplayElement createBone(AjNode node, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
         element.setModelTransformation(ItemDisplayContext.FIXED);
+        element.setSendPositionUpdates(false);
         element.setInvisible(true);
         element.setInterpolationDuration(2);
         element.setTeleportDuration(3);

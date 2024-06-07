@@ -21,8 +21,6 @@ package org.provim.nylon.api;
 import eu.pb4.polymer.core.api.entity.PolymerEntity;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundUpdateAttributesPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -30,7 +28,6 @@ import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 public interface AjEntity extends PolymerEntity {
     AjEntityHolder getHolder();
@@ -64,15 +61,6 @@ public interface AjEntity extends PolymerEntity {
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.SILENT, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NO_GRAVITY, true));
         data.add(SynchedEntityData.DataValue.create(EntityTrackedData.NAME_VISIBLE, false));
-    }
-
-    @Override
-    default void onEntityPacketSent(Consumer<Packet<?>> consumer, Packet<?> packet) {
-        if (packet instanceof ClientboundUpdateAttributesPacket) {
-            return;
-        }
-
-        PolymerEntity.super.onEntityPacketSent(consumer, packet);
     }
 
     @Nullable

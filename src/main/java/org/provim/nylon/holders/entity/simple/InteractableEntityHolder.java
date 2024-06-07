@@ -46,6 +46,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
+        this.hitboxInteraction.setSendPositionUpdates(false);
         this.addElement(this.hitboxInteraction);
     }
 
