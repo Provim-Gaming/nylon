@@ -25,10 +25,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjPose;
 
 /**
  * Listener for locators, updates a single GenericEntityElement
@@ -41,7 +41,7 @@ public class ElementUpdateListener implements Locator.LocatorListener {
     }
 
     @Override
-    public void update(AbstractAjHolder holder, AjPose pose) {
+    public void update(AbstractAjHolder holder, Pose pose) {
         if (this.element.isSendingPositionUpdates()) {
             if (holder instanceof EntityHolder<?> entityHolder) {
                 this.updateEntityBasedHolder(entityHolder, pose);
@@ -51,7 +51,7 @@ public class ElementUpdateListener implements Locator.LocatorListener {
         }
     }
 
-    private void updateEntityBasedHolder(EntityHolder<?> holder, AjPose pose) {
+    private void updateEntityBasedHolder(EntityHolder<?> holder, Pose pose) {
         Entity parent = holder.getParent();
         float scale = holder.getScale();
         float yRot = parent.getYRot();
@@ -74,7 +74,7 @@ public class ElementUpdateListener implements Locator.LocatorListener {
         ));
     }
 
-    private void updateNonEntityBasedHolder(AbstractAjHolder holder, AjPose pose) {
+    private void updateNonEntityBasedHolder(AbstractAjHolder holder, Pose pose) {
         float scale = holder.getScale();
         Vector3fc offset = scale != 1F
                 ? pose.translation().mul(scale)

@@ -18,15 +18,15 @@
 
 package org.provim.nylon.api;
 
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjModel;
 
 @SuppressWarnings("unused")
 public interface AjHolder {
     /**
      * Returns the model of this holder.
      */
-    AjModel getModel();
+    NylonModel getModel();
 
     /**
      * Returns the locator with the given name.

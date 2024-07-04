@@ -46,7 +46,7 @@ public class ParsedCommand {
         if (this.parsed == null) {
             this.parsed = dispatcher.parse(this.command, PARSING_SOURCE);
 
-            if (Commands.getParseException(this.parsed) != null) {
+            if (this.parsed.getReader().canRead()) {
                 Nylon.LOGGER.error("[Nylon] Unable to parse command: {}", this.command);
                 this.isInvalid = true;
             }

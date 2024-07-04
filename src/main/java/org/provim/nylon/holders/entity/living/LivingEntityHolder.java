@@ -39,13 +39,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonConstants;
 import org.provim.nylon.util.Utils;
 
@@ -59,7 +59,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected float deathAngle;
     protected float entityScale = 1F;
 
-    public LivingEntityHolder(T parent, AjModel model) {
+    public LivingEntityHolder(T parent, NylonModel model) {
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
@@ -81,7 +81,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
         display.element().setYaw(this.parent.yBodyRot);
         if (pose == null) {
             this.applyPose(display.getLastPose(), display);
@@ -93,7 +93,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     @Override
     protected void updateLocator(Locator locator) {
         if (locator.requiresUpdate()) {
-            AjPose pose = this.animation.findPose(locator);
+            Pose pose = this.animation.findPose(locator);
             if (pose == null) {
                 locator.updateListeners(this, locator.getLastPose());
             } else {
@@ -103,7 +103,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
         Vector3f translation = pose.translation();
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;

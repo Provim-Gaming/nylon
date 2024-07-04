@@ -24,8 +24,8 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.Pose;
 
 public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final TrackedData trackedData = new TrackedData();
@@ -36,7 +36,7 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
         this(element, wrapper.node(), wrapper.getDefaultPose(), isHead);
     }
 
-    public DisplayWrapper(T element, AjNode node, AjPose defaultPose, boolean isHead) {
+    public DisplayWrapper(T element, Node node, Pose defaultPose, boolean isHead) {
         super(node, defaultPose);
         this.element = element;
         this.isHead = isHead;

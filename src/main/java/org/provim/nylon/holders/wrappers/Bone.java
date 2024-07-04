@@ -25,22 +25,22 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.Pose;
 
 public class Bone extends DisplayWrapper<ItemDisplayElement> {
     private final ItemStack item;
     private boolean invisible;
 
-    public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
+    public static Bone of(ItemDisplayElement element, Node node, Pose defaultPose, boolean isHead) {
         return new Bone(element, node, defaultPose, isHead);
     }
 
-    public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose) {
-        return new Bone(element, node, defaultPose, node.name().startsWith("head"));
+    public static Bone of(ItemDisplayElement element, Node node, Pose defaultPose) {
+        return new Bone(element, node, defaultPose, node.name.startsWith("head"));
     }
 
-    protected Bone(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
+    protected Bone(ItemDisplayElement element, Node node, Pose defaultPose, boolean isHead) {
         super(element, node, defaultPose, isHead);
         this.item = element.getItem();
     }

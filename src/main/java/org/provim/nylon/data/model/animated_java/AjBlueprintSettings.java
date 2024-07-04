@@ -16,24 +16,13 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.provim.nylon.holders.entity.simple;
+package org.provim.nylon.data.model.animated_java;
 
-import it.unimi.dsi.fastutil.ints.IntList;
-import net.minecraft.world.entity.Entity;
-import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.holders.entity.EntityHolder;
+import net.minecraft.world.item.Item;
 
-public class SimpleEntityHolder<T extends Entity & AjEntity> extends EntityHolder<T> {
-    public SimpleEntityHolder(T parent, NylonModel model) {
-        super(parent, model);
-    }
-
-    @Override
-    protected void addDirectPassengers(IntList passengers) {
-        super.addDirectPassengers(passengers);
-        for (int display : this.getDisplayIds()) {
-            passengers.add(display);
-        }
-    }
+public record AjBlueprintSettings(
+        Item display_item,
+        int interpolation_duration,
+        int teleportation_duration
+) {
 }

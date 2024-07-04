@@ -39,10 +39,10 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjNode;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -53,7 +53,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
     protected EntityDimensions dimensions;
     protected int tickCount;
 
-    protected EntityHolder(T parent, AjModel model) {
+    protected EntityHolder(T parent, NylonModel model) {
         super(model, (ServerLevel) parent.level());
         this.additionalDisplays = new ObjectOpenHashSet<>();
         this.parent = parent;
@@ -64,7 +64,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     @Override
     @Nullable
-    protected ItemDisplayElement createBone(AjNode node, Item rigItem) {
+    protected ItemDisplayElement createBone(Node node, Item rigItem) {
         ItemDisplayElement element = super.createBone(node, rigItem);
         if (element != null) {
             element.setTeleportDuration(this.parent.getTeleportDuration());

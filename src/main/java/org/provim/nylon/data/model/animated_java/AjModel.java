@@ -16,14 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.provim.nylon.model;
+package org.provim.nylon.data.model.animated_java;
 
-import com.google.gson.annotations.SerializedName;
-import net.minecraft.world.item.Item;
-
-public record AjProjectSettings(
-        @SerializedName("project_namespace") String projectNamespace,
-        @SerializedName("rig_item") Item rigItem,
-        @SerializedName("rig_item_model") String rigItemModel
+/**
+ * Represents an Animated Java JSON model exported from Blockbench.
+ * <a href="https://github.com/Animated-Java/animated-java/blob/main/exporters/jsonExporter/jsonStructure.json">JSON Structure</a>
+ */
+public record AjModel(
+        AjBlueprintSettings blueprint_settings,
+        AjResources resources,
+        AjRig rig,
+        AjAnimation[] animations
 ) {
 }

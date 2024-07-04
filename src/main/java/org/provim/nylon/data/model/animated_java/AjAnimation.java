@@ -16,22 +16,21 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.provim.nylon.model;
+package org.provim.nylon.data.model.animated_java;
 
-import com.google.gson.annotations.SerializedName;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.UUID;
 
-/**
- * Represents an Animated Java JSON model exported from Blockbench.
- * <a href="https://github.com/Animated-Java/animated-java/blob/main/exporters/jsonExporter/jsonStructure.json">JSON Structure</a>
- */
-public record AjModel(
-        @SerializedName("project_settings") AjProjectSettings projectSettings,
-        @SerializedName("rig") AjRig rig,
-        @SerializedName("variants") Reference2ObjectOpenHashMap<UUID, AjVariant> variants,
-        @SerializedName("animations") Object2ObjectOpenHashMap<String, AjAnimation> animations
+public record AjAnimation(
+        String name,
+        AjFrame[] frames,
+        int duration,
+        int loopDelay,
+        LoopMode loopMode,
+        ReferenceOpenHashSet<UUID> includedNodes
 ) {
+    public enum LoopMode {
+        once, hold, loop
+    }
 }

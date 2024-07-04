@@ -45,15 +45,15 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.AjLoader;
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.entity.living.LivingEntityHolder;
-import org.provim.nylon.model.AjModel;
 import org.provim.nylontest.registries.SoundRegistry;
 import org.provim.nylontest.util.AnimationHelper;
 
 public class RedstoneGolem extends Monster implements AjEntity {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("provim", "redstone_golem");
-    public static final AjModel MODEL = AjLoader.require(ID);
+    public static final NylonModel MODEL = AjLoader.require(ID);
     private final EntityHolder<RedstoneGolem> holder;
 
     public static AttributeSupplier.Builder createAttributes() {

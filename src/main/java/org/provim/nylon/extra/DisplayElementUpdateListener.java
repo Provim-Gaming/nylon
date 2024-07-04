@@ -18,10 +18,10 @@
 
 package org.provim.nylon.extra;
 
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjPose;
 
 /**
  * Listener for locators, updates a single DisplayElement
@@ -34,7 +34,7 @@ public class DisplayElementUpdateListener implements Locator.LocatorListener {
     }
 
     @Override
-    public void update(AbstractAjHolder holder, AjPose pose) {
+    public void update(AbstractAjHolder holder, Pose pose) {
         holder.updateElement(this.display, pose);
     }
 }

@@ -23,13 +23,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.model.AjModel;
 
 public class PositionedHolder extends AbstractAjHolder {
     protected final Vec3 pos;
 
-    public PositionedHolder(ServerLevel level, Vec3 pos, AjModel model) {
+    public PositionedHolder(ServerLevel level, Vec3 pos, NylonModel model) {
         super(model, level);
         this.pos = pos;
     }

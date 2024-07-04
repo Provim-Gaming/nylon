@@ -43,9 +43,9 @@ import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.api.VariantController;
 import org.provim.nylon.data.AjLoader;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Variant;
 import org.provim.nylon.extra.ModelEntity;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjVariant;
 import org.provim.nylon.util.Utils;
 
 import java.util.Collection;
@@ -99,13 +99,13 @@ public class ModelCommand {
         return spawnModel(source, () -> AjLoader.require(path), path);
     }
 
-    private static int spawnModel(CommandSourceStack source, Supplier<AjModel> supplier, String path) throws CommandSyntaxException {
+    private static int spawnModel(CommandSourceStack source, Supplier<NylonModel> supplier, String path) throws CommandSyntaxException {
         ServerLevel level = source.getLevel();
         Vec3 pos = source.getPosition();
         Vec2 rot = source.getRotation();
 
         try {
-            AjModel model = supplier.get();
+            NylonModel model = supplier.get();
             ModelEntity entity = new ModelEntity(level, model);
             entity.moveTo(pos.x, pos.y, pos.z, rot.y, 0F);
 
@@ -281,7 +281,7 @@ public class ModelCommand {
     private static SuggestionProvider<CommandSourceStack> availableAnimations() {
         return (ctx, builder) -> {
             forEachModel(ctx, model -> {
-                for (String animation : model.animations().keySet()) {
+                for (String animation : model.animations.keySet()) {
                     builder.suggest(animation);
                 }
             });
@@ -293,15 +293,15 @@ public class ModelCommand {
         return (ctx, builder) -> {
             builder.suggest("default");
             forEachModel(ctx, model -> {
-                for (AjVariant variant : model.variants().values()) {
-                    builder.suggest(variant.name());
+                for (Variant variant : model.variants.values()) {
+                    builder.suggest(variant.name);
                 }
             });
             return builder.buildFuture();
         };
     }
 
-    private static void forEachModel(CommandContext<CommandSourceStack> ctx, Consumer<AjModel> consumer) throws CommandSyntaxException {
+    private static void forEachModel(CommandContext<CommandSourceStack> ctx, Consumer<NylonModel> consumer) throws CommandSyntaxException {
         // Make sure to only call this when we have the target context already.
         for (Entity entity : EntityArgument.getEntities(ctx, TARGETS)) {
             AjEntityHolder holder = AjEntity.getHolder(entity);

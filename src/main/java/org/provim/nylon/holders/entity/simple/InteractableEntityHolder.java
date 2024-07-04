@@ -30,11 +30,11 @@ import net.minecraft.world.entity.EntityDimensions;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -42,7 +42,7 @@ import java.util.function.Consumer;
 public class InteractableEntityHolder<T extends Entity & AjEntity> extends EntityHolder<T> {
     protected final InteractionElement hitboxInteraction;
 
-    public InteractableEntityHolder(T parent, AjModel model) {
+    public InteractableEntityHolder(T parent, NylonModel model) {
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
@@ -63,7 +63,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
-    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
         display.element().setYaw(this.parent.getYRot());
         display.element().setPitch(this.parent.getXRot());
         if (pose == null) {
@@ -74,7 +74,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
-    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
         Vector3f translation = pose.translation();
         if (this.scale != 1F) {
             translation.mul(this.scale);

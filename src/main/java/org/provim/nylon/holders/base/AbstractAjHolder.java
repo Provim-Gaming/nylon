@@ -34,18 +34,18 @@ import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
 
 import java.util.List;
 
 public abstract class AbstractAjHolder extends AjElementHolder implements AjHolder {
 
-    protected final AjModel model;
+    protected final NylonModel model;
     protected final AnimationComponent animation;
     protected final VariantComponent variant;
     protected final Object2ObjectOpenHashMap<String, Locator> locatorMap;
@@ -55,7 +55,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     protected float scale = 1F;
     protected int color = -1;
 
-    protected AbstractAjHolder(AjModel model, ServerLevel level) {
+    protected AbstractAjHolder(NylonModel model, ServerLevel level) {
         super(level);
         this.model = model;
         this.animation = new AnimationComponent(model, this);
@@ -82,26 +82,26 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     protected void setupElements(List<Bone> bones) {
-        Item rigItem = this.model.projectSettings().rigItem();
-        for (AjNode node : this.model.rig().nodeMap().values()) {
-            AjPose defaultPose = this.model.rig().defaultPose().get(node.uuid());
-            switch (node.type()) {
-                case bone -> {
+        Item rigItem = this.model.rigItem;
+        for (Node node : this.model.nodes) {
+            Pose defaultPose = this.model.defaultPose.get(node.uuid);
+            switch (node.type) {
+                case BONE -> {
                     ItemDisplayElement bone = this.createBone(node, rigItem);
                     if (bone != null) {
                         bones.add(Bone.of(bone, node, defaultPose));
                         this.addElement(bone);
                     }
                 }
-                case locator -> {
-                    this.locatorMap.put(node.name(), Locator.of(node, defaultPose));
+                case LOCATOR -> {
+                    this.locatorMap.put(node.name, Locator.of(node, defaultPose));
                 }
             }
         }
     }
 
     @Nullable
-    protected ItemDisplayElement createBone(AjNode node, Item rigItem) {
+    protected ItemDisplayElement createBone(Node node, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
         element.setModelTransformation(ItemDisplayContext.FIXED);
         element.setSendPositionUpdates(false);
@@ -110,7 +110,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         element.setTeleportDuration(3);
 
         ItemStack stack = new ItemStack(rigItem);
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(node.customModelData()));
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(node.customModelData));
         if (stack.is(ItemTags.DYEABLE)) {
             stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1, false));
         }
@@ -155,7 +155,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         this.updateElement(display, display.getDefaultPose());
     }
 
-    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
         if (pose != null) {
             this.applyPose(pose, display);
         }
@@ -163,14 +163,14 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
 
     protected void updateLocator(Locator locator) {
         if (locator.requiresUpdate()) {
-            AjPose pose = this.animation.findPose(locator);
+            Pose pose = this.animation.findPose(locator);
             if (pose != null) {
                 locator.updateListeners(this, pose);
             }
         }
     }
 
-    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
+    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
         if (this.scale != 1F) {
             display.setScale(pose.scale().mul(this.scale));
             display.setTranslation(pose.translation().mul(this.scale));
@@ -196,7 +196,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     @Override
-    public AjModel getModel() {
+    public NylonModel getModel() {
         return this.model;
     }
 

@@ -19,7 +19,7 @@
 package org.provim.nylon.api;
 
 import org.jetbrains.annotations.Nullable;
-import org.provim.nylon.model.AjVariant;
+import org.provim.nylon.data.model.nylon.Variant;
 
 import java.util.UUID;
 
@@ -28,7 +28,7 @@ public interface VariantController {
     /**
      * Returns the current variant of the entity.
      */
-    @Nullable AjVariant getCurrentVariant();
+    @Nullable Variant getCurrentVariant();
 
     /**
      * Applies the default variant to the model of the entity.
@@ -46,8 +46,8 @@ public interface VariantController {
     void setVariant(UUID variantUuid);
 
     default boolean isCurrentVariant(String variantName) {
-        AjVariant current = this.getCurrentVariant();
-        return current != null && current.name().equals(variantName);
+        Variant current = this.getCurrentVariant();
+        return current != null && current.name.equals(variantName);
     }
 
     default boolean isDefaultVariant() {

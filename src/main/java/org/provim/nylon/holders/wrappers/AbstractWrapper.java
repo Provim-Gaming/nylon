@@ -18,43 +18,43 @@
 
 package org.provim.nylon.holders.wrappers;
 
-import org.provim.nylon.model.AjAnimation;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
+import org.provim.nylon.data.model.nylon.Animation;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.Pose;
 
 public abstract class AbstractWrapper {
-    private final AjNode node;
-    private final AjPose defaultPose;
-    protected AjAnimation lastAnimation;
-    protected AjPose lastPose;
+    private final Node node;
+    private final Pose defaultPose;
+    protected Animation lastAnimation;
+    protected Pose lastPose;
 
-    public AbstractWrapper(AjNode node, AjPose defaultPose) {
+    public AbstractWrapper(Node node, Pose defaultPose) {
         this.node = node;
         this.defaultPose = defaultPose;
         this.lastPose = defaultPose;
     }
 
-    public AjNode node() {
+    public Node node() {
         return this.node;
     }
 
     public String name() {
-        return this.node.name();
+        return this.node.name;
     }
 
-    public AjPose getDefaultPose() {
+    public Pose getDefaultPose() {
         return this.defaultPose;
     }
 
-    public AjAnimation getLastAnimation() {
+    public Animation getLastAnimation() {
         return this.lastAnimation;
     }
 
-    public AjPose getLastPose() {
+    public Pose getLastPose() {
         return this.lastPose;
     }
 
-    public void setLastPose(AjPose pose, AjAnimation animation) {
+    public void setLastPose(Pose pose, Animation animation) {
         this.lastAnimation = animation;
         this.lastPose = pose;
     }

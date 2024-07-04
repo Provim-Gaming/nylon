@@ -29,7 +29,7 @@ import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.phys.Vec3;
 import org.provim.nylon.api.AjEntity;
-import org.provim.nylon.model.AjModel;
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -44,7 +44,7 @@ public class LivingEntityHolderWithRideOffset<T extends LivingEntity & AjEntity>
     private static final EntityDimensions ZERO = EntityDimensions.fixed(0, 0);
     protected final InteractionElement rideInteraction;
 
-    public LivingEntityHolderWithRideOffset(T parent, AjModel model) {
+    public LivingEntityHolderWithRideOffset(T parent, NylonModel model) {
         super(parent, model);
 
         this.rideInteraction = new InteractionElement();

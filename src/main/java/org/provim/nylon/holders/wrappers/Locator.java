@@ -21,18 +21,18 @@ package org.provim.nylon.holders.wrappers;
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.Pose;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
 
 public class Locator extends AbstractWrapper {
     private final ObjectSet<LocatorListener> listeners;
 
-    public static Locator of(AjNode node, AjPose defaultPose) {
+    public static Locator of(Node node, Pose defaultPose) {
         return new Locator(node, defaultPose);
     }
 
-    public Locator(AjNode node, AjPose defaultPose) {
+    public Locator(Node node, Pose defaultPose) {
         super(node, defaultPose);
         this.listeners = ObjectSets.synchronize(new ObjectArraySet<>());
     }
@@ -41,7 +41,7 @@ public class Locator extends AbstractWrapper {
         return this.listeners.size() > 0;
     }
 
-    public void updateListeners(AbstractAjHolder holder, AjPose pose) {
+    public void updateListeners(AbstractAjHolder holder, Pose pose) {
         this.listeners.forEach(listener -> listener.update(holder, pose));
     }
 
@@ -62,6 +62,6 @@ public class Locator extends AbstractWrapper {
          * Called whenever a locator is updated.
          * This method can be called asynchronously.
          */
-        void update(AbstractAjHolder holder, AjPose pose);
+        void update(AbstractAjHolder holder, Pose pose);
     }
 }

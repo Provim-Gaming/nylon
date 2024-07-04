@@ -20,24 +20,24 @@ package org.provim.nylon.component;
 
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.VariantController;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Variant;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjVariant;
 
 import java.util.UUID;
 
 public class VariantComponent extends ComponentBase implements VariantController {
     @Nullable
-    private AjVariant currentVariant;
+    private Variant currentVariant;
 
-    public VariantComponent(AjModel model, AbstractAjHolder holder) {
+    public VariantComponent(NylonModel model, AbstractAjHolder holder) {
         super(model, holder);
     }
 
     @Nullable
     @Override
-    public AjVariant getCurrentVariant() {
+    public Variant getCurrentVariant() {
         return this.currentVariant;
     }
 
@@ -46,27 +46,14 @@ public class VariantComponent extends ComponentBase implements VariantController
         if (this.currentVariant != null) {
             this.currentVariant = null;
             for (Bone bone : this.holder.getBones()) {
-                bone.updateModelData(bone.node().customModelData());
+                bone.updateModelData(bone.node().customModelData);
             }
         }
     }
 
     @Override
     public void setVariant(String variantName) {
-        if (this.isCurrentVariant(variantName)) {
-            return;
-        }
-
-        AjVariant variant = this.findByName(variantName);
-        if (variant != null) {
-            this.currentVariant = variant;
-            this.applyVariantToBones(variant);
-        }
-    }
-
-    @Override
-    public void setVariant(UUID variantUuid) {
-        AjVariant variant = this.model.variants().get(variantUuid);
+        Variant variant = this.model.variants.get(variantName);
         if (variant == null || variant == this.currentVariant) {
             return;
         }
@@ -75,22 +62,17 @@ public class VariantComponent extends ComponentBase implements VariantController
         this.applyVariantToBones(variant);
     }
 
-    @Nullable
-    private AjVariant findByName(String variantName) {
-        for (AjVariant variant : this.model.variants().values()) {
-            if (variant.name().equals(variantName)) {
-                return variant;
-            }
-        }
-        return null;
+    @Override
+    public void setVariant(UUID variantUuid) {
+        // TODO: Implement if still necessary
     }
 
-    private void applyVariantToBones(AjVariant variant) {
+    private void applyVariantToBones(Variant variant) {
         for (Bone bone : this.holder.getBones()) {
-            UUID uuid = bone.node().uuid();
-            AjVariant.ModelInfo modelInfo = variant.models().get(uuid);
-            if (modelInfo != null && variant.isAffected(uuid)) {
-                bone.updateModelData(modelInfo.customModelData());
+            UUID uuid = bone.node().uuid;
+            Variant.Model model = variant.models.get(uuid);
+            if (model != null) {
+                bone.updateModelData(model.customModelData);
             }
         }
     }
