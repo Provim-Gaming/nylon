@@ -10,7 +10,11 @@ public class ModelResources {
     private static final Object2ObjectOpenHashMap<String, byte[]> RESOURCES = new Object2ObjectOpenHashMap<>();
 
     public static void addResource(String path, JsonObject data) {
-        RESOURCES.put(path, data.toString().getBytes(StandardCharsets.UTF_8));
+        addResource(path, data.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static void addResource(String path, byte[] data) {
+        RESOURCES.put(path, data);
     }
 
     public static void buildResources(ResourcePackBuilder builder) {

@@ -15,7 +15,7 @@ public record AjFrame(
     ) {
     }
 
-    public record Commands(
+    public record Commands( // TODO: Check for updates, seems to not exist in current AJ pre release.
             String commands,
             @Nullable String executeCondition
     ) {

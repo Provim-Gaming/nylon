@@ -1,4 +1,4 @@
-package org.provim.nylon.data.model.animated_java;
+package org.provim.nylon.data.model.converter;
 
 import com.mojang.math.MatrixUtil;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
@@ -11,6 +11,7 @@ import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.provim.nylon.data.model.animated_java.*;
 import org.provim.nylon.data.model.nylon.*;
 import org.provim.nylon.data.model.nylon.animated_java.AnimatedJavaFrame;
 import org.provim.nylon.util.commands.CommandParser;
@@ -19,8 +20,9 @@ import java.util.Map;
 import java.util.UUID;
 
 public class AjModelConverter {
+
     public static NylonModel convert(AjModel ajModel) {
-        var rigItem = ajModel.blueprint_settings().display_item();
+        var displayItem = ajModel.blueprint_settings().display_item();
         var nodes = new Node[ajModel.rig().node_map().size()];
         var variants = new Object2ObjectOpenHashMap<String, Variant>();
         var animations = new Object2ObjectOpenHashMap<String, Animation>();
@@ -28,11 +30,11 @@ public class AjModelConverter {
 
         int index = 0;
         for (AjNode node : ajModel.rig().node_map().values()) {
-            nodes[index++] = convert(node, rigItem);
+            nodes[index++] = convert(node, displayItem);
         }
 
         ajModel.resources().variant_models().forEach(
-                (name, variantModels) -> variants.put(name, convert(name, variantModels, rigItem))
+                (name, variantModels) -> variants.put(name, convert(name, variantModels, displayItem))
         );
 
         for (AjAnimation animation : ajModel.animations()) {
@@ -43,14 +45,16 @@ public class AjModelConverter {
             defaultPose.put(pose.uuid(), convert(pose));
         }
 
-        return new NylonModel(rigItem, nodes, defaultPose, variants, animations);
+        AjResourceGenerator.generate(ajModel);
+
+        return new NylonModel(displayItem, nodes, defaultPose, variants, animations);
     }
 
-    private static Variant convert(String variantName, Map<UUID, AjResources.VariantModel> variantModels, Item rigItem) {
+    private static Variant convert(String variantName, Map<UUID, AjResources.VariantModel> variantModels, Item displayItem) {
         Object2ObjectOpenHashMap<UUID, Variant.Model> models = new Object2ObjectOpenHashMap<>();
         variantModels.forEach((uuid, model) -> {
             models.put(uuid, new Variant.Model(
-                    PolymerResourcePackUtils.requestModel(rigItem, model.resourceLocation()).value(),
+                    PolymerResourcePackUtils.requestModel(displayItem, model.resourceLocation()).value(),
                     model.resourceLocation()
             ));
         });
@@ -61,13 +65,13 @@ public class AjModelConverter {
         );
     }
 
-    private static Node convert(AjNode ajNode, Item rigItem) {
+    private static Node convert(AjNode ajNode, Item displayItem) {
         Node.NodeType type = Node.NodeType.valueOf(ajNode.type().name().toUpperCase());
         return new Node(
                 type,
                 ajNode.name(),
                 ajNode.uuid(),
-                type == Node.NodeType.BONE ? PolymerResourcePackUtils.requestModel(rigItem, ajNode.resourceLocation()).value() : 0
+                type == Node.NodeType.BONE ? PolymerResourcePackUtils.requestModel(displayItem, ajNode.resourceLocation()).value() : 0
         );
     }
 

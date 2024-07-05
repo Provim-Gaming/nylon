@@ -20,7 +20,7 @@ package org.provim.nylon.data.model.animated_java;
 
 /**
  * Represents an Animated Java JSON model exported from Blockbench.
- * <a href="https://github.com/Animated-Java/animated-java/blob/main/exporters/jsonExporter/jsonStructure.json">JSON Structure</a>
+ * <a href="https://github.com/Animated-Java/animated-java/blob/main/schemas/jsonExport.schema.json">JSON Structure</a>
  */
 public record AjModel(
         AjBlueprintSettings blueprint_settings,

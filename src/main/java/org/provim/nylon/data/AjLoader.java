@@ -28,7 +28,7 @@ import net.minecraft.world.item.Item;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
 import org.provim.nylon.data.model.animated_java.AjModel;
-import org.provim.nylon.data.model.animated_java.AjModelConverter;
+import org.provim.nylon.data.model.converter.AjModelConverter;
 import org.provim.nylon.data.model.nylon.NylonModel;
 
 import java.io.*;

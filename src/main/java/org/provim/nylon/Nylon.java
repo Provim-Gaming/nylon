@@ -19,9 +19,11 @@
 package org.provim.nylon;
 
 import com.mojang.logging.LogUtils;
+import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import org.provim.nylon.commands.NylonCommand;
+import org.provim.nylon.util.ModelResources;
 import org.slf4j.Logger;
 
 public class Nylon implements ModInitializer {
@@ -32,5 +34,7 @@ public class Nylon implements ModInitializer {
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
             NylonCommand.register(dispatcher);
         });
+
+        PolymerResourcePackUtils.RESOURCE_PACK_CREATION_EVENT.register(ModelResources::buildResources);
     }
 }

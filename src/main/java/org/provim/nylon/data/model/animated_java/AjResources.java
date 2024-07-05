@@ -13,15 +13,16 @@ public record AjResources(
         Map<String, Map<UUID, VariantModel>> variant_models,
         Map<String, Texture> textures
 ) {
-    protected record Texture(
+    public record Texture(
             String expectedPath,
             String src
     ) {
     }
 
-    protected record VariantModel(
+    public record VariantModel(
             String modelPath,
-            ResourceLocation resourceLocation
+            ResourceLocation resourceLocation,
+            JsonObject model
     ) {
     }
 }

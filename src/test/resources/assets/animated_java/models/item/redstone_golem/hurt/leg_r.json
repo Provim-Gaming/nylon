@@ -1,6 +1,0 @@
-{
-	"parent": "animated_java:item/redstone_golem/leg_r",
-	"textures": {
-		"0": "animated_java:item/redstone_golem/redstone_golem_hurt"
-	}
-}
