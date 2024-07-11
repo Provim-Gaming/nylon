@@ -12,16 +12,16 @@ public class AjResourceGenerator {
         var models = ajModel.resources().models();
         for (UUID nodeUuid : models.keySet()) {
             var modelJson = models.get(nodeUuid);
-            var node = ajModel.rig().node_map().get(nodeUuid);
-            ModelResources.addResource("%s/%s.json".formatted(sanitizePath(ajModel.resources().modelExportFolder()), node.name()), modelJson);
+            var node = ajModel.rig().nodeMap().get(nodeUuid);
+            ModelResources.addResource("%s/%s.json".formatted(ajModel.resources().modelExportFolder(), node.name()), modelJson);
         }
 
-        var variants = ajModel.resources().variant_models();
-        for (String variantName : variants.keySet()) {
-            var variantModels = variants.get(variantName);
+        var variants = ajModel.resources().variantModels();
+        for (UUID variantUuid : variants.keySet()) {
+            var variantModels = variants.get(variantUuid);
             for (UUID nodeUuid : variantModels.keySet()) {
                 var variantModel = variantModels.get(nodeUuid);
-                ModelResources.addResource(sanitizePath(variantModel.modelPath()), variantModel.model());
+                ModelResources.addResource(variantModel.modelPath(), variantModel.model());
             }
         }
 
@@ -29,13 +29,9 @@ public class AjResourceGenerator {
         for (String textureName : textures.keySet()) {
             var texture = textures.get(textureName);
             ModelResources.addResource(
-                    sanitizePath(texture.expectedPath()),
+                    texture.expectedPath(),
                     Base64.getDecoder().decode(texture.src().substring("data:image/png;base64,".length()))
             );
         }
-    }
-
-    private static String sanitizePath(String path) {
-        return path.replace("\\", "/");
     }
 }

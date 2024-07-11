@@ -31,7 +31,7 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
@@ -63,29 +63,29 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     }
 
     @Override
-    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
         display.element().setYaw(this.parent.getYRot());
         display.element().setPitch(this.parent.getXRot());
-        if (pose == null) {
-            this.applyPose(display.getLastPose(), display);
+        if (transform == null) {
+            this.applyTransform(display.getLastTransform(), display);
         } else {
-            this.applyPose(pose, display);
+            this.applyTransform(transform, display);
         }
     }
 
     @Override
-    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
-        Vector3f translation = pose.translation();
+    protected void applyTransform(Transform transform, DisplayWrapper<?> display) {
+        Vector3f translation = transform.translation();
         if (this.scale != 1F) {
             translation.mul(this.scale);
-            display.setScale(pose.scale().mul(this.scale));
+            display.setScale(transform.scale().mul(this.scale));
         } else {
-            display.setScale(pose.readOnlyScale());
+            display.setScale(transform.readOnlyScale());
         }
 
         display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
-        display.setLeftRotation(pose.leftRotation());
-        display.setRightRotation(pose.rightRotation());
+        display.setLeftRotation(transform.leftRotation());
+        display.setRightRotation(transform.rightRotation());
 
         display.startInterpolation();
     }

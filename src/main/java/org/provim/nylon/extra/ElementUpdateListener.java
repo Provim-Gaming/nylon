@@ -25,7 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Locator;
@@ -41,23 +41,23 @@ public class ElementUpdateListener implements Locator.LocatorListener {
     }
 
     @Override
-    public void update(AbstractAjHolder holder, Pose pose) {
+    public void update(AbstractAjHolder holder, Transform transform) {
         if (this.element.isSendingPositionUpdates()) {
             if (holder instanceof EntityHolder<?> entityHolder) {
-                this.updateEntityBasedHolder(entityHolder, pose);
+                this.updateEntityBasedHolder(entityHolder, transform);
             } else {
-                this.updateNonEntityBasedHolder(holder, pose);
+                this.updateNonEntityBasedHolder(holder, transform);
             }
         }
     }
 
-    private void updateEntityBasedHolder(EntityHolder<?> holder, Pose pose) {
+    private void updateEntityBasedHolder(EntityHolder<?> holder, Transform transform) {
         Entity parent = holder.getParent();
         float scale = holder.getScale();
         float yRot = parent.getYRot();
         float angle = yRot * Mth.DEG_TO_RAD;
 
-        Vector3f offset = pose.translation();
+        Vector3f offset = transform.translation();
         if (scale != 1F) {
             offset.mul(scale);
         }
@@ -74,11 +74,11 @@ public class ElementUpdateListener implements Locator.LocatorListener {
         ));
     }
 
-    private void updateNonEntityBasedHolder(AbstractAjHolder holder, Pose pose) {
+    private void updateNonEntityBasedHolder(AbstractAjHolder holder, Transform transform) {
         float scale = holder.getScale();
         Vector3fc offset = scale != 1F
-                ? pose.translation().mul(scale)
-                : pose.readOnlyTranslation();
+                ? transform.translation().mul(scale)
+                : transform.readOnlyTranslation();
 
         Vec3 pos = holder.getPos().add(offset.x(), offset.y(), offset.z());
         holder.sendPacket(VirtualEntityUtils.createMovePacket(

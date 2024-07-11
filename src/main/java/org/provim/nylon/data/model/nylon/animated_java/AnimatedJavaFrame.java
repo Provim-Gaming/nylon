@@ -6,20 +6,19 @@ import net.minecraft.commands.CommandSourceStack;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.data.model.nylon.Frame;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.util.commands.ParsedCommand;
 
 import java.util.UUID;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class AnimatedJavaFrame extends Frame {
     private final @Nullable Variant variant;
     private final @Nullable Commands commands;
     private final boolean requiresUpdates;
 
-    public AnimatedJavaFrame(Reference2ObjectOpenHashMap<UUID, Pose> poses, @Nullable Variant variant, @Nullable Commands commands) {
-        super(poses);
+    public AnimatedJavaFrame(Reference2ObjectOpenHashMap<UUID, Transform> transforms, @Nullable Variant variant, @Nullable Commands commands) {
+        super(transforms);
         this.variant = variant;
         this.commands = commands;
         this.requiresUpdates = variant != null || (commands != null && commands.commands.length > 0);

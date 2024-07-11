@@ -25,7 +25,7 @@ import org.provim.nylon.api.Animator;
 import org.provim.nylon.data.model.nylon.Animation;
 import org.provim.nylon.data.model.nylon.Frame;
 import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.AbstractWrapper;
 
@@ -122,28 +122,28 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Nullable
-    public Pose findPose(AbstractWrapper wrapper) {
+    public Transform findCurrentTransform(AbstractWrapper wrapper) {
         UUID uuid = wrapper.node().uuid;
-        Pose pose = null;
+        Transform transform = null;
 
         for (ActiveAnimation animation : this.animationList) {
             if (this.canAnimationAffect(animation, uuid)) {
                 if (animation.inResetState()) {
-                    pose = wrapper.getDefaultPose();
+                    transform = wrapper.getDefaultTransform();
                 } else {
-                    pose = this.findAnimationPose(wrapper, animation, uuid);
-                    if (pose != null) {
-                        return pose;
+                    transform = this.findAnimationTransform(wrapper, animation, uuid);
+                    if (transform != null) {
+                        return transform;
                     }
                 }
             }
         }
 
-        if (pose != null) {
-            wrapper.setLastPose(pose, null);
+        if (transform != null) {
+            wrapper.setLastTransform(transform, null);
         }
 
-        return pose;
+        return transform;
     }
 
     private boolean canAnimationAffect(ActiveAnimation anim, UUID uuid) {
@@ -152,21 +152,21 @@ public class AnimationComponent extends ComponentBase implements Animator {
     }
 
     @Nullable
-    private Pose findAnimationPose(AbstractWrapper wrapper, ActiveAnimation anim, UUID uuid) {
+    private Transform findAnimationTransform(AbstractWrapper wrapper, ActiveAnimation anim, UUID uuid) {
         Animation animation = anim.animation;
         Frame frame = anim.currentFrame;
         if (frame == null) {
             return null;
         }
 
-        Pose pose = frame.poses.get(uuid);
-        if (pose != null) {
-            wrapper.setLastPose(pose, animation);
-            return pose;
+        Transform transform = frame.transforms.get(uuid);
+        if (transform != null) {
+            wrapper.setLastTransform(transform, animation);
+            return transform;
         }
 
         if (animation == wrapper.getLastAnimation()) {
-            return wrapper.getLastPose();
+            return wrapper.getLastTransform();
         }
 
         // Since the animation just switched, the last known pose is no longer valid.
@@ -176,10 +176,10 @@ public class AnimationComponent extends ComponentBase implements Animator {
         final int startIndex = (frames.length - 1) - Math.max(anim.frameCounter - 1, 0);
 
         for (int i = startIndex; i >= 0; i--) {
-            pose = frames[i].poses.get(uuid);
-            if (pose != null) {
-                wrapper.setLastPose(pose, animation);
-                return pose;
+            transform = frames[i].transforms.get(uuid);
+            if (transform != null) {
+                wrapper.setLastTransform(transform, animation);
+                return transform;
             }
         }
         return null;

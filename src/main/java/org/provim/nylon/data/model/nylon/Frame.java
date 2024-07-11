@@ -7,12 +7,12 @@ import org.provim.nylon.holders.base.AbstractAjHolder;
 import java.util.UUID;
 
 public class Frame {
-    public final Reference2ObjectOpenHashMap<UUID, Pose> poses;
+    public final Reference2ObjectOpenHashMap<UUID, Transform> transforms;
 
-    public Frame(Reference2ObjectOpenHashMap<UUID, Pose> poses) {
-        Validate.notNull(poses, "Poses cannot be null");
+    public Frame(Reference2ObjectOpenHashMap<UUID, Transform> transforms) {
+        Validate.notNull(transforms, "Transforms cannot be null");
 
-        this.poses = poses;
+        this.transforms = transforms;
     }
 
     public boolean requiresUpdates() {

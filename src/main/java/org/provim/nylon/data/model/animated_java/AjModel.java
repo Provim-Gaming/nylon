@@ -18,12 +18,14 @@
 
 package org.provim.nylon.data.model.animated_java;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * Represents an Animated Java JSON model exported from Blockbench.
  * <a href="https://github.com/Animated-Java/animated-java/blob/main/schemas/jsonExport.schema.json">JSON Structure</a>
  */
 public record AjModel(
-        AjBlueprintSettings blueprint_settings,
+        @SerializedName("blueprint_settings") AjBlueprintSettings blueprintSettings,
         AjResources resources,
         AjRig rig,
         AjAnimation[] animations

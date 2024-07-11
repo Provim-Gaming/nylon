@@ -40,7 +40,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
@@ -81,30 +81,30 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
         display.element().setYaw(this.parent.yBodyRot);
-        if (pose == null) {
-            this.applyPose(display.getLastPose(), display);
+        if (transform == null) {
+            this.applyTransform(display.getLastTransform(), display);
         } else {
-            this.applyPose(pose, display);
+            this.applyTransform(transform, display);
         }
     }
 
     @Override
     protected void updateLocator(Locator locator) {
         if (locator.requiresUpdate()) {
-            Pose pose = this.animation.findPose(locator);
-            if (pose == null) {
-                locator.updateListeners(this, locator.getLastPose());
+            Transform transform = this.animation.findCurrentTransform(locator);
+            if (transform == null) {
+                locator.updateListeners(this, locator.getLastTransform());
             } else {
-                locator.updateListeners(this, pose);
+                locator.updateListeners(this, transform);
             }
         }
     }
 
     @Override
-    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
-        Vector3f translation = pose.translation();
+    protected void applyTransform(Transform transform, DisplayWrapper<?> display) {
+        Vector3f translation = transform.translation();
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;
 
@@ -120,20 +120,20 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
                 bodyRotation.rotateX(Mth.DEG_TO_RAD * Mth.lerp(0.5f, this.parent.xRotO, this.parent.getXRot()));
             }
 
-            display.setLeftRotation(bodyRotation.mul(pose.readOnlyLeftRotation()));
+            display.setLeftRotation(bodyRotation.mul(transform.readOnlyLeftRotation()));
         } else {
-            display.setLeftRotation(pose.readOnlyLeftRotation());
+            display.setLeftRotation(transform.readOnlyLeftRotation());
         }
 
         if (this.entityScale != 1F) {
             translation.mul(this.entityScale);
-            display.setScale(pose.scale().mul(this.entityScale));
+            display.setScale(transform.scale().mul(this.entityScale));
         } else {
-            display.setScale(pose.readOnlyScale());
+            display.setScale(transform.readOnlyScale());
         }
 
         display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
-        display.setRightRotation(pose.readOnlyRightRotation());
+        display.setRightRotation(transform.readOnlyRightRotation());
 
         display.startInterpolation();
     }

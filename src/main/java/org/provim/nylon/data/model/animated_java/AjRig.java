@@ -6,7 +6,8 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import java.util.UUID;
 
 public record AjRig(
-        @SerializedName("node_map") Object2ObjectOpenHashMap<UUID, AjNode> node_map,
-        @SerializedName("default_pose") AjPose[] default_pose
+        @SerializedName("node_map") Object2ObjectOpenHashMap<UUID, AjNode> nodeMap,
+        @SerializedName("default_transforms") AjTransform[] defaultTransforms,
+        Object2ObjectOpenHashMap<UUID, AjVariant> variants
 ) {
 }

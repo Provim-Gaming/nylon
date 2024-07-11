@@ -53,7 +53,20 @@ public class VariantComponent extends ComponentBase implements VariantController
 
     @Override
     public void setVariant(String variantName) {
-        Variant variant = this.model.variants.get(variantName);
+        if (this.isCurrentVariant(variantName)) {
+            return;
+        }
+
+        Variant variant = this.findByName(variantName);
+        if (variant != null) {
+            this.currentVariant = variant;
+            this.applyVariantToBones(variant);
+        }
+    }
+
+    @Override
+    public void setVariant(UUID variantUuid) {
+        Variant variant = this.model.variants.get(variantUuid);
         if (variant == null || variant == this.currentVariant) {
             return;
         }
@@ -62,16 +75,21 @@ public class VariantComponent extends ComponentBase implements VariantController
         this.applyVariantToBones(variant);
     }
 
-    @Override
-    public void setVariant(UUID variantUuid) {
-        // TODO: Implement if still necessary
+    @Nullable
+    private Variant findByName(String variantName) {
+        for (Variant variant : this.model.variants.values()) {
+            if (variant.name.equals(variantName)) {
+                return variant;
+            }
+        }
+        return null;
     }
 
     private void applyVariantToBones(Variant variant) {
         for (Bone bone : this.holder.getBones()) {
             UUID uuid = bone.node().uuid;
             Variant.Model model = variant.models.get(uuid);
-            if (model != null) {
+            if (model != null && variant.isAffected(uuid)) {
                 bone.updateModelData(model.customModelData);
             }
         }

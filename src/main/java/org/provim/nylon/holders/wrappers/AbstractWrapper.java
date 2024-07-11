@@ -20,18 +20,18 @@ package org.provim.nylon.holders.wrappers;
 
 import org.provim.nylon.data.model.nylon.Animation;
 import org.provim.nylon.data.model.nylon.Node;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 
 public abstract class AbstractWrapper {
     private final Node node;
-    private final Pose defaultPose;
+    private final Transform defaultTransform;
     protected Animation lastAnimation;
-    protected Pose lastPose;
+    protected Transform lastTransform;
 
-    public AbstractWrapper(Node node, Pose defaultPose) {
+    public AbstractWrapper(Node node, Transform defaultTransform) {
         this.node = node;
-        this.defaultPose = defaultPose;
-        this.lastPose = defaultPose;
+        this.defaultTransform = defaultTransform;
+        this.lastTransform = defaultTransform;
     }
 
     public Node node() {
@@ -42,20 +42,20 @@ public abstract class AbstractWrapper {
         return this.node.name;
     }
 
-    public Pose getDefaultPose() {
-        return this.defaultPose;
+    public Transform getDefaultTransform() {
+        return this.defaultTransform;
     }
 
     public Animation getLastAnimation() {
         return this.lastAnimation;
     }
 
-    public Pose getLastPose() {
-        return this.lastPose;
+    public Transform getLastTransform() {
+        return this.lastTransform;
     }
 
-    public void setLastPose(Pose pose, Animation animation) {
+    public void setLastTransform(Transform transform, Animation animation) {
         this.lastAnimation = animation;
-        this.lastPose = pose;
+        this.lastTransform = transform;
     }
 }

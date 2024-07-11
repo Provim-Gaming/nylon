@@ -14,12 +14,16 @@ public class ModelResources {
     }
 
     public static void addResource(String path, byte[] data) {
-        RESOURCES.put(path, data);
+        RESOURCES.put(sanitizePath(path), data);
     }
 
     public static void buildResources(ResourcePackBuilder builder) {
         for (String key : RESOURCES.keySet()) {
             builder.addData(key, RESOURCES.get(key));
         }
+    }
+
+    private static String sanitizePath(String path) {
+        return path.replace("\\", "/");
     }
 }

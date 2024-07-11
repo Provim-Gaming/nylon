@@ -36,7 +36,7 @@ import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
 import org.provim.nylon.data.model.nylon.Node;
 import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
@@ -84,17 +84,17 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     protected void setupElements(List<Bone> bones) {
         Item rigItem = this.model.rigItem;
         for (Node node : this.model.nodes) {
-            Pose defaultPose = this.model.defaultPose.get(node.uuid);
+            Transform defaultTransform = this.model.defaultTransforms.get(node.uuid);
             switch (node.type) {
                 case BONE -> {
                     ItemDisplayElement bone = this.createBone(node, rigItem);
                     if (bone != null) {
-                        bones.add(Bone.of(bone, node, defaultPose));
+                        bones.add(Bone.of(bone, node, defaultTransform));
                         this.addElement(bone);
                     }
                 }
                 case LOCATOR -> {
-                    this.locatorMap.put(node.name, Locator.of(node, defaultPose));
+                    this.locatorMap.put(node.name, Locator.of(node, defaultTransform));
                 }
             }
         }
@@ -148,39 +148,39 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     protected void updateElement(DisplayWrapper<?> display) {
-        this.updateElement(display, this.animation.findPose(display));
+        this.updateElement(display, this.animation.findCurrentTransform(display));
     }
 
     public void initializeDisplay(DisplayWrapper<?> display) {
-        this.updateElement(display, display.getDefaultPose());
+        this.updateElement(display, display.getDefaultTransform());
     }
 
-    public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
-        if (pose != null) {
-            this.applyPose(pose, display);
+    public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
+        if (transform != null) {
+            this.applyTransform(transform, display);
         }
     }
 
     protected void updateLocator(Locator locator) {
         if (locator.requiresUpdate()) {
-            Pose pose = this.animation.findPose(locator);
-            if (pose != null) {
-                locator.updateListeners(this, pose);
+            Transform transform = this.animation.findCurrentTransform(locator);
+            if (transform != null) {
+                locator.updateListeners(this, transform);
             }
         }
     }
 
-    protected void applyPose(Pose pose, DisplayWrapper<?> display) {
+    protected void applyTransform(Transform transform, DisplayWrapper<?> display) {
         if (this.scale != 1F) {
-            display.setScale(pose.scale().mul(this.scale));
-            display.setTranslation(pose.translation().mul(this.scale));
+            display.setScale(transform.scale().mul(this.scale));
+            display.setTranslation(transform.translation().mul(this.scale));
         } else {
-            display.setScale(pose.readOnlyScale());
-            display.setTranslation(pose.readOnlyTranslation());
+            display.setScale(transform.readOnlyScale());
+            display.setTranslation(transform.readOnlyTranslation());
         }
 
-        display.setLeftRotation(pose.readOnlyLeftRotation());
-        display.setRightRotation(pose.readOnlyRightRotation());
+        display.setLeftRotation(transform.readOnlyLeftRotation());
+        display.setRightRotation(transform.readOnlyRightRotation());
 
         display.startInterpolation();
     }

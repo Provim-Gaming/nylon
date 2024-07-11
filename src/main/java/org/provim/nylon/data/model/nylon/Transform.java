@@ -7,13 +7,13 @@ import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
 @SuppressWarnings("ClassCanBeRecord")
-public class Pose {
+public class Transform {
     private final Vector3f translation;
     private final Vector3f scale;
     private final Quaternionf leftRotation;
     private final Quaternionf rightRotation;
 
-    public Pose(
+    public Transform(
             Vector3f translation,
             Vector3f scale,
             Quaternionf leftRotation,

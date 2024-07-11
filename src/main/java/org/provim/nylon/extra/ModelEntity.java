@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.data.model.nylon.NylonModel;
-import org.provim.nylon.data.model.nylon.Pose;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.entity.simple.SimpleEntityHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
@@ -44,13 +44,13 @@ public class ModelEntity extends Interaction implements AjEntity {
         super(EntityType.INTERACTION, level);
         this.holder = new SimpleEntityHolder<>(this, model) {
             @Override
-            public void updateElement(DisplayWrapper<?> display, @Nullable Pose pose) {
+            public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
                 display.element().setYaw(this.parent.getYRot());
                 display.element().setPitch(this.parent.getXRot());
-                if (pose == null) {
-                    this.applyPose(display.getLastPose(), display);
+                if (transform == null) {
+                    this.applyTransform(display.getLastTransform(), display);
                 } else {
-                    this.applyPose(pose, display);
+                    this.applyTransform(transform, display);
                 }
             }
 

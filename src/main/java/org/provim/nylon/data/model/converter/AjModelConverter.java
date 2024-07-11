@@ -22,46 +22,48 @@ import java.util.UUID;
 public class AjModelConverter {
 
     public static NylonModel convert(AjModel ajModel) {
-        var displayItem = ajModel.blueprint_settings().display_item();
-        var nodes = new Node[ajModel.rig().node_map().size()];
-        var variants = new Object2ObjectOpenHashMap<String, Variant>();
+        var displayItem = ajModel.blueprintSettings().displayItem();
+        var nodes = new Node[ajModel.rig().nodeMap().size()];
         var animations = new Object2ObjectOpenHashMap<String, Animation>();
-        var defaultPose = new Reference2ObjectOpenHashMap<UUID, Pose>();
+        var variants = new Reference2ObjectOpenHashMap<UUID, Variant>();
+        var defaultTransforms = new Reference2ObjectOpenHashMap<UUID, Transform>();
 
         int index = 0;
-        for (AjNode node : ajModel.rig().node_map().values()) {
+        for (AjNode node : ajModel.rig().nodeMap().values()) {
             nodes[index++] = convert(node, displayItem);
         }
 
-        ajModel.resources().variant_models().forEach(
-                (name, variantModels) -> variants.put(name, convert(name, variantModels, displayItem))
-        );
+        ajModel.rig().variants().forEach((uuid, ajVariant) -> {
+            var variantModels = ajModel.resources().variantModels().get(uuid);
+            if (variantModels != null) {
+                variants.put(uuid, convert(ajVariant, displayItem, variantModels));
+            }
+        });
 
         for (AjAnimation animation : ajModel.animations()) {
             animations.put(animation.name(), convert(animation));
         }
 
-        for (AjPose pose : ajModel.rig().default_pose()) {
-            defaultPose.put(pose.uuid(), convert(pose));
+        for (AjTransform transform : ajModel.rig().defaultTransforms()) {
+            defaultTransforms.put(transform.uuid(), convert(transform));
         }
 
         AjResourceGenerator.generate(ajModel);
 
-        return new NylonModel(displayItem, nodes, defaultPose, variants, animations);
+        return new NylonModel(displayItem, nodes, defaultTransforms, variants, animations);
     }
 
-    private static Variant convert(String variantName, Map<UUID, AjResources.VariantModel> variantModels, Item displayItem) {
+    private static Variant convert(AjVariant ajVariant, Item displayItem, Map<UUID, AjResources.VariantModel> variantModels) {
         Object2ObjectOpenHashMap<UUID, Variant.Model> models = new Object2ObjectOpenHashMap<>();
-        variantModels.forEach((uuid, model) -> {
-            models.put(uuid, new Variant.Model(
-                    PolymerResourcePackUtils.requestModel(displayItem, model.resourceLocation()).value(),
-                    model.resourceLocation()
-            ));
-        });
+        variantModels.forEach((uuid, model) -> models.put(uuid, new Variant.Model(
+                PolymerResourcePackUtils.requestModel(displayItem, model.resourceLocation()).value(),
+                model.resourceLocation()
+        )));
 
         return new Variant(
-                variantName,
-                models
+                ajVariant.name(),
+                models,
+                ajVariant.excludedNodes()
         );
     }
 
@@ -90,20 +92,20 @@ public class AjModelConverter {
     }
 
     private static Frame convert(AjFrame ajFrame) {
-        Reference2ObjectOpenHashMap<UUID, Pose> poses = new Reference2ObjectOpenHashMap<>();
-        for (AjPose pose : ajFrame.nodes()) {
-            poses.put(pose.uuid(), convert(pose));
+        Reference2ObjectOpenHashMap<UUID, Transform> transforms = new Reference2ObjectOpenHashMap<>();
+        for (AjTransform transform : ajFrame.transforms()) {
+            transforms.put(transform.uuid(), convert(transform));
         }
 
         return new AnimatedJavaFrame(
-                poses,
+                transforms,
                 convert(ajFrame.variant()),
                 convert(ajFrame.commands())
         );
     }
 
-    private static Pose convert(AjPose ajPose) {
-        Matrix4f matrix4f = ajPose.matrix();
+    private static Transform convert(AjTransform ajTransform) {
+        Matrix4f matrix4f = ajTransform.matrix();
         Matrix3f matrix3f = new Matrix3f(matrix4f);
         Vector3f translation = matrix4f.getTranslation(new Vector3f());
 
@@ -118,7 +120,7 @@ public class AjModelConverter {
         Quaternionf leftRotation = triple.getLeft().rotateY(Mth.DEG_TO_RAD * 180F);
         Quaternionf rightRotation = triple.getRight();
 
-        return new Pose(
+        return new Transform(
                 translation,
                 scale,
                 leftRotation,

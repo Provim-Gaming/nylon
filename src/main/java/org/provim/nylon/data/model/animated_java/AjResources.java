@@ -1,17 +1,17 @@
 package org.provim.nylon.data.model.animated_java;
 
 import com.google.gson.JsonObject;
+import com.google.gson.annotations.SerializedName;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.Map;
 import java.util.UUID;
 
 public record AjResources(
-        String textureExportFolder,
-        String modelExportFolder,
+        @SerializedName("variant_models") Map<UUID, Map<UUID, VariantModel>> variantModels,
         Map<UUID, JsonObject> models,
-        Map<String, Map<UUID, VariantModel>> variant_models,
-        Map<String, Texture> textures
+        Map<String, Texture> textures,
+        String modelExportFolder
 ) {
     public record Texture(
             String expectedPath,
