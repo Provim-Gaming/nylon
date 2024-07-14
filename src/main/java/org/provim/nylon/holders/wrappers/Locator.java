@@ -37,12 +37,12 @@ public class Locator extends AbstractWrapper {
         this.listeners = ObjectSets.synchronize(new ObjectArraySet<>());
     }
 
-    public boolean requiresUpdate() {
-        return this.listeners.size() > 0;
-    }
+    public void update(AbstractAjHolder holder, Transform transform) {
+        transform.run(holder);
 
-    public void updateListeners(AbstractAjHolder holder, Transform transform) {
-        this.listeners.forEach(listener -> listener.update(holder, transform));
+        if (this.listeners.size() > 0) {
+            this.listeners.forEach(listener -> listener.update(holder, transform));
+        }
     }
 
     public void addListener(LocatorListener newListener) {

@@ -20,11 +20,7 @@ package org.provim.nylon.extra;
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
-import net.minecraft.util.Mth;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Vector3f;
-import org.joml.Vector3fc;
 import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.entity.EntityHolder;
@@ -43,51 +39,26 @@ public class ElementUpdateListener implements Locator.LocatorListener {
     @Override
     public void update(AbstractAjHolder holder, Transform transform) {
         if (this.element.isSendingPositionUpdates()) {
+            Vec3 pos = holder.getTransformOffsetPos(transform);
             if (holder instanceof EntityHolder<?> entityHolder) {
-                this.updateEntityBasedHolder(entityHolder, transform);
+                holder.sendPacket(VirtualEntityUtils.createMovePacket(
+                        this.element.getEntityId(),
+                        pos,
+                        pos,
+                        true,
+                        entityHolder.getParent().getYRot(),
+                        0F
+                ));
             } else {
-                this.updateNonEntityBasedHolder(holder, transform);
+                holder.sendPacket(VirtualEntityUtils.createMovePacket(
+                        this.element.getEntityId(),
+                        pos,
+                        pos,
+                        false,
+                        0F,
+                        0F
+                ));
             }
         }
-    }
-
-    private void updateEntityBasedHolder(EntityHolder<?> holder, Transform transform) {
-        Entity parent = holder.getParent();
-        float scale = holder.getScale();
-        float yRot = parent.getYRot();
-        float angle = yRot * Mth.DEG_TO_RAD;
-
-        Vector3f offset = transform.translation();
-        if (scale != 1F) {
-            offset.mul(scale);
-        }
-        offset.rotateY(-angle);
-
-        Vec3 pos = holder.getPos().add(offset.x, offset.y, offset.z);
-        holder.sendPacket(VirtualEntityUtils.createMovePacket(
-                this.element.getEntityId(),
-                pos,
-                pos,
-                true,
-                yRot,
-                0F
-        ));
-    }
-
-    private void updateNonEntityBasedHolder(AbstractAjHolder holder, Transform transform) {
-        float scale = holder.getScale();
-        Vector3fc offset = scale != 1F
-                ? transform.translation().mul(scale)
-                : transform.readOnlyTranslation();
-
-        Vec3 pos = holder.getPos().add(offset.x(), offset.y(), offset.z());
-        holder.sendPacket(VirtualEntityUtils.createMovePacket(
-                this.element.getEntityId(),
-                pos,
-                pos,
-                false,
-                0F,
-                0F
-        ));
     }
 }

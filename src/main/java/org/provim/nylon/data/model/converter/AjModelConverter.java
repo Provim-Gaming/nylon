@@ -1,3 +1,21 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.data.model.converter;
 
 import com.mojang.math.MatrixUtil;
@@ -13,9 +31,11 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.data.model.animated_java.*;
 import org.provim.nylon.data.model.nylon.*;
-import org.provim.nylon.data.model.nylon.animated_java.AnimatedJavaFrame;
+import org.provim.nylon.data.model.nylon.animated_java.FrameWithEffects;
+import org.provim.nylon.data.model.nylon.animated_java.TransformWithCommands;
 import org.provim.nylon.util.commands.CommandParser;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 
@@ -30,7 +50,11 @@ public class AjModelConverter {
 
         int index = 0;
         for (AjNode node : ajModel.rig().nodeMap().values()) {
-            nodes[index++] = convert(node, displayItem);
+            try {
+                Node converted = convert(node, displayItem);
+                nodes[index++] = converted;
+            } catch (Exception ignored) {
+            }
         }
 
         ajModel.rig().variants().forEach((uuid, ajVariant) -> {
@@ -68,7 +92,7 @@ public class AjModelConverter {
     }
 
     private static Node convert(AjNode ajNode, Item displayItem) {
-        Node.NodeType type = Node.NodeType.valueOf(ajNode.type().name().toUpperCase());
+        Node.NodeType type = Node.NodeType.valueOf(ajNode.type().toUpperCase(Locale.ENGLISH));
         return new Node(
                 type,
                 ajNode.name(),
@@ -86,7 +110,7 @@ public class AjModelConverter {
         return new Animation(
                 frames,
                 ajAnimation.loopDelay(),
-                Animation.LoopMode.valueOf(ajAnimation.loopMode().name().toUpperCase()),
+                Animation.LoopMode.valueOf(ajAnimation.loopMode().toUpperCase(Locale.ENGLISH)),
                 ajAnimation.includedNodes()
         );
     }
@@ -97,10 +121,9 @@ public class AjModelConverter {
             transforms.put(transform.uuid(), convert(transform));
         }
 
-        return new AnimatedJavaFrame(
+        return new FrameWithEffects(
                 transforms,
-                convert(ajFrame.variant()),
-                convert(ajFrame.commands())
+                convert(ajFrame.variant())
         );
     }
 
@@ -120,37 +143,37 @@ public class AjModelConverter {
         Quaternionf leftRotation = triple.getLeft().rotateY(Mth.DEG_TO_RAD * 180F);
         Quaternionf rightRotation = triple.getRight();
 
-        return new Transform(
-                translation,
-                scale,
-                leftRotation,
-                rightRotation
-        );
-    }
-
-    @Nullable
-    private static AnimatedJavaFrame.Commands convert(@Nullable AjFrame.Commands ajCommands) {
-        if (ajCommands == null) {
-            return null;
+        String commands = ajTransform.commands();
+        if (commands == null || commands.isEmpty()) {
+            return new Transform(
+                    translation,
+                    scale,
+                    leftRotation,
+                    rightRotation
+            );
+        } else {
+            String condition = ajTransform.executeCondition();
+            return new TransformWithCommands(
+                    translation,
+                    scale,
+                    leftRotation,
+                    rightRotation,
+                    CommandParser.parse(commands),
+                    CommandParser.parseCondition(condition)
+            );
         }
-
-        String condition = ajCommands.executeCondition();
-        return new AnimatedJavaFrame.Commands(
-                CommandParser.parse(ajCommands.commands()),
-                condition != null ? CommandParser.parse(condition, "execute ") : null
-        );
     }
 
     @Nullable
-    private static AnimatedJavaFrame.Variant convert(@Nullable AjFrame.Variant ajVariant) {
+    private static FrameWithEffects.Variant convert(@Nullable AjFrame.Variant ajVariant) {
         if (ajVariant == null) {
             return null;
         }
 
         String condition = ajVariant.executeCondition();
-        return new AnimatedJavaFrame.Variant(
+        return new FrameWithEffects.Variant(
                 ajVariant.uuid(),
-                condition != null ? CommandParser.parse(condition, "execute ") : null
+                CommandParser.parseCondition(condition)
         );
     }
 }

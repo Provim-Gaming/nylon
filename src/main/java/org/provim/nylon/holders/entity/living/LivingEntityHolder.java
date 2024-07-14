@@ -92,13 +92,11 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
 
     @Override
     protected void updateLocator(Locator locator) {
-        if (locator.requiresUpdate()) {
-            Transform transform = this.animation.findCurrentTransform(locator);
-            if (transform == null) {
-                locator.updateListeners(this, locator.getLastTransform());
-            } else {
-                locator.updateListeners(this, transform);
-            }
+        Transform transform = this.animation.findCurrentTransform(locator);
+        if (transform == null) {
+            locator.update(this, locator.getLastTransform());
+        } else {
+            locator.update(this, transform);
         }
     }
 

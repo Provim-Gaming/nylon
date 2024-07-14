@@ -27,10 +27,7 @@ public record AjAnimation(
         AjFrame[] frames,
         int duration,
         int loopDelay,
-        LoopMode loopMode,
+        String loopMode,
         ReferenceOpenHashSet<UUID> includedNodes
 ) {
-    public enum LoopMode {
-        once, hold, loop
-    }
 }

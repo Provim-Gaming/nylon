@@ -1,3 +1,21 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.data.model.nylon;
 
 import org.apache.commons.lang3.Validate;
@@ -5,19 +23,19 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
+import org.provim.nylon.holders.base.AbstractAjHolder;
 
-@SuppressWarnings("ClassCanBeRecord")
 public class Transform {
-    private final Vector3f translation;
-    private final Vector3f scale;
-    private final Quaternionf leftRotation;
-    private final Quaternionf rightRotation;
+    private final Vector3fc translation;
+    private final Vector3fc scale;
+    private final Quaternionfc leftRotation;
+    private final Quaternionfc rightRotation;
 
     public Transform(
-            Vector3f translation,
-            Vector3f scale,
-            Quaternionf leftRotation,
-            Quaternionf rightRotation
+            Vector3fc translation,
+            Vector3fc scale,
+            Quaternionfc leftRotation,
+            Quaternionfc rightRotation
     ) {
         Validate.notNull(translation, "Translation cannot be null");
         Validate.notNull(scale, "Scale cannot be null");
@@ -60,5 +78,8 @@ public class Transform {
 
     public Quaternionf rightRotation() {
         return new Quaternionf(this.rightRotation);
+    }
+
+    public void run(AbstractAjHolder holder) {
     }
 }

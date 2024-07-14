@@ -32,15 +32,18 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
 import org.provim.nylon.data.model.nylon.Node;
 import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.util.Utils;
@@ -181,6 +184,21 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
         for (Bone bone : this.bones) {
             bone.element().setGlowing(isGlowing);
         }
+    }
+
+    @Override
+    public Vec3 getTransformOffsetPos(Transform transform) {
+        float scale = this.getScale();
+        float yRot = this.parent.getYRot();
+        float angle = yRot * Mth.DEG_TO_RAD;
+
+        Vector3f offset = transform.translation();
+        if (scale != 1F) {
+            offset.mul(scale);
+        }
+        offset.rotateY(-angle);
+
+        return this.getPos().add(offset.x, offset.y, offset.z);
     }
 
     @Override

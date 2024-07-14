@@ -241,9 +241,7 @@ public class AnimationComponent extends ComponentBase implements Animator {
                     this.onFrameCallback.accept(index);
                 }
 
-                if (this.currentFrame.requiresUpdates()) {
-                    this.currentFrame.run(this.holder);
-                }
+                this.currentFrame.run(this.holder);
             }
         }
 

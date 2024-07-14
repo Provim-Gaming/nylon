@@ -24,16 +24,26 @@ import org.jetbrains.annotations.Nullable;
 public final class CommandParser {
     private static final ParsedCommand[] EMPTY_COMMAND_ARRAY = new ParsedCommand[0];
 
-    public static ParsedCommand[] parse(String commandString) {
-        return parse(commandString, null);
+    @Nullable
+    public static ParsedCommand parseCondition(@Nullable String command) {
+        if (command == null) {
+            return null;
+        }
+
+        String sanitized = sanitizeCommand(command);
+        if (sanitized == null) {
+            return null;
+        }
+
+        return new ParsedCommand("execute " + sanitized);
     }
 
-    public static ParsedCommand[] parse(String commandString, @Nullable String prefix) {
+    public static ParsedCommand[] parse(String commandString) {
         String[] commands = commandString.trim().split("(\r\n|\r|\n)", -1);
 
         ObjectArrayList<ParsedCommand> list = new ObjectArrayList<>(commands.length);
         for (String command : commands) {
-            String sanitized = sanitizeCommand(command, prefix);
+            String sanitized = sanitizeCommand(command);
             if (sanitized != null) {
                 list.add(new ParsedCommand(sanitized));
             }
@@ -43,7 +53,7 @@ public final class CommandParser {
     }
 
     @Nullable
-    private static String sanitizeCommand(String command, @Nullable String prefix) {
+    private static String sanitizeCommand(String command) {
         command = command.trim();
         if (command.isEmpty()) {
             return null;
@@ -54,10 +64,6 @@ public final class CommandParser {
             if (command.isEmpty()) {
                 return null;
             }
-        }
-
-        if (prefix != null) {
-            command = prefix + command;
         }
 
         return command;

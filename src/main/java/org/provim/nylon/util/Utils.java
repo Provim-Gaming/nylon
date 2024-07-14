@@ -28,6 +28,7 @@ import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.Connection;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
@@ -40,7 +41,9 @@ import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.entity.Pose;
+import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.mixins.accessors.ServerCommonPacketListenerImplAccessor;
+import org.provim.nylon.util.commands.ParsedCommand;
 
 import java.util.List;
 
@@ -61,6 +64,10 @@ public class Utils {
 
     public static boolean getSharedFlag(byte value, int flag) {
         return (value & 1 << flag) != 0;
+    }
+
+    public static boolean satisfiesCondition(CommandSourceStack source, @NotNull ParsedCommand condition) {
+        return condition.execute(source.dispatcher(), source) > 0;
     }
 
     public static List<Packet<? super ClientGamePacketListener>> updateClientInteraction(InteractionElement interaction, EntityDimensions dimensions) {

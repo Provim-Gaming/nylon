@@ -30,7 +30,9 @@ import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.DyedItemColor;
+import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3fc;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.component.AnimationComponent;
 import org.provim.nylon.component.VariantComponent;
@@ -162,11 +164,9 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     }
 
     protected void updateLocator(Locator locator) {
-        if (locator.requiresUpdate()) {
-            Transform transform = this.animation.findCurrentTransform(locator);
-            if (transform != null) {
-                locator.updateListeners(this, transform);
-            }
+        Transform transform = this.animation.findCurrentTransform(locator);
+        if (transform != null) {
+            locator.update(this, transform);
         }
     }
 
@@ -193,6 +193,15 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
                 bone.updateColor(color);
             }
         }
+    }
+
+    public Vec3 getTransformOffsetPos(Transform transform) {
+        float scale = this.getScale();
+        Vector3fc offset = scale != 1F
+                ? transform.translation().mul(scale)
+                : transform.readOnlyTranslation();
+
+        return this.getPos().add(offset.x(), offset.y(), offset.z());
     }
 
     @Override
