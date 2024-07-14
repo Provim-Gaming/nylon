@@ -222,7 +222,6 @@ public class AnimationComponent extends ComponentBase implements Animator {
         private void tick() {
             if (this.frameCounter < 0) {
                 this.onFramesFinished();
-                return;
             }
 
             if (this.shouldAnimate()) {

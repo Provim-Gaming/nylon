@@ -29,23 +29,19 @@ public class Transform {
     private final Vector3fc translation;
     private final Vector3fc scale;
     private final Quaternionfc leftRotation;
-    private final Quaternionfc rightRotation;
 
     public Transform(
             Vector3fc translation,
             Vector3fc scale,
-            Quaternionfc leftRotation,
-            Quaternionfc rightRotation
+            Quaternionfc leftRotation
     ) {
         Validate.notNull(translation, "Translation cannot be null");
         Validate.notNull(scale, "Scale cannot be null");
         Validate.notNull(leftRotation, "Left rotation cannot be null");
-        Validate.notNull(rightRotation, "Right rotation cannot be null");
 
         this.translation = translation;
         this.scale = scale;
         this.leftRotation = leftRotation;
-        this.rightRotation = rightRotation;
     }
 
     public Vector3fc readOnlyTranslation() {
@@ -60,10 +56,6 @@ public class Transform {
         return this.leftRotation;
     }
 
-    public Quaternionfc readOnlyRightRotation() {
-        return this.rightRotation;
-    }
-
     public Vector3f translation() {
         return new Vector3f(this.translation);
     }
@@ -74,10 +66,6 @@ public class Transform {
 
     public Quaternionf leftRotation() {
         return new Quaternionf(this.leftRotation);
-    }
-
-    public Quaternionf rightRotation() {
-        return new Quaternionf(this.rightRotation);
     }
 
     public void run(AbstractAjHolder holder) {

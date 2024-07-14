@@ -25,8 +25,12 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
-import org.joml.Matrix4f;
+import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.provim.nylon.data.deserialization.QuaternionfDeserializer;
+import org.provim.nylon.data.deserialization.ReferenceUuidDeserializer;
+import org.provim.nylon.data.deserialization.RegistryDeserializer;
+import org.provim.nylon.data.deserialization.Vector3fDeserializer;
 import org.provim.nylon.data.model.animated_java.AjModel;
 import org.provim.nylon.data.model.converter.AjModelConverter;
 import org.provim.nylon.data.model.nylon.NylonModel;
@@ -40,8 +44,8 @@ public class AjLoader {
             .registerTypeAdapter(UUID.class, new ReferenceUuidDeserializer())
 
             // Custom deserializers
-            .registerTypeAdapter(Matrix4f.class, new Matrix4fDeserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
+            .registerTypeAdapter(Quaternionf.class, new QuaternionfDeserializer())
             .registerTypeAdapter(ResourceLocation.class, new ResourceLocation.Serializer())
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .registerTypeAdapter(SoundEvent.class, new RegistryDeserializer<>(BuiltInRegistries.SOUND_EVENT))

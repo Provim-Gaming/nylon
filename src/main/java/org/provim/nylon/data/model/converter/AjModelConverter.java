@@ -18,15 +18,12 @@
 
 package org.provim.nylon.data.model.converter;
 
-import com.mojang.math.MatrixUtil;
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix3f;
-import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.data.model.animated_java.*;
@@ -128,28 +125,18 @@ public class AjModelConverter {
     }
 
     private static Transform convert(AjTransform ajTransform) {
-        Matrix4f matrix4f = ajTransform.matrix();
-        Matrix3f matrix3f = new Matrix3f(matrix4f);
-        Vector3f translation = matrix4f.getTranslation(new Vector3f());
-
-        float multiplier = 1.0F / matrix4f.m33();
-        if (multiplier != 1.0F) {
-            matrix3f.scale(multiplier);
-            translation.mul(multiplier);
-        }
-
-        var triple = MatrixUtil.svdDecompose(matrix3f);
-        Vector3f scale = triple.getMiddle();
-        Quaternionf leftRotation = triple.getLeft().rotateY(Mth.DEG_TO_RAD * 180F);
-        Quaternionf rightRotation = triple.getRight();
+        AjTransform.Transformation transformation = ajTransform.transformation();
+        Quaternionf leftRotation = transformation.leftRotation().rotateY(Mth.DEG_TO_RAD * 180F);
+        ;
+        Vector3f translation = transformation.translation();
+        Vector3f scale = transformation.scale();
 
         String commands = ajTransform.commands();
         if (commands == null || commands.isEmpty()) {
             return new Transform(
                     translation,
                     scale,
-                    leftRotation,
-                    rightRotation
+                    leftRotation
             );
         } else {
             String condition = ajTransform.executeCondition();
@@ -157,7 +144,6 @@ public class AjModelConverter {
                     translation,
                     scale,
                     leftRotation,
-                    rightRotation,
                     CommandParser.parse(commands),
                     CommandParser.parseCondition(condition)
             );

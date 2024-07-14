@@ -20,14 +20,21 @@ package org.provim.nylon.data.model.animated_java;
 
 import com.google.gson.annotations.SerializedName;
 import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 import java.util.UUID;
 
 public record AjTransform(
         UUID uuid,
-        Matrix4f matrix,
+        Transformation transformation,
         @Nullable String commands,
         @SerializedName("execute_condition") @Nullable String executeCondition
 ) {
+    public record Transformation(
+            Vector3f translation,
+            Vector3f scale,
+            @SerializedName("left_rotation") Quaternionf leftRotation
+    ) {
+    }
 }

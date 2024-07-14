@@ -84,8 +84,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
         }
 
         display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
-        display.setLeftRotation(transform.leftRotation());
-        display.setRightRotation(transform.rightRotation());
+        display.setLeftRotation(transform.readOnlyLeftRotation());
 
         display.startInterpolation();
     }

@@ -16,24 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.provim.nylon.data;
+package org.provim.nylon.data.deserialization;
 
 import com.google.gson.*;
-import org.joml.Matrix4f;
+import org.joml.Vector3f;
 
 import java.lang.reflect.Type;
 
-public class Matrix4fDeserializer implements JsonDeserializer<Matrix4f> {
+public class Vector3fDeserializer implements JsonDeserializer<Vector3f> {
     @Override
-    public Matrix4f deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
+    public Vector3f deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
         JsonArray jsonArray = element.getAsJsonArray();
-        float[] values = new float[16];
-        for (int i = 0; i < 16; i++) {
-            values[i] = jsonArray.get(i).getAsFloat();
-        }
-
-        Matrix4f matrix = new Matrix4f();
-        matrix.set(values);
-        return matrix;
+        float x = jsonArray.get(0).getAsFloat();
+        float y = jsonArray.get(1).getAsFloat();
+        float z = jsonArray.get(2).getAsFloat();
+        return new Vector3f(x, y, z);
     }
 }

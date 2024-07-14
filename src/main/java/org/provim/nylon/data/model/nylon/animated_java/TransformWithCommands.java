@@ -31,8 +31,8 @@ public class TransformWithCommands extends Transform {
     private final ParsedCommand[] commands;
     private final ParsedCommand condition;
 
-    public TransformWithCommands(Vector3f translation, Vector3f scale, Quaternionf leftRotation, Quaternionf rightRotation, ParsedCommand[] commands, ParsedCommand condition) {
-        super(translation, scale, leftRotation, rightRotation);
+    public TransformWithCommands(Vector3f translation, Vector3f scale, Quaternionf leftRotation, ParsedCommand[] commands, ParsedCommand condition) {
+        super(translation, scale, leftRotation);
         this.commands = commands;
         this.condition = condition;
     }

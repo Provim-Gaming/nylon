@@ -16,20 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-package org.provim.nylon.data;
+package org.provim.nylon.data.deserialization;
 
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceLocation;
+import com.google.gson.*;
+import org.joml.Quaternionf;
 
 import java.lang.reflect.Type;
 
-public record RegistryDeserializer<T>(Registry<T> registry) implements JsonDeserializer<T> {
+public class QuaternionfDeserializer implements JsonDeserializer<Quaternionf> {
     @Override
-    public T deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
-        return this.registry.get(ResourceLocation.parse(element.getAsString()));
+    public Quaternionf deserialize(JsonElement element, Type type, JsonDeserializationContext context) throws JsonParseException {
+        JsonArray array = element.getAsJsonArray();
+        Quaternionf quaternion = new Quaternionf();
+        quaternion.set(
+                array.get(0).getAsFloat(),
+                array.get(1).getAsFloat(),
+                array.get(2).getAsFloat(),
+                array.get(3).getAsFloat()
+        );
+        return quaternion;
     }
 }

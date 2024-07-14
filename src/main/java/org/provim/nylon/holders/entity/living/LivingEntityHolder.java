@@ -131,7 +131,6 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         }
 
         display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
-        display.setRightRotation(transform.readOnlyRightRotation());
 
         display.startInterpolation();
     }

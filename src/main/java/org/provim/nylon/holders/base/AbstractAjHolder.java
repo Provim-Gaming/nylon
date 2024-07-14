@@ -108,7 +108,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         element.setModelTransformation(ItemDisplayContext.FIXED);
         element.setSendPositionUpdates(false);
         element.setInvisible(true);
-        element.setInterpolationDuration(2);
+        element.setInterpolationDuration(1);
         element.setTeleportDuration(3);
 
         ItemStack stack = new ItemStack(rigItem);
@@ -180,7 +180,6 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         }
 
         display.setLeftRotation(transform.readOnlyLeftRotation());
-        display.setRightRotation(transform.readOnlyRightRotation());
 
         display.startInterpolation();
     }
