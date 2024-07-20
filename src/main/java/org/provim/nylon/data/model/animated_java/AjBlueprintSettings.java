@@ -22,8 +22,6 @@ import com.google.gson.annotations.SerializedName;
 import net.minecraft.world.item.Item;
 
 public record AjBlueprintSettings(
-        @SerializedName("display_item") Item displayItem,
-        @SerializedName("interpolation_duration") int interpolationDuration,
-        @SerializedName("teleportation_duration") int teleportationDuration
+        @SerializedName("display_item") Item displayItem
 ) {
 }

@@ -127,7 +127,6 @@ public class AjModelConverter {
     private static Transform convert(AjTransform ajTransform) {
         AjTransform.Transformation transformation = ajTransform.transformation();
         Quaternionf leftRotation = transformation.leftRotation().rotateY(Mth.DEG_TO_RAD * 180F);
-        ;
         Vector3f translation = transformation.translation();
         Vector3f scale = transformation.scale();
 
