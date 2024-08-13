@@ -28,20 +28,24 @@ public class Node {
     public final String name;
     public final UUID uuid;
     public final int customModelData;
+    public final Transform defaultTransform;
 
     public Node(
             NodeType type,
             String name,
             UUID uuid,
+            Transform defaultTransform,
             int customModelData
     ) {
         Validate.notNull(type, "Type cannot be null");
         Validate.notNull(name, "Name cannot be null");
         Validate.notNull(uuid, "UUID cannot be null");
+        Validate.notNull(defaultTransform, "Default transform cannot be null");
 
         this.type = type;
         this.name = name;
         this.uuid = uuid;
+        this.defaultTransform = defaultTransform;
         this.customModelData = customModelData;
     }
 

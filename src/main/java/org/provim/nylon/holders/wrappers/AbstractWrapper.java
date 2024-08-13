@@ -24,14 +24,12 @@ import org.provim.nylon.data.model.nylon.Transform;
 
 public abstract class AbstractWrapper {
     private final Node node;
-    private final Transform defaultTransform;
     protected Animation lastAnimation;
     protected Transform lastTransform;
 
-    public AbstractWrapper(Node node, Transform defaultTransform) {
+    public AbstractWrapper(Node node) {
         this.node = node;
-        this.defaultTransform = defaultTransform;
-        this.lastTransform = defaultTransform;
+        this.lastTransform = node.defaultTransform;
     }
 
     public Node node() {
@@ -43,7 +41,7 @@ public abstract class AbstractWrapper {
     }
 
     public Transform getDefaultTransform() {
-        return this.defaultTransform;
+        return this.node.defaultTransform;
     }
 
     public Animation getLastAnimation() {

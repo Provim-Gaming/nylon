@@ -18,16 +18,19 @@
 
 package org.provim.nylon.data.model.animated_java;
 
-import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import java.util.UUID;
 
 /**
  * Represents an Animated Java JSON model exported from Blockbench.
  * <a href="https://github.com/Animated-Java/animated-java/blob/main/schemas/jsonExport.schema.json">JSON Structure</a>
  */
 public record AjModel(
-        @SerializedName("blueprint_settings") AjBlueprintSettings blueprintSettings,
-        AjResources resources,
-        AjRig rig,
-        AjAnimation[] animations
+        AjBlueprintSettings settings,
+        Object2ObjectOpenHashMap<UUID, AjTexture> textures,
+        Object2ObjectOpenHashMap<UUID, AjNode> nodes,
+        Object2ObjectOpenHashMap<UUID, AjVariant> variants,
+        Object2ObjectOpenHashMap<UUID, AjAnimation> animations
 ) {
 }

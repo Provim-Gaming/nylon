@@ -28,12 +28,12 @@ import org.provim.nylon.holders.base.AbstractAjHolder;
 public class Locator extends AbstractWrapper {
     private final ObjectSet<LocatorListener> listeners;
 
-    public static Locator of(Node node, Transform defaultTransform) {
-        return new Locator(node, defaultTransform);
+    public static Locator of(Node node) {
+        return new Locator(node);
     }
 
-    public Locator(Node node, Transform defaultTransform) {
-        super(node, defaultTransform);
+    public Locator(Node node) {
+        super(node);
         this.listeners = ObjectSets.synchronize(new ObjectArraySet<>());
     }
 

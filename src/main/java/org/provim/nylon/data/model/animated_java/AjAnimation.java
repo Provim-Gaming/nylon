@@ -18,16 +18,16 @@
 
 package org.provim.nylon.data.model.animated_java;
 
+import com.google.gson.annotations.SerializedName;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.UUID;
 
 public record AjAnimation(
-        String name,
+        @SerializedName("safe_name") String name,
+        @SerializedName("modified_nodes") ReferenceOpenHashSet<UUID> modifiedNodes,
         AjFrame[] frames,
-        int duration,
-        int loopDelay,
-        String loopMode,
-        ReferenceOpenHashSet<UUID> includedNodes
+        @SerializedName("loop_delay") int loopDelay,
+        @SerializedName("loop_mode") String loopMode
 ) {
 }

@@ -18,13 +18,21 @@
 
 package org.provim.nylon.data.model.animated_java;
 
+import com.google.gson.JsonObject;
 import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
 import java.util.UUID;
 
 public record AjVariant(
         String name,
-        @SerializedName("excluded_nodes") ReferenceOpenHashSet<UUID> excludedNodes
+        @SerializedName("is_default") boolean isDefault,
+        @SerializedName("excluded_nodes") ReferenceOpenHashSet<UUID> excludedNodes,
+        Object2ObjectOpenHashMap<UUID, ModelData> models
 ) {
+    public record ModelData(
+            JsonObject model
+    ) {
+    }
 }

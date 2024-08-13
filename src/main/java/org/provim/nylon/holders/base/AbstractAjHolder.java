@@ -86,17 +86,16 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     protected void setupElements(List<Bone> bones) {
         Item rigItem = this.model.rigItem;
         for (Node node : this.model.nodes) {
-            Transform defaultTransform = this.model.defaultTransforms.get(node.uuid);
             switch (node.type) {
                 case BONE -> {
                     ItemDisplayElement bone = this.createBone(node, rigItem);
                     if (bone != null) {
-                        bones.add(Bone.of(bone, node, defaultTransform));
+                        bones.add(Bone.of(bone, node));
                         this.addElement(bone);
                     }
                 }
                 case LOCATOR -> {
-                    this.locatorMap.put(node.name, Locator.of(node, defaultTransform));
+                    this.locatorMap.put(node.name, Locator.of(node));
                 }
             }
         }

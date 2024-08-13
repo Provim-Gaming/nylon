@@ -23,15 +23,12 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-import java.util.UUID;
-
 public record AjTransform(
-        UUID uuid,
-        Transformation transformation,
+        Decomposed decomposed,
         @Nullable String commands,
         @SerializedName("execute_condition") @Nullable String executeCondition
 ) {
-    public record Transformation(
+    public record Decomposed(
             Vector3f translation,
             Vector3f scale,
             @SerializedName("left_rotation") Quaternionf leftRotation

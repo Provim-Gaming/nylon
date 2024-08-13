@@ -19,12 +19,13 @@
 package org.provim.nylon.data.model.animated_java;
 
 import com.google.gson.annotations.SerializedName;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.UUID;
 
 public record AjFrame(
-        @SerializedName("node_transforms") AjTransform[] transforms,
+        @SerializedName("node_transforms") Object2ObjectOpenHashMap<UUID, AjTransform> transforms,
         @Nullable Variant variant
 ) {
     public record Variant(

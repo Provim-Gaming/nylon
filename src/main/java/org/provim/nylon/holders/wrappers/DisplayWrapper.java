@@ -25,7 +25,6 @@ import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 import org.provim.nylon.data.model.nylon.Node;
-import org.provim.nylon.data.model.nylon.Transform;
 
 public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final TrackedData trackedData = new TrackedData();
@@ -33,11 +32,11 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final boolean isHead;
 
     public DisplayWrapper(T element, AbstractWrapper wrapper, boolean isHead) {
-        this(element, wrapper.node(), wrapper.getDefaultTransform(), isHead);
+        this(element, wrapper.node(), isHead);
     }
 
-    public DisplayWrapper(T element, Node node, Transform defaultTransform, boolean isHead) {
-        super(node, defaultTransform);
+    public DisplayWrapper(T element, Node node, boolean isHead) {
+        super(node);
         this.element = element;
         this.isHead = isHead;
     }

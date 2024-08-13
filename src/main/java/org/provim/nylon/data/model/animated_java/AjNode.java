@@ -18,15 +18,15 @@
 
 package org.provim.nylon.data.model.animated_java;
 
-import net.minecraft.resources.ResourceLocation;
+import com.google.gson.annotations.SerializedName;
 
 import java.util.UUID;
 
 public record AjNode(
+        @SerializedName("safe_name") String name,
         String type, // TODO: Add support for display entities
-        String name,
         UUID uuid,
-        ResourceLocation resourceLocation
+        @SerializedName("default_transform") AjTransform defaultTransform
         // TODO: Add support for bone configs
 ) {
 }

@@ -19,9 +19,8 @@
 package org.provim.nylon.data.model.animated_java;
 
 import com.google.gson.annotations.SerializedName;
-import net.minecraft.world.item.Item;
 
 public record AjBlueprintSettings(
-        @SerializedName("display_item") Item displayItem
+        @SerializedName("export_namespace") String exportNamespace
 ) {
 }

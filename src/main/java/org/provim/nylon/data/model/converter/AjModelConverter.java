@@ -20,9 +20,10 @@ package org.provim.nylon.data.model.converter;
 
 import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.item.Item;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -30,56 +31,55 @@ import org.provim.nylon.data.model.animated_java.*;
 import org.provim.nylon.data.model.nylon.*;
 import org.provim.nylon.data.model.nylon.animated_java.FrameWithEffects;
 import org.provim.nylon.data.model.nylon.animated_java.TransformWithCommands;
+import org.provim.nylon.util.NylonConstants;
 import org.provim.nylon.util.commands.CommandParser;
 
 import java.util.Locale;
-import java.util.Map;
 import java.util.UUID;
 
 public class AjModelConverter {
+    private static final String BASE_MODEL_ID = "animated_java:item/";
 
     public static NylonModel convert(AjModel ajModel) {
-        var displayItem = ajModel.blueprintSettings().displayItem();
-        var nodes = new Node[ajModel.rig().nodeMap().size()];
+        var nodes = new ObjectArrayList<Node>();
         var animations = new Object2ObjectOpenHashMap<String, Animation>();
         var variants = new Reference2ObjectOpenHashMap<UUID, Variant>();
-        var defaultTransforms = new Reference2ObjectOpenHashMap<UUID, Transform>();
 
-        int index = 0;
-        for (AjNode node : ajModel.rig().nodeMap().values()) {
+        for (AjNode node : ajModel.nodes().values()) {
             try {
-                Node converted = convert(node, displayItem);
-                nodes[index++] = converted;
+                Node converted = convert(node, ajModel);
+                nodes.add(converted);
             } catch (Exception ignored) {
             }
         }
 
-        ajModel.rig().variants().forEach((uuid, ajVariant) -> {
-            var variantModels = ajModel.resources().variantModels().get(uuid);
-            if (variantModels != null) {
-                variants.put(uuid, convert(ajVariant, displayItem, variantModels));
+        for (UUID uuid : ajModel.variants().keySet()) {
+            AjVariant ajVariant = ajModel.variants().get(uuid);
+            if (!ajVariant.isDefault()) {
+                variants.put(uuid, convert(ajVariant, ajModel));
             }
-        });
-
-        for (AjAnimation animation : ajModel.animations()) {
-            animations.put(animation.name(), convert(animation));
         }
 
-        for (AjTransform transform : ajModel.rig().defaultTransforms()) {
-            defaultTransforms.put(transform.uuid(), convert(transform));
+        for (AjAnimation animation : ajModel.animations().values()) {
+            animations.put(animation.name(), convert(animation));
         }
 
         AjResourceGenerator.generate(ajModel);
 
-        return new NylonModel(displayItem, nodes, defaultTransforms, variants, animations);
+        return new NylonModel(NylonConstants.DISPLAY_ITEM, nodes.toArray(new Node[0]), variants, animations);
     }
 
-    private static Variant convert(AjVariant ajVariant, Item displayItem, Map<UUID, AjResources.VariantModel> variantModels) {
+    private static Variant convert(AjVariant ajVariant, AjModel ajModel) {
         Object2ObjectOpenHashMap<UUID, Variant.Model> models = new Object2ObjectOpenHashMap<>();
-        variantModels.forEach((uuid, model) -> models.put(uuid, new Variant.Model(
-                PolymerResourcePackUtils.requestModel(displayItem, model.resourceLocation()).value(),
-                model.resourceLocation()
-        )));
+        ajVariant.models().forEach((uuid, modelJson) -> {
+            String namespace = ajModel.settings().exportNamespace();
+            AjNode node = ajModel.nodes().get(uuid);
+            ResourceLocation modelId = modelId(namespace, node.name(), ajVariant.name());
+            models.put(uuid, new Variant.Model(
+                    PolymerResourcePackUtils.requestModel(NylonConstants.DISPLAY_ITEM, modelId).value(),
+                    modelId
+            ));
+        });
 
         return new Variant(
                 ajVariant.name(),
@@ -88,13 +88,15 @@ public class AjModelConverter {
         );
     }
 
-    private static Node convert(AjNode ajNode, Item displayItem) {
+    private static Node convert(AjNode ajNode, AjModel ajModel) {
         Node.NodeType type = Node.NodeType.valueOf(ajNode.type().toUpperCase(Locale.ENGLISH));
+        ResourceLocation modelId = modelId(ajModel.settings().exportNamespace(), ajNode.name());
         return new Node(
                 type,
                 ajNode.name(),
                 ajNode.uuid(),
-                type == Node.NodeType.BONE ? PolymerResourcePackUtils.requestModel(displayItem, ajNode.resourceLocation()).value() : 0
+                convert(ajNode.defaultTransform()),
+                type == Node.NodeType.BONE ? PolymerResourcePackUtils.requestModel(NylonConstants.DISPLAY_ITEM, modelId).value() : 0
         );
     }
 
@@ -108,14 +110,15 @@ public class AjModelConverter {
                 frames,
                 ajAnimation.loopDelay(),
                 Animation.LoopMode.valueOf(ajAnimation.loopMode().toUpperCase(Locale.ENGLISH)),
-                ajAnimation.includedNodes()
+                ajAnimation.modifiedNodes()
         );
     }
 
     private static Frame convert(AjFrame ajFrame) {
         Reference2ObjectOpenHashMap<UUID, Transform> transforms = new Reference2ObjectOpenHashMap<>();
-        for (AjTransform transform : ajFrame.transforms()) {
-            transforms.put(transform.uuid(), convert(transform));
+        for (UUID uuid : ajFrame.transforms().keySet()) {
+            AjTransform transform = ajFrame.transforms().get(uuid);
+            transforms.put(uuid, convert(transform));
         }
 
         return new FrameWithEffects(
@@ -125,10 +128,10 @@ public class AjModelConverter {
     }
 
     private static Transform convert(AjTransform ajTransform) {
-        AjTransform.Transformation transformation = ajTransform.transformation();
-        Quaternionf leftRotation = transformation.leftRotation().rotateY(Mth.DEG_TO_RAD * 180F);
-        Vector3f translation = transformation.translation();
-        Vector3f scale = transformation.scale();
+        AjTransform.Decomposed decomposed = ajTransform.decomposed();
+        Quaternionf leftRotation = decomposed.leftRotation().rotateY(Mth.DEG_TO_RAD * 180F);
+        Vector3f translation = decomposed.translation();
+        Vector3f scale = decomposed.scale();
 
         String commands = ajTransform.commands();
         if (commands == null || commands.isEmpty()) {
@@ -160,5 +163,13 @@ public class AjModelConverter {
                 ajVariant.uuid(),
                 CommandParser.parseCondition(condition)
         );
+    }
+
+    private static ResourceLocation modelId(String namespace, String nodeName) {
+        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s".formatted(namespace, nodeName));
+    }
+
+    private static ResourceLocation modelId(String namespace, String nodeName, String variantName) {
+        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s/%s".formatted(namespace, variantName, nodeName));
     }
 }
