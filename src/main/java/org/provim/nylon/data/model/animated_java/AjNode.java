@@ -23,7 +23,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.UUID;
 
 public record AjNode(
-        @SerializedName("safe_name") String name,
+        String name,
         String type, // TODO: Add support for display entities
         UUID uuid,
         @SerializedName("default_transform") AjTransform defaultTransform

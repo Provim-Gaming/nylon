@@ -30,7 +30,7 @@ public record AjFrame(
 ) {
     public record Variant(
             UUID uuid,
-            @Nullable String executeCondition
+            @SerializedName("execute_condition") @Nullable String executeCondition
     ) {
     }
 }

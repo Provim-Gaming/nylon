@@ -24,7 +24,7 @@ import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 import java.util.UUID;
 
 public record AjAnimation(
-        @SerializedName("safe_name") String name,
+        String name,
         @SerializedName("modified_nodes") ReferenceOpenHashSet<UUID> modifiedNodes,
         AjFrame[] frames,
         @SerializedName("loop_delay") int loopDelay,

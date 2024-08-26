@@ -90,7 +90,7 @@ public class AjModelConverter {
 
     private static Node convert(AjNode ajNode, AjModel ajModel) {
         Node.NodeType type = Node.NodeType.valueOf(ajNode.type().toUpperCase(Locale.ENGLISH));
-        ResourceLocation modelId = modelId(ajModel.settings().exportNamespace(), ajNode.name());
+        ResourceLocation modelId = modelId(ajModel.settings().exportNamespace(), ajNode.name(), "default");
         return new Node(
                 type,
                 ajNode.name(),
@@ -163,10 +163,6 @@ public class AjModelConverter {
                 ajVariant.uuid(),
                 CommandParser.parseCondition(condition)
         );
-    }
-
-    private static ResourceLocation modelId(String namespace, String nodeName) {
-        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s".formatted(namespace, nodeName));
     }
 
     private static ResourceLocation modelId(String namespace, String nodeName, String variantName) {

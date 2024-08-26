@@ -40,7 +40,7 @@ public class AjResourceGenerator {
                 AjVariant.ModelData data = variant.models().get(nodeUuid);
                 AjNode node = ajModel.nodes().get(nodeUuid);
                 ModelResources.addResource(
-                        variant.isDefault() ? modelPath(namespace, node.name()) : modelPath(namespace, node.name(), variant.name()),
+                        modelPath(namespace, node.name(), variant.name()),
                         data.model()
                 );
             }
@@ -56,10 +56,6 @@ public class AjResourceGenerator {
 
     private static String texturePath(String namespace, String textureName) {
         return BASE_TEXTURE_PATH + "%s/%s".formatted(namespace, textureName);
-    }
-
-    private static String modelPath(String namespace, String nodeName) {
-        return BASE_MODEL_PATH + "%s/%s.json".formatted(namespace, nodeName);
     }
 
     private static String modelPath(String namespace, String nodeName, String variantName) {
