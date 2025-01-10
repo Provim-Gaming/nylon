@@ -136,7 +136,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     @Override
     public CommandSourceStack createCommandSourceStack() {
-        return this.parent.createCommandSourceStack();
+        return this.parent.createCommandSourceStackForNameResolution(this.level);
     }
 
     @Override

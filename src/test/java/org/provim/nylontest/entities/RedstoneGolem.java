@@ -21,6 +21,7 @@ package org.provim.nylontest.entities;
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -62,7 +63,8 @@ public class RedstoneGolem extends Monster implements AjEntity {
                 .add(Attributes.MAX_HEALTH, 140.0)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
                 .add(Attributes.ATTACK_KNOCKBACK, 4.0)
-                .add(Attributes.ATTACK_DAMAGE, 16.0);
+                .add(Attributes.ATTACK_DAMAGE, 16.0)
+                .add(Attributes.TEMPT_RANGE);
     }
 
     @Override
@@ -103,7 +105,7 @@ public class RedstoneGolem extends Monster implements AjEntity {
     }
 
     @Override
-    public int getBaseExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel serverLevel) {
         return 18;
     }
 

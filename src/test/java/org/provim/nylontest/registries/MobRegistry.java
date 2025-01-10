@@ -22,6 +22,8 @@ import eu.pb4.polymer.core.api.entity.PolymerEntityUtils;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
@@ -37,9 +39,10 @@ public class MobRegistry {
     );
 
     private static <T extends Entity> EntityType<T> register(ResourceLocation id, EntityType.Builder<T> builder) {
-        EntityType<T> type = builder.build();
+        var key = ResourceKey.create(Registries.ENTITY_TYPE, id);
+        EntityType<T> type = builder.build(key);
         PolymerEntityUtils.registerType(type);
-        return Registry.register(BuiltInRegistries.ENTITY_TYPE, id, type);
+        return Registry.register(BuiltInRegistries.ENTITY_TYPE, key, type);
     }
 
     public static void registerMobs() {

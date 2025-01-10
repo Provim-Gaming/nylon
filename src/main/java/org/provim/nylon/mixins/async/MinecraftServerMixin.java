@@ -38,8 +38,8 @@ public abstract class MinecraftServerMixin {
             method = "tickChildren",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/server/network/ServerConnectionListener;tick()V",
-                    ordinal = 0
+                    target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V",
+                    ordinal = 4
             )
     )
     private void nylon$ensureAsyncTickFinished(BooleanSupplier booleanSupplier, CallbackInfo ci) {

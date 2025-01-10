@@ -25,7 +25,6 @@ import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -139,11 +138,6 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
-            // noinspection unchecked
-            consumer.accept((Packet<ClientGamePacketListener>) packet);
-        }
-
         if (this.parent.canBreatheUnderwater()) {
             consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false), false));
         }
@@ -200,7 +194,7 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         super.onDimensionsUpdated(dimensions);
 
         this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width(), dimensions.height())));
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+        this.hitboxInteraction.setSize(dimensions);
     }
 
     @Override

@@ -29,12 +29,12 @@ import java.util.UUID;
 @SuppressWarnings("ClassCanBeRecord")
 public class Variant {
     public final String name;
-    public final Object2ObjectOpenHashMap<UUID, Model> models;
+    public final Object2ObjectOpenHashMap<UUID, ResourceLocation> models;
     public final ReferenceOpenHashSet<UUID> excludedNodes;
 
     public Variant(
             String name,
-            Object2ObjectOpenHashMap<UUID, Model> models,
+            Object2ObjectOpenHashMap<UUID, ResourceLocation> models,
             ReferenceOpenHashSet<UUID> excludedNodes
     ) {
         Validate.notNull(name, "Name cannot be null");
@@ -48,19 +48,6 @@ public class Variant {
 
     public boolean isAffected(UUID boneUuid) {
         return !this.excludedNodes.contains(boneUuid);
-    }
-
-    public static final class Model {
-        public final int customModelData;
-        public final ResourceLocation resourceLocation;
-
-        public Model(
-                int customModelData,
-                ResourceLocation resourceLocation
-        ) {
-            this.customModelData = customModelData;
-            this.resourceLocation = resourceLocation;
-        }
     }
 }
 

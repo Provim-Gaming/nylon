@@ -26,6 +26,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public interface AjEntity extends PolymerEntity {
     }
 
     @Override
-    default EntityType<?> getPolymerEntityType(ServerPlayer player) {
+    default EntityType<?> getPolymerEntityType(PacketContext packetContext) {
         return EntityType.BLOCK_DISPLAY;
     }
 

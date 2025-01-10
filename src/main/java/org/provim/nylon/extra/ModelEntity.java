@@ -34,6 +34,7 @@ import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.entity.simple.SimpleEntityHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
+import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class ModelEntity extends Interaction implements AjEntity {
     }
 
     @Override
-    public EntityType<?> getPolymerEntityType(ServerPlayer player) {
+    public EntityType<?> getPolymerEntityType(PacketContext packetContext) {
         return EntityType.INTERACTION;
     }
 

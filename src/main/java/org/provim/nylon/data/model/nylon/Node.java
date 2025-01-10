@@ -18,6 +18,7 @@
 
 package org.provim.nylon.data.model.nylon;
 
+import net.minecraft.resources.ResourceLocation;
 import org.apache.commons.lang3.Validate;
 
 import java.util.UUID;
@@ -27,7 +28,7 @@ public class Node {
     public final NodeType type;
     public final String name;
     public final UUID uuid;
-    public final int customModelData;
+    public final ResourceLocation model;
     public final Transform defaultTransform;
 
     public Node(
@@ -35,7 +36,7 @@ public class Node {
             String name,
             UUID uuid,
             Transform defaultTransform,
-            int customModelData
+            ResourceLocation model
     ) {
         Validate.notNull(type, "Type cannot be null");
         Validate.notNull(name, "Name cannot be null");
@@ -46,7 +47,7 @@ public class Node {
         this.name = name;
         this.uuid = uuid;
         this.defaultTransform = defaultTransform;
-        this.customModelData = customModelData;
+        this.model = model;
     }
 
     public enum NodeType {

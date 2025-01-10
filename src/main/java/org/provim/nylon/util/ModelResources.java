@@ -27,8 +27,20 @@ import java.nio.charset.StandardCharsets;
 public class ModelResources {
     private static final Object2ObjectOpenHashMap<String, byte[]> RESOURCES = new Object2ObjectOpenHashMap<>();
 
+    static {
+        // Polymer automatically handles merging of the atlas files
+        addResource(
+                "assets/minecraft/atlases/blocks.json",
+                "{\"sources\": [{\"type\": \"directory\",\"source\": \"blueprint\",\"prefix\": \"blueprint/\"}]}"
+        );
+    }
+
     public static void addResource(String path, JsonObject data) {
-        addResource(path, data.toString().getBytes(StandardCharsets.UTF_8));
+        addResource(path, data.toString());
+    }
+
+    public static void addResource(String path, String data) {
+        addResource(path, data.getBytes(StandardCharsets.UTF_8));
     }
 
     public static void addResource(String path, byte[] data) {

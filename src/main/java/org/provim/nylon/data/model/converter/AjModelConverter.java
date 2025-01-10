@@ -18,7 +18,6 @@
 
 package org.provim.nylon.data.model.converter;
 
-import eu.pb4.polymer.resourcepack.api.PolymerResourcePackUtils;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
@@ -38,7 +37,7 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class AjModelConverter {
-    private static final String BASE_MODEL_ID = "animated_java:item/";
+    private static final String BASE_MODEL_ID = "animated_java:blueprint/";
 
     public static NylonModel convert(AjModel ajModel) {
         var nodes = new ObjectArrayList<Node>();
@@ -70,15 +69,11 @@ public class AjModelConverter {
     }
 
     private static Variant convert(AjVariant ajVariant, AjModel ajModel) {
-        Object2ObjectOpenHashMap<UUID, Variant.Model> models = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<UUID, ResourceLocation> models = new Object2ObjectOpenHashMap<>();
         ajVariant.models().forEach((uuid, modelJson) -> {
             String namespace = ajModel.settings().exportNamespace();
             AjNode node = ajModel.nodes().get(uuid);
-            ResourceLocation modelId = modelId(namespace, node.name(), ajVariant.name());
-            models.put(uuid, new Variant.Model(
-                    PolymerResourcePackUtils.requestModel(NylonConstants.DISPLAY_ITEM, modelId).value(),
-                    modelId
-            ));
+            models.put(uuid, modelId(namespace, node.name(), ajVariant.name()));
         });
 
         return new Variant(
@@ -90,13 +85,13 @@ public class AjModelConverter {
 
     private static Node convert(AjNode ajNode, AjModel ajModel) {
         Node.NodeType type = Node.NodeType.valueOf(ajNode.type().toUpperCase(Locale.ENGLISH));
-        ResourceLocation modelId = modelId(ajModel.settings().exportNamespace(), ajNode.name(), "default");
+        ResourceLocation modelId = defaultModelId(ajModel.settings().exportNamespace(), ajNode.name());
         return new Node(
                 type,
                 ajNode.name(),
                 ajNode.uuid(),
                 convert(ajNode.defaultTransform()),
-                type == Node.NodeType.BONE ? PolymerResourcePackUtils.requestModel(NylonConstants.DISPLAY_ITEM, modelId).value() : 0
+                modelId
         );
     }
 
@@ -165,7 +160,11 @@ public class AjModelConverter {
         );
     }
 
-    private static ResourceLocation modelId(String namespace, String nodeName, String variantName) {
+    public static ResourceLocation defaultModelId(String namespace, String nodeName) {
+        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s".formatted(namespace, nodeName));
+    }
+
+    public static ResourceLocation modelId(String namespace, String nodeName, String variantName) {
         return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s/%s".formatted(namespace, variantName, nodeName));
     }
 }

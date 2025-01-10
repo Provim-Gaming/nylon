@@ -22,7 +22,6 @@ import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
@@ -35,7 +34,6 @@ import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
-import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
 
@@ -53,11 +51,6 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     @Override
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
-
-        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
-            // noinspection unchecked
-            consumer.accept((Packet<ClientGamePacketListener>) packet);
-        }
 
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
     }
@@ -109,7 +102,7 @@ public class InteractableEntityHolder<T extends Entity & AjEntity> extends Entit
     @Override
     public void onDimensionsUpdated(EntityDimensions dimensions) {
         super.onDimensionsUpdated(dimensions);
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+        this.hitboxInteraction.setSize(dimensions);
     }
 
     @Override

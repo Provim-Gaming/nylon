@@ -18,6 +18,7 @@
 
 package org.provim.nylon.component;
 
+import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.VariantController;
 import org.provim.nylon.data.model.nylon.NylonModel;
@@ -46,7 +47,7 @@ public class VariantComponent extends ComponentBase implements VariantController
         if (this.currentVariant != null) {
             this.currentVariant = null;
             for (Bone bone : this.holder.getBones()) {
-                bone.updateModelData(bone.node().customModelData);
+                bone.updateModelData(bone.node().model);
             }
         }
     }
@@ -88,9 +89,9 @@ public class VariantComponent extends ComponentBase implements VariantController
     private void applyVariantToBones(Variant variant) {
         for (Bone bone : this.holder.getBones()) {
             UUID uuid = bone.node().uuid;
-            Variant.Model model = variant.models.get(uuid);
+            ResourceLocation model = variant.models.get(uuid);
             if (model != null && variant.isAffected(uuid)) {
-                bone.updateModelData(model.customModelData);
+                bone.updateModelData(model);
             }
         }
     }
