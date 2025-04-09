@@ -62,7 +62,7 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
             return;
         }
 
-        this.item.set(DataComponents.DYED_COLOR, new DyedItemColor(color, false));
+        this.item.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
         if (!this.invisible) {
             this.setTrackedItem(this.item);
         }

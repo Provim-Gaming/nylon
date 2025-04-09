@@ -103,7 +103,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
     @Nullable
     protected ItemDisplayElement createBone(Node node, Item rigItem) {
         ItemDisplayElement element = new ItemDisplayElement();
-        element.setModelTransformation(ItemDisplayContext.FIXED);
+        element.setItemDisplayContext(ItemDisplayContext.FIXED);
         element.setSendPositionUpdates(false);
         element.setInvisible(true);
         element.setInterpolationDuration(1);
@@ -112,7 +112,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
         ItemStack stack = new ItemStack(rigItem);
         stack.set(DataComponents.ITEM_MODEL, node.model);
         if (stack.is(ItemTags.DYEABLE)) {
-            stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1, false));
+            stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1));
         }
 
         element.setItem(stack);

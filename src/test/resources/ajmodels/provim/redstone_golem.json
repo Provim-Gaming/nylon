@@ -39,7 +39,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"11e6defd-4765-92c2-2db4-6123078a5fdc": {
@@ -65,7 +65,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"24e5c014-f6cf-5e51-c66e-66cb97d7f397": {
@@ -115,7 +115,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"97a411e3-5f8b-e62e-ed2c-d864fb9266dc": {
@@ -141,7 +141,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"574ce3e8-3a05-eab8-d4f1-ef6415dd0758": {
@@ -167,7 +167,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"f6db5a1d-be24-1fed-939b-6f6905886697": {
@@ -192,7 +192,7 @@
 				"scale": [1.33333, 1.33333, 1.33333]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"1a6ecc7f-c612-74f5-7dbd-9262d57d7664": {
@@ -217,7 +217,7 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		},
 		"0a48b1d4-d635-8ff8-b7e9-17b0e21ee09d": {
@@ -242,15 +242,15 @@
 				"scale": [1, 1, 1]
 			},
 			"configs": {
-				"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {}
+				"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {}
 			}
 		}
 	},
 	"variants": {
-		"aa22664b-c93e-962d-4bb7-61fa84e9bff4": {
+		"27e115ce-a01d-4204-6eb7-850ee5f1a8e6": {
 			"name": "default",
 			"display_name": "Default",
-			"uuid": "aa22664b-c93e-962d-4bb7-61fa84e9bff4",
+			"uuid": "27e115ce-a01d-4204-6eb7-850ee5f1a8e6",
 			"texture_map": {},
 			"excluded_nodes": [],
 			"is_default": true,

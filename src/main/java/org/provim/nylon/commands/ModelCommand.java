@@ -107,7 +107,7 @@ public class ModelCommand {
         try {
             NylonModel model = supplier.get();
             ModelEntity entity = new ModelEntity(level, model);
-            entity.moveTo(pos.x, pos.y, pos.z, rot.y, 0F);
+            entity.snapTo(pos.x, pos.y, pos.z, rot.y, 0F);
 
             level.addFreshEntity(entity);
             source.sendSuccess(() -> Component.literal("Successfully spawned model!"), false);
