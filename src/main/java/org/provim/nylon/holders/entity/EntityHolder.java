@@ -1,9 +1,26 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.entity;
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -15,17 +32,20 @@ import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.api.AjEntityHolder;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
 import org.provim.nylon.holders.wrappers.Bone;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjNode;
 import org.provim.nylon.util.Utils;
 
 import java.util.function.Consumer;
@@ -36,7 +56,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
     protected EntityDimensions dimensions;
     protected int tickCount;
 
-    protected EntityHolder(T parent, AjModel model) {
+    protected EntityHolder(T parent, NylonModel model) {
         super(model, (ServerLevel) parent.level());
         this.additionalDisplays = new ObjectOpenHashSet<>();
         this.parent = parent;
@@ -47,10 +67,10 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     @Override
     @Nullable
-    protected ItemDisplayElement createBone(AjNode node, Item rigItem) {
+    protected ItemDisplayElement createBone(Node node, Item rigItem) {
         ItemDisplayElement element = super.createBone(node, rigItem);
         if (element != null) {
-            element.getDataTracker().set(DisplayTrackedData.TELEPORTATION_DURATION, this.parent.getTeleportDuration());
+            element.setTeleportDuration(this.parent.getTeleportDuration());
         }
         return element;
     }
@@ -58,6 +78,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
     @Override
     public boolean addAdditionalDisplay(DisplayElement element) {
         if (this.additionalDisplays.add(element)) {
+            element.setSendPositionUpdates(false);
             this.addElement(element);
             this.sendPacket(new ClientboundSetPassengersPacket(this.parent));
             return true;
@@ -115,7 +136,7 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     @Override
     public CommandSourceStack createCommandSourceStack() {
-        return this.parent.createCommandSourceStack();
+        return this.parent.createCommandSourceStackForNameResolution(this.level);
     }
 
     @Override
@@ -132,8 +153,8 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     protected void updateCullingBox() {
         float scale = this.getScale();
-        float width = scale * (this.dimensions.width * 2);
-        float height = scale * (this.dimensions.height + 1);
+        float width = scale * (this.dimensions.width() * 2);
+        float height = scale * (this.dimensions.height() + 1);
 
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(width, height);
@@ -163,6 +184,21 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
         for (Bone bone : this.bones) {
             bone.element().setGlowing(isGlowing);
         }
+    }
+
+    @Override
+    public Vec3 getTransformOffsetPos(Transform transform) {
+        float scale = this.getScale();
+        float yRot = this.parent.getYRot();
+        float angle = yRot * Mth.DEG_TO_RAD;
+
+        Vector3f offset = transform.translation();
+        if (scale != 1F) {
+            offset.mul(scale);
+        }
+        offset.rotateY(-angle);
+
+        return this.getPos().add(offset.x, offset.y, offset.z);
     }
 
     @Override

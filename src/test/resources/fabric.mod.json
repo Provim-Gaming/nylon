@@ -25,6 +25,7 @@
     "fabricloader": "*",
     "polymer-core": "*",
     "polymer-virtual-entity": "*",
-    "polymer-resource-pack": "*"
+    "polymer-resource-pack": "*",
+    "polymer-resource-pack-extras": "*"
   }
 }

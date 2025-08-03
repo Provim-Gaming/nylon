@@ -1,8 +1,27 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylontest.entities;
 
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
@@ -27,15 +46,15 @@ import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.AjLoader;
+import org.provim.nylon.data.model.nylon.NylonModel;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.entity.living.LivingEntityHolder;
-import org.provim.nylon.model.AjModel;
 import org.provim.nylontest.registries.SoundRegistry;
 import org.provim.nylontest.util.AnimationHelper;
 
 public class RedstoneGolem extends Monster implements AjEntity {
-    public static final ResourceLocation ID = new ResourceLocation("provim", "redstone_golem");
-    public static final AjModel MODEL = AjLoader.require(ID);
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("provim", "redstone_golem");
+    public static final NylonModel MODEL = AjLoader.require(ID);
     private final EntityHolder<RedstoneGolem> holder;
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -44,7 +63,8 @@ public class RedstoneGolem extends Monster implements AjEntity {
                 .add(Attributes.MAX_HEALTH, 140.0)
                 .add(Attributes.KNOCKBACK_RESISTANCE, 1.0)
                 .add(Attributes.ATTACK_KNOCKBACK, 4.0)
-                .add(Attributes.ATTACK_DAMAGE, 16.0);
+                .add(Attributes.ATTACK_DAMAGE, 16.0)
+                .add(Attributes.TEMPT_RANGE);
     }
 
     @Override
@@ -85,7 +105,7 @@ public class RedstoneGolem extends Monster implements AjEntity {
     }
 
     @Override
-    public int getExperienceReward() {
+    protected int getBaseExperienceReward(ServerLevel serverLevel) {
         return 18;
     }
 

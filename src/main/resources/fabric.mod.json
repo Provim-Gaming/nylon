@@ -6,8 +6,10 @@
   "description": "Library for creating serverside content using Animated-Java for custom models and animations.",
   "icon": "icon.png",
   "authors": [
-    "Pinnit",
     "Wesley1808"
+  ],
+  "contributors": [
+    "tomalbrc"
   ],
   "contact": {
     "sources": "https://github.com/Provim-Gaming/nylon",

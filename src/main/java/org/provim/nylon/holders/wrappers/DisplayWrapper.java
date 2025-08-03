@@ -1,3 +1,21 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.wrappers;
 
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
@@ -6,8 +24,7 @@ import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
+import org.provim.nylon.data.model.nylon.Node;
 
 public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final TrackedData trackedData = new TrackedData();
@@ -15,11 +32,11 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
     private final boolean isHead;
 
     public DisplayWrapper(T element, AbstractWrapper wrapper, boolean isHead) {
-        this(element, wrapper.node(), wrapper.getDefaultPose(), isHead);
+        this(element, wrapper.node(), isHead);
     }
 
-    public DisplayWrapper(T element, AjNode node, AjPose defaultPose, boolean isHead) {
-        super(node, defaultPose);
+    public DisplayWrapper(T element, Node node, boolean isHead) {
+        super(node);
         this.element = element;
         this.isHead = isHead;
     }

@@ -1,26 +1,46 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.wrappers;
 
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
 import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
+import net.minecraft.world.item.component.DyedItemColor;
+import org.provim.nylon.data.model.nylon.Node;
 
 public class Bone extends DisplayWrapper<ItemDisplayElement> {
     private final ItemStack item;
     private boolean invisible;
 
-    public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
-        return new Bone(element, node, defaultPose, isHead);
+    public static Bone of(ItemDisplayElement element, Node node, boolean isHead) {
+        return new Bone(element, node, isHead);
     }
 
-    public static Bone of(ItemDisplayElement element, AjNode node, AjPose defaultPose) {
-        return new Bone(element, node, defaultPose, node.name().startsWith("head"));
+    public static Bone of(ItemDisplayElement element, Node node) {
+        return new Bone(element, node, node.name.startsWith("head"));
     }
 
-    protected Bone(ItemDisplayElement element, AjNode node, AjPose defaultPose, boolean isHead) {
-        super(element, node, defaultPose, isHead);
+    protected Bone(ItemDisplayElement element, Node node, boolean isHead) {
+        super(element, node, isHead);
         this.item = element.getItem();
     }
 
@@ -38,15 +58,18 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     public void updateColor(int color) {
-        this.item.getOrCreateTagElement("display").putInt("color", color);
+        if (!this.item.is(ItemTags.DYEABLE)) {
+            return;
+        }
 
+        this.item.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
         if (!this.invisible) {
             this.setTrackedItem(this.item);
         }
     }
 
-    public void updateModelData(int customModelData) {
-        this.item.getOrCreateTag().putInt("CustomModelData", customModelData);
+    public void updateModelData(ResourceLocation model) {
+        this.item.set(DataComponents.ITEM_MODEL, model);
 
         if (!this.invisible) {
             this.setTrackedItem(this.item);

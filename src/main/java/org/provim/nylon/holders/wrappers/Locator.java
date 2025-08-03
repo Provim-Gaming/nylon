@@ -1,30 +1,48 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.wrappers;
 
 import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import it.unimi.dsi.fastutil.objects.ObjectSet;
 import it.unimi.dsi.fastutil.objects.ObjectSets;
+import org.provim.nylon.data.model.nylon.Node;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.base.AbstractAjHolder;
-import org.provim.nylon.model.AjNode;
-import org.provim.nylon.model.AjPose;
 
 public class Locator extends AbstractWrapper {
     private final ObjectSet<LocatorListener> listeners;
 
-    public static Locator of(AjNode node, AjPose defaultPose) {
-        return new Locator(node, defaultPose);
+    public static Locator of(Node node) {
+        return new Locator(node);
     }
 
-    public Locator(AjNode node, AjPose defaultPose) {
-        super(node, defaultPose);
+    public Locator(Node node) {
+        super(node);
         this.listeners = ObjectSets.synchronize(new ObjectArraySet<>());
     }
 
-    public boolean requiresUpdate() {
-        return this.listeners.size() > 0;
-    }
+    public void update(AbstractAjHolder holder, Transform transform) {
+        transform.run(holder);
 
-    public void updateListeners(AbstractAjHolder holder, AjPose pose) {
-        this.listeners.forEach(listener -> listener.update(holder, pose));
+        if (this.listeners.size() > 0) {
+            this.listeners.forEach(listener -> listener.update(holder, transform));
+        }
     }
 
     public void addListener(LocatorListener newListener) {
@@ -44,6 +62,6 @@ public class Locator extends AbstractWrapper {
          * Called whenever a locator is updated.
          * This method can be called asynchronously.
          */
-        void update(AbstractAjHolder holder, AjPose pose);
+        void update(AbstractAjHolder holder, Transform transform);
     }
 }

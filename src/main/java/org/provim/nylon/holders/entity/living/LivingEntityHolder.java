@@ -1,12 +1,30 @@
+/*
+ * Nylon
+ * Copyright (C) 2023, 2024 Provim
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 package org.provim.nylon.holders.entity.living;
 
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundSetPassengersPacket;
 import net.minecraft.network.protocol.game.ClientboundUpdateMobEffectPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -20,16 +38,17 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.provim.nylon.api.AjEntity;
+import org.provim.nylon.data.model.nylon.NylonModel;
+import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.elements.CollisionElement;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.wrappers.Bone;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
 import org.provim.nylon.holders.wrappers.Locator;
-import org.provim.nylon.model.AjModel;
-import org.provim.nylon.model.AjPose;
 import org.provim.nylon.util.NylonConstants;
 import org.provim.nylon.util.Utils;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -39,13 +58,15 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected float deathAngle;
     protected float entityScale = 1F;
 
-    public LivingEntityHolder(T parent, AjModel model) {
+    public LivingEntityHolder(T parent, NylonModel model) {
         super(parent, model);
 
         this.hitboxInteraction = InteractionElement.redirect(parent);
+        this.hitboxInteraction.setSendPositionUpdates(false);
         this.addElement(this.hitboxInteraction);
 
         this.collisionElement = CollisionElement.createWithRedirect(parent);
+        this.collisionElement.setSendPositionUpdates(false);
         this.addElement(this.collisionElement);
     }
 
@@ -59,30 +80,28 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     @Override
-    public void updateElement(DisplayWrapper<?> display, @Nullable AjPose pose) {
+    public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
         display.element().setYaw(this.parent.yBodyRot);
-        if (pose == null) {
-            this.applyPose(display.getLastPose(), display);
+        if (transform == null) {
+            this.applyTransform(display.getLastTransform(), display);
         } else {
-            this.applyPose(pose, display);
+            this.applyTransform(transform, display);
         }
     }
 
     @Override
     protected void updateLocator(Locator locator) {
-        if (locator.requiresUpdate()) {
-            AjPose pose = this.animation.findPose(locator);
-            if (pose == null) {
-                locator.updateListeners(this, locator.getLastPose());
-            } else {
-                locator.updateListeners(this, pose);
-            }
+        Transform transform = this.animation.findCurrentTransform(locator);
+        if (transform == null) {
+            locator.update(this, locator.getLastTransform());
+        } else {
+            locator.update(this, transform);
         }
     }
 
     @Override
-    protected void applyPose(AjPose pose, DisplayWrapper<?> display) {
-        Vector3f translation = pose.translation();
+    protected void applyTransform(Transform transform, DisplayWrapper<?> display) {
+        Vector3f translation = transform.translation();
         boolean isHead = display.isHead();
         boolean isDead = this.parent.deathTime > 0;
 
@@ -98,20 +117,19 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
                 bodyRotation.rotateX(Mth.DEG_TO_RAD * Mth.lerp(0.5f, this.parent.xRotO, this.parent.getXRot()));
             }
 
-            display.setLeftRotation(bodyRotation.mul(pose.readOnlyLeftRotation()));
+            display.setLeftRotation(bodyRotation.mul(transform.readOnlyLeftRotation()));
         } else {
-            display.setLeftRotation(pose.readOnlyLeftRotation());
+            display.setLeftRotation(transform.readOnlyLeftRotation());
         }
 
         if (this.entityScale != 1F) {
             translation.mul(this.entityScale);
-            display.setScale(pose.scale().mul(this.entityScale));
+            display.setScale(transform.scale().mul(this.entityScale));
         } else {
-            display.setScale(pose.readOnlyScale());
+            display.setScale(transform.readOnlyScale());
         }
 
-        display.setTranslation(translation.sub(0, this.dimensions.height - 0.01f, 0));
-        display.setRightRotation(pose.readOnlyRightRotation());
+        display.setTranslation(translation.sub(0, this.dimensions.height() - 0.01f, 0));
 
         display.startInterpolation();
     }
@@ -120,12 +138,8 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     protected void startWatchingExtraPackets(ServerGamePacketListenerImpl player, Consumer<Packet<ClientGamePacketListener>> consumer) {
         super.startWatchingExtraPackets(player, consumer);
 
-        for (var packet : Utils.updateClientInteraction(this.hitboxInteraction, this.dimensions)) {
-            consumer.accept(packet);
-        }
-
         if (this.parent.canBreatheUnderwater()) {
-            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false)));
+            consumer.accept(new ClientboundUpdateMobEffectPacket(this.collisionElement.getEntityId(), new MobEffectInstance(MobEffects.WATER_BREATHING, -1, 0, false, false), false));
         }
 
         consumer.accept(new ClientboundSetPassengersPacket(this.parent));
@@ -166,8 +180,8 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     @Override
     protected void updateCullingBox() {
         float scale = this.getScale();
-        float width = scale * (this.dimensions.width * 2);
-        float height = -this.dimensions.height - 1;
+        float width = scale * (this.dimensions.width() * 2);
+        float height = -this.dimensions.height() - 1;
 
         for (Bone bone : this.bones) {
             bone.element().setDisplaySize(width, height);
@@ -179,15 +193,16 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         this.updateEntityScale(this.scale);
         super.onDimensionsUpdated(dimensions);
 
-        this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width, dimensions.height)));
-        this.sendPacket(new ClientboundBundlePacket(Utils.updateClientInteraction(this.hitboxInteraction, dimensions)));
+        this.collisionElement.setSize(Utils.toSlimeSize(Math.min(dimensions.width(), dimensions.height())));
+        this.hitboxInteraction.setSize(dimensions);
     }
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
         super.onSyncedDataUpdated(key, object);
-        if (key.equals(NylonConstants.DATA_EFFECT_COLOR)) {
-            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_COLOR, (int) object);
+        if (key.equals(NylonConstants.DATA_EFFECT_PARTICLES)) {
+            // noinspection unchecked
+            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_PARTICLES, (List<ParticleOptions>) object);
         }
 
         if (key.equals(EntityTrackedData.NAME_VISIBLE)) {
@@ -224,6 +239,6 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
     }
 
     protected void updateEntityScale(float scalar) {
-        this.entityScale = this.parent.getScale() * scalar;
+        this.entityScale = this.parent.getScale() * this.parent.getAgeScale() * scalar;
     }
 }

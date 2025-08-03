@@ -1,5 +1,6 @@
 plugins {
-    id 'fabric-loom' version '1.5-SNAPSHOT'
+    id 'fabric-loom' version '1.10-SNAPSHOT'
+    id 'org.cadixdev.licenser' version '0.6.1'
     id 'maven-publish'
 }
 
@@ -24,6 +25,7 @@ dependencies {
     modImplementation("eu.pb4:polymer-core:${project.polymer_version}")
     modImplementation("eu.pb4:polymer-networking:${project.polymer_version}")
     modImplementation("eu.pb4:polymer-resource-pack:${project.polymer_version}")
+    modImplementation("eu.pb4:polymer-resource-pack-extras:${project.polymer_version}")
     modImplementation("eu.pb4:polymer-virtual-entity:${project.polymer_version}")
     modRuntimeOnly("eu.pb4:polymer-autohost:${project.polymer_version}")
 }
@@ -76,6 +78,10 @@ jar {
         rename { "${it}_${project.archivesBaseName}" }
     }
     from sourceSets.main.output
+}
+
+license {
+    header = project.file('HEADER')
 }
 
 // configure the maven publication
