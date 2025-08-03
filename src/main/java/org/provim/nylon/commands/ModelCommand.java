@@ -127,7 +127,7 @@ public class ModelCommand {
         // Create model commands
         builder.then(Commands.literal("id")
                 .then(Commands.argument("model", ResourceLocationArgument.id())
-                        .suggests(SuggestionProviders.SUMMONABLE_ENTITIES)
+                        .suggests(SuggestionProviders.cast(SuggestionProviders.SUMMONABLE_ENTITIES))
                         .executes(context -> spawnModel(
                                 context.getSource(),
                                 ResourceLocationArgument.getId(context, "model")
