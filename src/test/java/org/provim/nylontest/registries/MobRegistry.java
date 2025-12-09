@@ -24,7 +24,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.level.levelgen.Heightmap;
@@ -38,7 +38,7 @@ public class MobRegistry {
                     .clientTrackingRange(8)
     );
 
-    private static <T extends Entity> EntityType<T> register(ResourceLocation id, EntityType.Builder<T> builder) {
+    private static <T extends Entity> EntityType<T> register(Identifier id, EntityType.Builder<T> builder) {
         var key = ResourceKey.create(Registries.ENTITY_TYPE, id);
         EntityType<T> type = builder.build(key);
         PolymerEntityUtils.registerType(type);

@@ -18,7 +18,7 @@
 
 package org.provim.nylontest.registries;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 
 public class SoundRegistry {
@@ -27,7 +27,7 @@ public class SoundRegistry {
     public static final SoundEvent GOLEM_DEATH = create("golem.death");
 
     private static SoundEvent create(String name) {
-        ResourceLocation identifier = ResourceLocation.fromNamespaceAndPath("animated_java", name);
+        Identifier identifier = Identifier.fromNamespaceAndPath("animated_java", name);
         return SoundEvent.createVariableRangeEvent(identifier);
     }
 

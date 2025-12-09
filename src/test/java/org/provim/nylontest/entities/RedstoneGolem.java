@@ -20,7 +20,7 @@ package org.provim.nylontest.entities;
 
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -34,16 +34,14 @@ import net.minecraft.world.entity.ai.control.MoveControl;
 import net.minecraft.world.entity.ai.goal.*;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
-import net.minecraft.world.entity.animal.IronGolem;
+import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.Monster;
-import net.minecraft.world.entity.npc.AbstractVillager;
+import net.minecraft.world.entity.npc.villager.AbstractVillager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
-import org.jetbrains.annotations.NotNull;
 import org.provim.nylon.api.AjEntity;
 import org.provim.nylon.data.AjLoader;
 import org.provim.nylon.data.model.nylon.NylonModel;
@@ -53,7 +51,7 @@ import org.provim.nylontest.registries.SoundRegistry;
 import org.provim.nylontest.util.AnimationHelper;
 
 public class RedstoneGolem extends Monster implements AjEntity {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath("provim", "redstone_golem");
+    public static final Identifier ID = Identifier.fromNamespaceAndPath("provim", "redstone_golem");
     public static final NylonModel MODEL = AjLoader.require(ID);
     private final EntityHolder<RedstoneGolem> holder;
 
@@ -118,14 +116,6 @@ public class RedstoneGolem extends Monster implements AjEntity {
             AnimationHelper.updateHurtColor(this, this.holder);
         }
     }
-
-    @Override
-    @NotNull
-    protected AABB getAttackBoundingBox() {
-        AABB aABB = super.getAttackBoundingBox();
-        return aABB.inflate(0.5, 0.0, 0.5);
-    }
-
 
     @Override
     protected SoundEvent getAmbientSound() {

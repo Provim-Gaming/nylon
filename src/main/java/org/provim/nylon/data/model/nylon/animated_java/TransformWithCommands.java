@@ -19,6 +19,7 @@
 package org.provim.nylon.data.model.nylon.animated_java;
 
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
@@ -45,7 +46,10 @@ public class TransformWithCommands extends Transform {
 
         Vec3 offsetPos = holder.getTransformOffsetPos(this);
         holder.getServer().execute(() -> {
-            CommandSourceStack source = holder.createCommandSourceStack().withPosition(offsetPos).withPermission(2).withSuppressedOutput();
+            CommandSourceStack source = holder.createCommandSourceStack()
+                    .withPosition(offsetPos)
+                    .withMaximumPermission(LevelBasedPermissionSet.GAMEMASTER)
+                    .withSuppressedOutput();
             if (this.condition == null || Utils.satisfiesCondition(source, this.condition)) {
                 for (ParsedCommand command : this.commands) {
                     command.execute(source.dispatcher(), source);

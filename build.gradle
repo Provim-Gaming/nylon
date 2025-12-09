@@ -1,6 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.11-SNAPSHOT'
-    id 'org.cadixdev.licenser' version '0.6.1'
+    id 'fabric-loom' version '1.14-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -66,7 +65,7 @@ java {
     if (JavaVersion.current() < javaVersion) {
         toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
     }
-    archivesBaseName = project.archives_base_name
+    base.archivesName = project.archives_base_name
     // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
     // if it is present.
     // If you remove this line, sources will not be generated.
@@ -75,13 +74,9 @@ java {
 
 jar {
     from("LICENSE") {
-        rename { "${it}_${project.archivesBaseName}" }
+        rename { "${it}_${project.base.archivesName}" }
     }
     from sourceSets.main.output
-}
-
-license {
-    header = project.file('HEADER')
 }
 
 // configure the maven publication

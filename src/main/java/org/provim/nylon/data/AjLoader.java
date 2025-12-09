@@ -22,7 +22,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.item.Item;
 import org.joml.Quaternionf;
@@ -43,12 +43,12 @@ public class AjLoader {
             // Custom deserializers
             .registerTypeAdapter(Vector3f.class, new Vector3fDeserializer())
             .registerTypeAdapter(Quaternionf.class, new QuaternionfDeserializer())
-            .registerTypeAdapter(ResourceLocation.class, new CodecDeserializer<>(ResourceLocation.CODEC))
+            .registerTypeAdapter(Identifier.class, new CodecDeserializer<>(Identifier.CODEC))
             .registerTypeAdapter(Item.class, new RegistryDeserializer<>(BuiltInRegistries.ITEM))
             .registerTypeAdapter(SoundEvent.class, new RegistryDeserializer<>(BuiltInRegistries.SOUND_EVENT))
             .create();
 
-    public static NylonModel require(ResourceLocation id) throws IllegalArgumentException, JsonParseException {
+    public static NylonModel require(Identifier id) throws IllegalArgumentException, JsonParseException {
         String path = String.format("/ajmodels/%s/%s.json", id.getNamespace(), id.getPath());
         InputStream input = AjLoader.class.getResourceAsStream(path);
         if (input == null) {

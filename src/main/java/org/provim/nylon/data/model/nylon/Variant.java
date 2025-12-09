@@ -21,7 +21,7 @@ package org.provim.nylon.data.model.nylon;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.apache.commons.lang3.Validate;
 
 import java.util.UUID;
@@ -29,12 +29,12 @@ import java.util.UUID;
 @SuppressWarnings("ClassCanBeRecord")
 public class Variant {
     public final String name;
-    public final Object2ObjectOpenHashMap<UUID, ResourceLocation> models;
+    public final Object2ObjectOpenHashMap<UUID, Identifier> models;
     public final ReferenceOpenHashSet<UUID> excludedNodes;
 
     public Variant(
             String name,
-            Object2ObjectOpenHashMap<UUID, ResourceLocation> models,
+            Object2ObjectOpenHashMap<UUID, Identifier> models,
             ReferenceOpenHashSet<UUID> excludedNodes
     ) {
         Validate.notNull(name, "Name cannot be null");

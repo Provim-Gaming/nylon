@@ -18,7 +18,7 @@
 
 package org.provim.nylon.component;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.api.VariantController;
 import org.provim.nylon.data.model.nylon.NylonModel;
@@ -89,7 +89,7 @@ public class VariantComponent extends ComponentBase implements VariantController
     private void applyVariantToBones(Variant variant) {
         for (Bone bone : this.holder.getBones()) {
             UUID uuid = bone.node().uuid;
-            ResourceLocation model = variant.models.get(uuid);
+            Identifier model = variant.models.get(uuid);
             if (model != null && variant.isAffected(uuid)) {
                 bone.updateModelData(model);
             }

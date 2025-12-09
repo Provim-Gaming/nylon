@@ -19,6 +19,7 @@
 package org.provim.nylon.data.model.nylon.animated_java;
 
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
+import net.minecraft.server.permissions.LevelBasedPermissionSet;
 import org.apache.commons.lang3.Validate;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.data.model.nylon.Frame;
@@ -43,7 +44,10 @@ public class FrameWithEffects extends Frame {
             return;
         }
 
-        if (this.variant.condition == null || Utils.satisfiesCondition(holder.createCommandSourceStack().withPermission(2).withSuppressedOutput(), this.variant.condition)) {
+        if (this.variant.condition == null || Utils.satisfiesCondition(holder.createCommandSourceStack()
+                .withMaximumPermission(LevelBasedPermissionSet.GAMEMASTER)
+                .withSuppressedOutput(), this.variant.condition)
+        ) {
             holder.getVariantController().setVariant(this.variant.uuid);
         }
     }

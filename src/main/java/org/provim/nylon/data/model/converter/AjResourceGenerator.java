@@ -21,7 +21,7 @@ package org.provim.nylon.data.model.converter;
 import eu.pb4.polymer.resourcepack.api.AssetPaths;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.ItemAsset;
 import eu.pb4.polymer.resourcepack.extras.api.format.item.model.BasicItemModel;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.provim.nylon.data.model.animated_java.AjModel;
 import org.provim.nylon.data.model.animated_java.AjNode;
 import org.provim.nylon.data.model.animated_java.AjTexture;
@@ -44,7 +44,7 @@ public class AjResourceGenerator {
                 AjNode node = ajModel.nodes().get(nodeUuid);
 
                 String modelPath;
-                ResourceLocation modelId;
+                Identifier modelId;
                 if (variant.isDefault()) {
                     modelPath = defaultModelPath(namespace, node.name());
                     modelId = AjModelConverter.defaultModelId(namespace, node.name());

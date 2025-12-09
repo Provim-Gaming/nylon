@@ -30,10 +30,10 @@ import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.EntityArgument;
-import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.arguments.IdentifierArgument;
 import net.minecraft.commands.synchronization.SuggestionProviders;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec2;
@@ -58,7 +58,7 @@ public class ModelCommand {
     private static final String ANIMATION = "animation";
 
     public static ArgumentBuilder<CommandSourceStack, ?> register() {
-        var builder = Commands.literal("model").requires(source -> source.hasPermission(2));
+        var builder = Commands.literal("model").requires(Commands.hasPermission(Commands.LEVEL_GAMEMASTERS));
 
         // Create model commands
         builder.then(modelCreator());
@@ -91,7 +91,7 @@ public class ModelCommand {
         return count;
     }
 
-    private static int spawnModel(CommandSourceStack source, ResourceLocation id) throws CommandSyntaxException {
+    private static int spawnModel(CommandSourceStack source, Identifier id) throws CommandSyntaxException {
         return spawnModel(source, () -> AjLoader.require(id), id.toString());
     }
 
@@ -126,11 +126,11 @@ public class ModelCommand {
 
         // Create model commands
         builder.then(Commands.literal("id")
-                .then(Commands.argument("model", ResourceLocationArgument.id())
+                .then(Commands.argument("model", IdentifierArgument.id())
                         .suggests(SuggestionProviders.cast(SuggestionProviders.SUMMONABLE_ENTITIES))
                         .executes(context -> spawnModel(
                                 context.getSource(),
-                                ResourceLocationArgument.getId(context, "model")
+                                IdentifierArgument.getId(context, "model")
                         ))
                 )
         );

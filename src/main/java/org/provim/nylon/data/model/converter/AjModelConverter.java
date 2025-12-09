@@ -21,7 +21,7 @@ package org.provim.nylon.data.model.converter;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -69,7 +69,7 @@ public class AjModelConverter {
     }
 
     private static Variant convert(AjVariant ajVariant, AjModel ajModel) {
-        Object2ObjectOpenHashMap<UUID, ResourceLocation> models = new Object2ObjectOpenHashMap<>();
+        Object2ObjectOpenHashMap<UUID, Identifier> models = new Object2ObjectOpenHashMap<>();
         ajVariant.models().forEach((uuid, modelJson) -> {
             String namespace = ajModel.settings().exportNamespace();
             AjNode node = ajModel.nodes().get(uuid);
@@ -85,7 +85,7 @@ public class AjModelConverter {
 
     private static Node convert(AjNode ajNode, AjModel ajModel) {
         Node.NodeType type = Node.NodeType.valueOf(ajNode.type().toUpperCase(Locale.ENGLISH));
-        ResourceLocation modelId = defaultModelId(ajModel.settings().exportNamespace(), ajNode.name());
+        Identifier modelId = defaultModelId(ajModel.settings().exportNamespace(), ajNode.name());
         return new Node(
                 type,
                 ajNode.name(),
@@ -160,11 +160,11 @@ public class AjModelConverter {
         );
     }
 
-    public static ResourceLocation defaultModelId(String namespace, String nodeName) {
-        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s".formatted(namespace, nodeName));
+    public static Identifier defaultModelId(String namespace, String nodeName) {
+        return Identifier.parse(BASE_MODEL_ID + "%s/%s".formatted(namespace, nodeName));
     }
 
-    public static ResourceLocation modelId(String namespace, String nodeName, String variantName) {
-        return ResourceLocation.parse(BASE_MODEL_ID + "%s/%s/%s".formatted(namespace, variantName, nodeName));
+    public static Identifier modelId(String namespace, String nodeName, String variantName) {
+        return Identifier.parse(BASE_MODEL_ID + "%s/%s/%s".formatted(namespace, variantName, nodeName));
     }
 }
