@@ -72,6 +72,10 @@ java {
     withSourcesJar()
 }
 
+test {
+    failOnNoDiscoveredTests.set(false)
+}
+
 jar {
     from("LICENSE") {
         rename { "${it}_${project.base.archivesName}" }
