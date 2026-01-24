@@ -6,6 +6,7 @@
   "mixins": [
     "accessors.LivingEntityAccessor",
     "accessors.ServerCommonPacketListenerImplAccessor",
+    "accessors.SlimeAccessor",
     "async.ChunkMapMixin",
     "async.MinecraftServerMixin",
     "packets.ClientboundAnimatePacketMixin",

@@ -20,10 +20,10 @@ package org.provim.nylon.elements;
 
 import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
 import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
-import eu.pb4.polymer.virtualentity.mixin.SlimeEntityAccessor;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import org.provim.nylon.mixins.accessors.SlimeAccessor;
 
 public class CollisionElement extends GenericEntityElement {
     private InteractionHandler handler = InteractionHandler.EMPTY;
@@ -54,10 +54,10 @@ public class CollisionElement extends GenericEntityElement {
     }
 
     public int getSize() {
-        return this.dataTracker.get(SlimeEntityAccessor.getSLIME_SIZE());
+        return this.dataTracker.get(SlimeAccessor.getID_SIZE());
     }
 
     public void setSize(int size) {
-        this.dataTracker.set(SlimeEntityAccessor.getSLIME_SIZE(), size);
+        this.dataTracker.set(SlimeAccessor.getID_SIZE(), size);
     }
 }
