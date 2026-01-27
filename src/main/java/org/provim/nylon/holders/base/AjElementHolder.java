@@ -25,10 +25,13 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import org.jetbrains.annotations.Nullable;
 import org.provim.nylon.util.IChunkMap;
 import org.provim.nylon.util.Utils;
+
+import java.util.function.Predicate;
 
 /**
  * Base class for all AJ holders that handles Polymer's ElementHolder specific logic.
@@ -104,6 +107,19 @@ public abstract class AjElementHolder extends ElementHolder {
         } else {
             for (ServerGamePacketListenerImpl conn : this.watchingPlayers) {
                 if (conn != null) {
+                    Utils.sendPacketNoFlush(conn, packet);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void sendPacket(Packet<? extends ClientGamePacketListener> packet, Predicate<ServerPlayer> predicate) {
+        if (this.getServer().isSameThread()) {
+            super.sendPacket(packet, predicate);
+        } else {
+            for (ServerGamePacketListenerImpl conn : this.watchingPlayers) {
+                if (conn != null && predicate.test(conn.getPlayer())) {
                     Utils.sendPacketNoFlush(conn, packet);
                 }
             }
