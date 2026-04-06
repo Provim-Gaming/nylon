@@ -21,16 +21,14 @@ package org.provim.nylon.util;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
 import eu.pb4.polymer.core.impl.networking.PacketPatcher;
-import eu.pb4.polymer.networking.api.util.ServerDynamicPacket;
+import io.netty.channel.ChannelFutureListener;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.Connection;
-import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.server.network.ServerCommonPacketListenerImpl;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.util.Mth;
@@ -62,24 +60,24 @@ public class Utils {
     }
 
     /**
-     * Vanilla + Polymer copy of {@link ServerCommonPacketListenerImpl#send(Packet, PacketSendListener)} but without flushing the connection.
+     * Vanilla + Polymer copy of {@link ServerCommonPacketListenerImpl#send(Packet, ChannelFutureListener)}} but without flushing the connection.
      * <p>
      * Nylon will often have to send a ton of separate packets from a different thread.
      * Even though we always make sure to start and finish this process before player connection flushing gets resumed at the end of the game tick,
      * the normal send method will still flush the connection for every packet, causing a significant downgrade in network performance and ping.
      */
-    public static void sendPacketNoFlush(ServerCommonPacketListenerImpl networkHandler, Packet<? extends ClientGamePacketListener> packet) {
-        Packet<?> modifiedPacket = PacketPatcher.replace(networkHandler, packet);
-        if (modifiedPacket instanceof ServerDynamicPacket || PacketPatcher.prevent(networkHandler, modifiedPacket)) {
+    public static void sendPacketNoFlush(ServerCommonPacketListenerImpl networkHandler, Packet<?> original) {
+        Packet<?> packet = PacketPatcher.replace(networkHandler, original);
+        if (PacketPatcher.prevent(networkHandler, packet)) {
             return;
         }
 
         try {
-            Utils.getConnection(networkHandler).send(modifiedPacket, null, false);
+            Utils.getConnection(networkHandler).send(packet, null, false);
         } catch (Throwable throwable) {
             CrashReport report = CrashReport.forThrowable(throwable, "Sending packet");
             CrashReportCategory category = report.addCategory("Packet being sent");
-            category.setDetail("Packet class", () -> modifiedPacket.getClass().getCanonicalName());
+            category.setDetail("Packet class", () -> packet.getClass().getCanonicalName());
             throw new ReportedException(report);
         }
 

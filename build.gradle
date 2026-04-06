@@ -1,5 +1,5 @@
 plugins {
-    id 'fabric-loom' version '1.14-SNAPSHOT'
+    id 'net.fabricmc.fabric-loom' version '1.15-SNAPSHOT'
     id 'maven-publish'
 }
 
@@ -14,19 +14,18 @@ repositories {
 dependencies {
     // To change the versions see the gradle.properties file
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    mappings loom.officialMojangMappings()
-    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
-    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
     // Polymer
-    modImplementation("eu.pb4:polymer-core:${project.polymer_version}")
-    modImplementation("eu.pb4:polymer-networking:${project.polymer_version}")
-    modImplementation("eu.pb4:polymer-resource-pack:${project.polymer_version}")
-    modImplementation("eu.pb4:polymer-resource-pack-extras:${project.polymer_version}")
-    modImplementation("eu.pb4:polymer-virtual-entity:${project.polymer_version}")
-    modRuntimeOnly("eu.pb4:polymer-autohost:${project.polymer_version}")
+    implementation("eu.pb4:polymer-core:${project.polymer_version}")
+    implementation("eu.pb4:polymer-networking:${project.polymer_version}")
+    implementation("eu.pb4:polymer-resource-pack:${project.polymer_version}")
+    implementation("eu.pb4:polymer-resource-pack-extras:${project.polymer_version}")
+    implementation("eu.pb4:polymer-virtual-entity:${project.polymer_version}")
+    runtimeOnly("eu.pb4:polymer-autohost:${project.polymer_version}")
 }
 
 processResources {
@@ -48,7 +47,7 @@ loom {
     }
 }
 
-def targetJavaVersion = 17
+def targetJavaVersion = 25
 tasks.withType(JavaCompile).configureEach {
     // ensure that the encoding is set to UTF-8, no matter what the system default is
     // this fixes some edge cases with special characters not displaying correctly

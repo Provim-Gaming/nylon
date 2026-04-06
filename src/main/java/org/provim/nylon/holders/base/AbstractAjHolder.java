@@ -24,7 +24,6 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
@@ -111,9 +110,7 @@ public abstract class AbstractAjHolder extends AjElementHolder implements AjHold
 
         ItemStack stack = new ItemStack(rigItem);
         stack.set(DataComponents.ITEM_MODEL, node.model);
-        if (stack.is(ItemTags.DYEABLE)) {
-            stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1));
-        }
+        stack.set(DataComponents.DYED_COLOR, new DyedItemColor(-1));
 
         element.setItem(stack);
         return element;

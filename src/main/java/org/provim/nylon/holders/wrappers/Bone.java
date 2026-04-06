@@ -18,11 +18,10 @@
 
 package org.provim.nylon.holders.wrappers;
 
+import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.DyedItemColor;
 import org.provim.nylon.data.model.nylon.Node;
@@ -58,10 +57,6 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     public void updateColor(int color) {
-        if (!this.item.is(ItemTags.DYEABLE)) {
-            return;
-        }
-
         this.item.set(DataComponents.DYED_COLOR, new DyedItemColor(color));
         if (!this.invisible) {
             this.setTrackedItem(this.item);
@@ -77,6 +72,6 @@ public class Bone extends DisplayWrapper<ItemDisplayElement> {
     }
 
     private void setTrackedItem(ItemStack item) {
-        this.element().getDataTracker().set(DisplayTrackedData.Item.ITEM, item, true);
+        this.element().getSyncedData().set(DisplayEntityData.Item.ITEM, item, true);
     }
 }

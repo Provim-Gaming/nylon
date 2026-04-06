@@ -18,8 +18,8 @@
 
 package org.provim.nylon.holders.wrappers;
 
+import eu.pb4.polymer.virtualentity.api.data.DisplayEntityData;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.DisplayTrackedData;
 import org.joml.Quaternionf;
 import org.joml.Quaternionfc;
 import org.joml.Vector3f;
@@ -62,25 +62,25 @@ public class DisplayWrapper<T extends DisplayElement> extends AbstractWrapper {
 
     public void setScale(Vector3fc scale) {
         if (this.trackedData.updateScale(scale)) {
-            this.element.getDataTracker().set(DisplayTrackedData.SCALE, this.getScale(), true);
+            this.element.getSyncedData().set(DisplayEntityData.SCALE, this.getScale(), true);
         }
     }
 
     public void setTranslation(Vector3fc translation) {
         if (this.trackedData.updateTranslation(translation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.TRANSLATION, this.getTranslation(), true);
+            this.element.getSyncedData().set(DisplayEntityData.TRANSLATION, this.getTranslation(), true);
         }
     }
 
     public void setRightRotation(Quaternionfc rightRotation) {
         if (this.trackedData.updateRightRotation(rightRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.RIGHT_ROTATION, this.getRightRotation(), true);
+            this.element.getSyncedData().set(DisplayEntityData.RIGHT_ROTATION, this.getRightRotation(), true);
         }
     }
 
     public void setLeftRotation(Quaternionfc leftRotation) {
         if (this.trackedData.updateLeftRotation(leftRotation)) {
-            this.element.getDataTracker().set(DisplayTrackedData.LEFT_ROTATION, this.getLeftRotation(), true);
+            this.element.getSyncedData().set(DisplayEntityData.LEFT_ROTATION, this.getLeftRotation(), true);
         }
     }
 

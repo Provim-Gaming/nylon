@@ -19,9 +19,9 @@
 package org.provim.nylon.holders.entity;
 
 import eu.pb4.polymer.virtualentity.api.VirtualEntityUtils;
+import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import eu.pb4.polymer.virtualentity.api.elements.DisplayElement;
 import eu.pb4.polymer.virtualentity.api.elements.ItemDisplayElement;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -105,8 +105,8 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
         IntList passengers = new IntArrayList();
         this.addDirectPassengers(passengers);
 
-        if (passengers.size() > 0) {
-            consumer.accept(VirtualEntityUtils.createRidePacket(this.parent.getId(), passengers));
+        if (!passengers.isEmpty()) {
+            consumer.accept(VirtualEntityUtils.createClientboundSetPassengersPacket(this.parent.getId(), passengers));
         }
     }
 
@@ -163,11 +163,11 @@ public abstract class EntityHolder<T extends Entity & AjEntity> extends Abstract
 
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key, Object object) {
-        if (key.equals(EntityTrackedData.FLAGS)) {
+        if (key.equals(EntityData.FLAGS)) {
             byte value = (byte) object;
-            this.updateOnFire(Utils.getSharedFlag(value, EntityTrackedData.ON_FIRE_FLAG_INDEX));
-            this.updateGlowing(Utils.getSharedFlag(value, EntityTrackedData.GLOWING_FLAG_INDEX));
-            this.updateInvisibility(Utils.getSharedFlag(value, EntityTrackedData.INVISIBLE_FLAG_INDEX));
+            this.updateOnFire(Utils.getSharedFlag(value, EntityData.ON_FIRE_FLAG_INDEX));
+            this.updateGlowing(Utils.getSharedFlag(value, EntityData.GLOWING_FLAG_INDEX));
+            this.updateInvisibility(Utils.getSharedFlag(value, EntityData.INVISIBLE_FLAG_INDEX));
         }
     }
 

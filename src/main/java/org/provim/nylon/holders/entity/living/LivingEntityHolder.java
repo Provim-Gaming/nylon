@@ -18,8 +18,8 @@
 
 package org.provim.nylon.holders.entity.living;
 
+import eu.pb4.polymer.virtualentity.api.data.EntityData;
 import eu.pb4.polymer.virtualentity.api.elements.InteractionElement;
-import eu.pb4.polymer.virtualentity.api.tracker.EntityTrackedData;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -202,16 +202,16 @@ public class LivingEntityHolder<T extends LivingEntity & AjEntity> extends Entit
         super.onSyncedDataUpdated(key, object);
         if (key.equals(NylonConstants.DATA_EFFECT_PARTICLES)) {
             // noinspection unchecked
-            this.collisionElement.getDataTracker().set(NylonConstants.DATA_EFFECT_PARTICLES, (List<ParticleOptions>) object);
+            this.collisionElement.getSyncedData().set(NylonConstants.DATA_EFFECT_PARTICLES, (List<ParticleOptions>) object);
         }
 
-        if (key.equals(EntityTrackedData.NAME_VISIBLE)) {
+        if (key.equals(EntityData.NAME_VISIBLE)) {
             this.hitboxInteraction.setCustomNameVisible((boolean) object);
         }
 
-        if (key.equals(EntityTrackedData.CUSTOM_NAME)) {
+        if (key.equals(EntityData.CUSTOM_NAME)) {
             // noinspection unchecked
-            this.hitboxInteraction.getDataTracker().set(EntityTrackedData.CUSTOM_NAME, (Optional<Component>) object);
+            this.hitboxInteraction.getSyncedData().set(EntityData.CUSTOM_NAME, (Optional<Component>) object);
         }
     }
 

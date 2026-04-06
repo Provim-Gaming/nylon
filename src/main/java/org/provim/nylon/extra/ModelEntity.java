@@ -19,7 +19,8 @@
 package org.provim.nylon.extra;
 
 import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
-import eu.pb4.polymer.virtualentity.api.tracker.InteractionTrackedData;
+import eu.pb4.polymer.virtualentity.api.data.InteractionEntityData;
+import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
@@ -34,7 +35,6 @@ import org.provim.nylon.data.model.nylon.Transform;
 import org.provim.nylon.holders.entity.EntityHolder;
 import org.provim.nylon.holders.entity.simple.SimpleEntityHolder;
 import org.provim.nylon.holders.wrappers.DisplayWrapper;
-import xyz.nucleoid.packettweaker.PacketContext;
 
 import java.util.List;
 
@@ -82,7 +82,7 @@ public class ModelEntity extends Interaction implements AjEntity {
 
     @Override
     public void modifyRawTrackedData(List<SynchedEntityData.DataValue<?>> data, ServerPlayer player, boolean initial) {
-        data.add(SynchedEntityData.DataValue.create(InteractionTrackedData.HEIGHT, 2f));
-        data.add(SynchedEntityData.DataValue.create(InteractionTrackedData.WIDTH, 2f));
+        data.add(SynchedEntityData.DataValue.create(InteractionEntityData.HEIGHT, 2f));
+        data.add(SynchedEntityData.DataValue.create(InteractionEntityData.WIDTH, 2f));
     }
 }
