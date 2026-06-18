@@ -23,7 +23,8 @@ import eu.pb4.polymer.virtualentity.api.elements.GenericEntityElement;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import org.provim.nylon.mixins.accessors.SlimeAccessor;
+import net.minecraft.world.entity.EntityTypes;
+import org.provim.nylon.mixins.accessors.AbstractCubeMobAccessor;
 
 public class CollisionElement extends GenericEntityElement {
     private InteractionHandler handler = InteractionHandler.EMPTY;
@@ -50,14 +51,14 @@ public class CollisionElement extends GenericEntityElement {
 
     @Override
     protected final EntityType<? extends Entity> getEntityType() {
-        return EntityType.SLIME;
+        return EntityTypes.SLIME;
     }
 
     public int getSize() {
-        return this.syncedData.get(SlimeAccessor.getID_SIZE());
+        return this.syncedData.get(AbstractCubeMobAccessor.getID_SIZE());
     }
 
     public void setSize(int size) {
-        this.syncedData.set(SlimeAccessor.getID_SIZE(), size);
+        this.syncedData.set(AbstractCubeMobAccessor.getID_SIZE(), size);
     }
 }

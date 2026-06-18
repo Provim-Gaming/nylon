@@ -24,6 +24,7 @@ import net.fabricmc.fabric.api.networking.v1.context.PacketContext;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.Interaction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -42,7 +43,7 @@ public class ModelEntity extends Interaction implements AjEntity {
     private final EntityHolder<?> holder;
 
     public ModelEntity(Level level, NylonModel model) {
-        super(EntityType.INTERACTION, level);
+        super(EntityTypes.INTERACTION, level);
         this.holder = new SimpleEntityHolder<>(this, model) {
             @Override
             public void updateElement(DisplayWrapper<?> display, @Nullable Transform transform) {
@@ -77,7 +78,7 @@ public class ModelEntity extends Interaction implements AjEntity {
 
     @Override
     public EntityType<?> getPolymerEntityType(PacketContext packetContext) {
-        return EntityType.INTERACTION;
+        return EntityTypes.INTERACTION;
     }
 
     @Override

@@ -19,7 +19,6 @@
 package org.provim.nylontest.util;
 
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.FlyingAnimal;
 import org.provim.nylon.api.AjHolder;
 import org.provim.nylon.api.Animator;
 
@@ -30,7 +29,7 @@ public class AnimationHelper {
     }
 
     public static void updateWalkAnimation(LivingEntity entity, AjHolder holder, int priority) {
-        entity.calculateEntityAnimation(entity instanceof FlyingAnimal);
+        entity.calculateEntityAnimation(false);
 
         Animator animator = holder.getAnimator();
         if (entity.walkAnimation.isMoving() && entity.walkAnimation.speed() > 0.02) {
