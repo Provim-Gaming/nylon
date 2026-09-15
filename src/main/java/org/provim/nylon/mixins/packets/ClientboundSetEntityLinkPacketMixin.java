@@ -39,8 +39,8 @@ public class ClientboundSetEntityLinkPacketMixin {
     private int sourceId;
 
     @Inject(method = "<init>(Lnet/minecraft/world/entity/Entity;Lnet/minecraft/world/entity/Entity;)V", at = @At("RETURN"))
-    private void nylon$modifyLeashPacket(Entity leashed, @Nullable Entity leashHolder, CallbackInfo ci) {
-        AjEntityHolder holder = AjEntity.getHolder(leashed);
+    private void nylon$modifyLeashPacket(Entity sourceEntity, @Nullable Entity destEntity, CallbackInfo ci) {
+        AjEntityHolder holder = AjEntity.getHolder(sourceEntity);
         if (holder != null) {
             this.sourceId = holder.getLeashedId();
         }

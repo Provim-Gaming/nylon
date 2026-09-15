@@ -21,7 +21,7 @@ package org.provim.nylon.holders.positioned;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.permissions.LevelBasedPermissionSet;
+import net.minecraft.server.permissions.PermissionSet;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import org.provim.nylon.data.model.nylon.NylonModel;
@@ -43,11 +43,9 @@ public class PositionedHolder extends AbstractAjHolder {
                 this.pos,
                 Vec2.ZERO,
                 this.level,
-                LevelBasedPermissionSet.ALL,
-                name,
+                PermissionSet.ALL_PERMISSIONS,
                 Component.literal(name),
-                this.getServer(),
-                null
+                this.getServer()
         );
     }
 }

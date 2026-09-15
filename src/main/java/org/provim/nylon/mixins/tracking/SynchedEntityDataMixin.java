@@ -44,10 +44,10 @@ public class SynchedEntityDataMixin {
                     shift = At.Shift.AFTER
             )
     )
-    private <T> void nylon$onSetEntityData(EntityDataAccessor<T> key, T value, boolean force, CallbackInfo ci) {
+    private <T> void nylon$onSetEntityData(EntityDataAccessor<T> accessor, T value, boolean forceDirty, CallbackInfo ci) {
         AjEntityHolder holder = AjEntity.getHolder(this.entity);
         if (holder != null) {
-            holder.onSyncedDataUpdated(key, value);
+            holder.onSyncedDataUpdated(accessor, value);
         }
     }
 }
